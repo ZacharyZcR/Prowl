@@ -1,0 +1,69 @@
+# Dependencies
+node_modules/
+vendor/
+
+# Build
+build/
+docs-site/.vitepress/dist/
+docs-site/.vitepress/cache/
+*.exe
+*.dll
+*.so
+*.dylib
+
+# Go
+backend/tmp/
+backend/server
+backend/bin/
+backend/uploads/
+cli/bin/
+
+# Frontend
+frontend/dist/
+desktop/dist/
+*.tsbuildinfo
+vite.config.js
+vite.config.d.ts
+
+# Desktop
+desktop/src-tauri/target/
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Docker
+docker/*.env
+
+# Logs
+*.log
+
+# Test
+coverage/
+*.cover
+*.out
+
+# Backups
+backups/
+
+# CI artifacts
+cli/dist/
+cli/stc
+cli/prowl
+demo/dist/
+demo/node_modules/
+docs/screenshots/node_modules/
+docs/screenshots/package.json
+docs/screenshots/package-lock.json

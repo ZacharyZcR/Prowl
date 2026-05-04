@@ -1,0 +1,34 @@
+services:
+  backend:
+    build:
+      context: ../backend
+      dockerfile: Dockerfile
+      target: dev
+    ports: ["38080:38080"]
+    volumes:
+      - ../backend:/app
+    environment:
+      DATABASE_URL: postgres://stc:stc_secret@postgres:5432/stc?sslmode=disable
+      REDIS_URL: redis:6379
+      LISTEN_ADDR: ":38080"
+      JWT_SECRET: dev-jwt-secret-change-in-production
+      GIN_MODE: debug
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  frontend:
+    build:
+      context: ../frontend
+      dockerfile: Dockerfile
+      target: dev
+    ports: ["35173:35173"]
+    volumes:
+      - ../frontend:/app
+      - /app/node_modules
+    environment:
+      VITE_API_URL: http://localhost:38080
+    depends_on:
+      - backend

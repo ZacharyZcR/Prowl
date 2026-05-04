@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, "Segoe UI", Roboto, sans-serif; background: #08080d; color: #e4e4e8; }
+
+.hero-card {
+  width: 2400px; height: 1260px;
+  display: grid; grid-template-columns: 1fr 1.4fr; overflow: hidden;
+}
+
+.hero-left {
+  padding: 100px 80px;
+  display: flex; flex-direction: column; justify-content: center;
+  background: linear-gradient(135deg, #0d0d15 0%, #12121a 100%);
+}
+
+.hero-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 16px; font-weight: 600;
+  padding: 6px 18px; border-radius: 20px;
+  width: fit-content; margin-bottom: 32px;
+}
+.hero-badge--ctf { background: rgba(59,130,246,0.15); color: #60a5fa; border: 1px solid rgba(59,130,246,0.3); }
+.hero-badge--awd { background: rgba(239,68,68,0.15); color: #f87171; border: 1px solid rgba(239,68,68,0.3); }
+.hero-badge--redblue { background: rgba(168,85,247,0.15); color: #c084fc; border: 1px solid rgba(168,85,247,0.3); }
+.hero-badge--admin { background: rgba(34,197,94,0.15); color: #4ade80; border: 1px solid rgba(34,197,94,0.3); }
+
+.hero-title {
+  font-size: 56px; font-weight: 900; letter-spacing: -0.03em;
+  line-height: 1.15; margin-bottom: 20px;
+}
+
+.hero-desc {
+  font-size: 20px; color: #9ca3af; line-height: 1.6; margin-bottom: 40px;
+  max-width: 500px;
+}
+
+.hero-features {
+  display: flex; flex-direction: column; gap: 14px;
+}
+.hero-feature {
+  display: flex; align-items: center; gap: 12px;
+  font-size: 17px; color: #d1d5db;
+}
+.hero-dot {
+  width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+}
+.hero-dot--blue { background: #3b82f6; }
+.hero-dot--green { background: #22c55e; }
+.hero-dot--yellow { background: #f59e0b; }
+.hero-dot--purple { background: #a855f7; }
+.hero-dot--red { background: #ef4444; }
+
+.hero-right {
+  display: flex; align-items: center; justify-content: center;
+  padding: 60px;
+  background: radial-gradient(ellipse at 30% 50%, rgba(99,102,241,0.08) 0%, transparent 60%);
+}
+
+.hero-screenshot {
+  width: 100%; height: 100%;
+  object-fit: contain;
+  border-radius: 16px;
+  box-shadow: 0 25px 80px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.05);
+}
+
+.hero-watermark {
+  position: absolute; bottom: 40px; right: 60px;
+  font-size: 14px; letter-spacing: 0.3em; color: rgba(255,255,255,0.08);
+  font-weight: 700; text-transform: uppercase;
+}
+</style>
+</head>
+<body>
+
+<!-- Hero 1: CTF 模式 -->
+<div class="hero-card" id="hero-ctf">
+  <div class="hero-left">
+    <div class="hero-badge hero-badge--ctf">● CTF Jeopardy</div>
+    <div class="hero-title">经典解题赛</div>
+    <div class="hero-desc">
+      动态容器一人一环境，指数衰减让难题更值钱，First Blood 额外加分。
+    </div>
+    <div class="hero-features">
+      <div class="hero-feature"><span class="hero-dot hero-dot--blue"></span>动态容器 · 独立环境</div>
+      <div class="hero-feature"><span class="hero-dot hero-dot--green"></span>指数衰减计分</div>
+      <div class="hero-feature"><span class="hero-dot hero-dot--yellow"></span>Hint 解锁 · Writeup 提交</div>
+      <div class="hero-feature"><span class="hero-dot hero-dot--purple"></span>实时计分板 · CSV 导出</div>
+    </div>
+  </div>
+  <div class="hero-right" style="position:relative;">
+    <img class="hero-screenshot" src="ctf-scoreboard.png" onerror="this.style.display='none'" />
+    <div class="hero-watermark">PROWL RANGE</div>
+  </div>
+</div>
+
+<!-- Hero 2: AWD 模式 -->
+<div class="hero-card" id="hero-awd" style="margin-top:40px;">
+  <div class="hero-left">
+    <div class="hero-badge hero-badge--awd">● AWD 攻防</div>
+    <div class="hero-title">实时攻防对抗</div>
+    <div class="hero-desc">
+      每队独立容器，自动轮次检测服务可用性，零和计分让攻击和防御同等重要。
+    </div>
+    <div class="hero-features">
+      <div class="hero-feature"><span class="hero-dot hero-dot--red"></span>自动轮次 · Checker 检测</div>
+      <div class="hero-feature"><span class="hero-dot hero-dot--green"></span>零和计分 · Flag 注入</div>
+      <div class="hero-feature"><span class="hero-dot hero-dot--blue"></span>SSH 容器访问</div>
+      <div class="hero-feature"><span class="hero-dot hero-dot--yellow"></span>付费重启 · 轮次回放</div>
+    </div>
+  </div>
+  <div class="hero-right" style="position:relative;">
+    <img class="hero-screenshot" src="awd-services.png" onerror="this.style.display='none'" />
+    <div class="hero-watermark">PROWL RANGE</div>
+  </div>
+</div>
+
+<!-- Hero 3: 红蓝演习 -->
+<div class="hero-card" id="hero-redblue" style="margin-top:40px;">
+  <div class="hero-left">
+    <div class="hero-badge hero-badge--redblue">● 红蓝演习</div>
+    <div class="hero-title">攻防演练全流程</div>
+    <div class="hero-desc">
+      目标资产派发、红蓝双方提交报告、裁判面板评分、ATT&CK 技术热图、阶段推进。
+    </div>
+    <div class="hero-features">
+      <div class="hero-feature"><span class="hero-dot hero-dot--red"></span>攻击报告 · 防御报告</div>
+      <div class="hero-feature"><span class="hero-dot hero-dot--blue"></span>裁判面板 · 实时评分</div>
+      <div class="hero-feature"><span class="hero-dot hero-dot--purple"></span>ATT&CK 技术映射</div>
+      <div class="hero-feature"><span class="hero-dot hero-dot--green"></span>目标批量导入 · 自动派发</div>
+    </div>
+  </div>
+  <div class="hero-right" style="position:relative;">
+    <img class="hero-screenshot" src="redblue-objectives.png" onerror="this.style.display='none'" />
+    <div class="hero-watermark">PROWL RANGE</div>
+  </div>
+</div>
+
+<!-- Hero 4: 管理后台 -->
+<div class="hero-card" id="hero-admin" style="margin-top:40px;">
+  <div class="hero-left">
+    <div class="hero-badge hero-badge--admin">● 管理后台</div>
+    <div class="hero-title">一站式靶场管理</div>
+    <div class="hero-desc">
+      仪表盘总览运营态势，出题、创建比赛、用户管理、容器管理、系统监控一站搞定。
+    </div>
+    <div class="hero-features">
+      <div class="hero-feature"><span class="hero-dot hero-dot--green"></span>运营仪表盘</div>
+      <div class="hero-feature"><span class="hero-dot hero-dot--blue"></span>题目 · 比赛 · 战队管理</div>
+      <div class="hero-feature"><span class="hero-dot hero-dot--yellow"></span>Docker 容器管理</div>
+      <div class="hero-feature"><span class="hero-dot hero-dot--purple"></span>RBAC · 系统日志 · Webhook</div>
+    </div>
+  </div>
+  <div class="hero-right" style="position:relative;">
+    <img class="hero-screenshot" src="admin-dashboard.png" onerror="this.style.display='none'" />
+    <div class="hero-watermark">PROWL RANGE</div>
+  </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,74 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    ports: ["35432:5432"]
+    environment:
+      POSTGRES_USER: prowl
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-prowl_secret}
+      POSTGRES_DB: prowl
+    volumes: [prowl_pgdata:/var/lib/postgresql/data]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U prowl"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    ports: ["36379:6379"]
+    volumes: [prowl_redis:/data]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+    restart: unless-stopped
+
+  backend:
+    build:
+      context: ./backend
+      args:
+        VERSION: ${VERSION:-dev}
+        GIT_COMMIT: ${GIT_COMMIT:-unknown}
+    ports: ["38080:38080"]
+    environment:
+      DATABASE_URL: postgres://prowl:${DB_PASSWORD:-prowl_secret}@postgres:5432/prowl?sslmode=disable
+      REDIS_URL: redis:6379
+      LISTEN_ADDR: ":38080"
+      JWT_SECRET: ${JWT_SECRET:-change-me-in-production}
+      GIN_MODE: ${GIN_MODE:-release}
+      DB_MIGRATION_MODE: ${DB_MIGRATION_MODE:-auto}
+      UPLOAD_DIR: /data/uploads
+    volumes:
+      - prowl_uploads:/data/uploads
+      - /var/run/docker.sock:/var/run/docker.sock
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+
+  admin:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+    ports: ["3080:80"]
+    depends_on: [backend]
+    restart: unless-stopped
+
+  portal:
+    build:
+      context: .
+      dockerfile: portal/Dockerfile
+    ports: ["3000:80"]
+    depends_on: [backend]
+    restart: unless-stopped
+
+volumes:
+  prowl_pgdata:
+  prowl_redis:
+  prowl_uploads:
+
+networks:
+  default:
+    name: prowl-network

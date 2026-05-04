@@ -1,0 +1,21 @@
+:root {
+  --yza-surface-canvas: var(--yza-theme-light-surface-canvas);
+  --yza-surface-subtle: var(--yza-theme-light-surface-subtle);
+  --yza-surface-elevated: var(--yza-theme-light-surface-elevated);
+  --yza-text-primary: var(--yza-theme-light-text-primary);
+  --yza-text-secondary: var(--yza-theme-light-text-secondary);
+  --yza-text-muted: var(--yza-theme-light-text-muted);
+  --yza-border-default: var(--yza-theme-light-border-default);
+  --yza-border-subtle: var(--yza-theme-light-border-subtle);
+}
+
+[data-theme="dark"] {
+  --yza-surface-canvas: var(--yza-theme-dark-surface-canvas);
+  --yza-surface-subtle: var(--yza-theme-dark-surface-subtle);
+  --yza-surface-elevated: var(--yza-theme-dark-surface-elevated);
+  --yza-text-primary: var(--yza-theme-dark-text-primary);
+  --yza-text-secondary: var(--yza-theme-dark-text-secondary);
+  --yza-text-muted: var(--yza-theme-dark-text-muted);
+  --yza-border-default: var(--yza-theme-dark-border-default);
+  --yza-border-subtle: var(--yza-theme-dark-border-subtle);
+}

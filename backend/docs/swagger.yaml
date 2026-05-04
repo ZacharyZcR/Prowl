@@ -1,0 +1,2446 @@
+basePath: /api/v1
+definitions:
+  github_com_anthropic_stc_backend_internal_models.AIConfigResponse:
+    properties:
+      api_base:
+        type: string
+      has_api_key:
+        type: boolean
+      max_tokens:
+        type: integer
+      model:
+        type: string
+      provider:
+        type: string
+      system_prompt:
+        type: string
+      temperature:
+        type: number
+    type: object
+  github_com_anthropic_stc_backend_internal_models.BulkResolveRequest:
+    properties:
+      ids:
+        items:
+          type: integer
+        type: array
+    required:
+    - ids
+    type: object
+  github_com_anthropic_stc_backend_internal_models.ChangePasswordRequest:
+    properties:
+      new_password:
+        minLength: 6
+        type: string
+      old_password:
+        type: string
+    required:
+    - new_password
+    - old_password
+    type: object
+  github_com_anthropic_stc_backend_internal_models.ChatRequest:
+    properties:
+      message:
+        type: string
+    required:
+    - message
+    type: object
+  github_com_anthropic_stc_backend_internal_models.ConversationResponse:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: integer
+      model:
+        type: string
+      title:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  github_com_anthropic_stc_backend_internal_models.CreateConversationRequest:
+    properties:
+      title:
+        maxLength: 200
+        type: string
+    type: object
+  github_com_anthropic_stc_backend_internal_models.CreateNotificationRequest:
+    properties:
+      content:
+        type: string
+      title:
+        type: string
+      type:
+        enum:
+        - info
+        - success
+        - warning
+        - error
+        type: string
+      user_id:
+        type: integer
+    required:
+    - title
+    - user_id
+    type: object
+  github_com_anthropic_stc_backend_internal_models.CreateProjectRequest:
+    properties:
+      description:
+        type: string
+      name:
+        maxLength: 128
+        minLength: 1
+        type: string
+      status:
+        enum:
+        - active
+        - archived
+        - draft
+        type: string
+    required:
+    - name
+    type: object
+  github_com_anthropic_stc_backend_internal_models.CreateRoleRequest:
+    properties:
+      description:
+        type: string
+      name:
+        maxLength: 32
+        minLength: 2
+        type: string
+      permissions:
+        items:
+          type: string
+        type: array
+    required:
+    - name
+    - permissions
+    type: object
+  github_com_anthropic_stc_backend_internal_models.CreateUserRequest:
+    properties:
+      email:
+        type: string
+      nickname:
+        type: string
+      password:
+        minLength: 6
+        type: string
+      role_id:
+        type: integer
+      username:
+        maxLength: 32
+        minLength: 3
+        type: string
+    required:
+    - password
+    - role_id
+    - username
+    type: object
+  github_com_anthropic_stc_backend_internal_models.ErrorLogResponse:
+    properties:
+      created_at:
+        type: string
+      err_type:
+        type: string
+      fingerprint:
+        type: string
+      first_seen_at:
+        type: string
+      id:
+        type: integer
+      last_seen_at:
+        type: string
+      message:
+        type: string
+      method:
+        type: string
+      occurrence_count:
+        type: integer
+      params:
+        additionalProperties: true
+        type: object
+      request_id:
+        type: string
+      resolved:
+        type: boolean
+      resolved_at:
+        type: string
+      resolved_by:
+        type: integer
+      severity:
+        type: string
+      source:
+        type: string
+      stack:
+        type: string
+      status_code:
+        type: integer
+      url:
+        type: string
+      user_agent:
+        type: string
+      user_id:
+        type: integer
+    type: object
+  github_com_anthropic_stc_backend_internal_models.ErrorLogStats:
+    properties:
+      by_severity:
+        additionalProperties:
+          type: integer
+        type: object
+      by_source:
+        additionalProperties:
+          type: integer
+        type: object
+      by_type:
+        additionalProperties:
+          type: integer
+        type: object
+      total:
+        type: integer
+      unresolved:
+        type: integer
+    type: object
+  github_com_anthropic_stc_backend_internal_models.FileResponse:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: integer
+      mime_type:
+        type: string
+      name:
+        type: string
+      path:
+        type: string
+      size:
+        type: integer
+      uploader_id:
+        type: integer
+      uploader_name:
+        type: string
+      url:
+        type: string
+    type: object
+  github_com_anthropic_stc_backend_internal_models.LoginRequest:
+    properties:
+      password:
+        type: string
+      username:
+        type: string
+    required:
+    - password
+    - username
+    type: object
+  github_com_anthropic_stc_backend_internal_models.LoginResponse:
+    properties:
+      token:
+        type: string
+      user:
+        $ref: '#/definitions/github_com_anthropic_stc_backend_internal_models.UserResponse'
+    type: object
+  github_com_anthropic_stc_backend_internal_models.MessageResponse:
+    properties:
+      content:
+        type: string
+      conversation_id:
+        type: integer
+      created_at:
+        type: string
+      id:
+        type: integer
+      role:
+        type: string
+    type: object
+  github_com_anthropic_stc_backend_internal_models.PaginatedResponse:
+    properties:
+      items: {}
+      page:
+        type: integer
+      page_size:
+        type: integer
+      total:
+        type: integer
+      total_pages:
+        type: integer
+    type: object
+  github_com_anthropic_stc_backend_internal_models.PermissionCategoryResponse:
+    properties:
+      category:
+        type: string
+      permissions:
+        items:
+          $ref: '#/definitions/github_com_anthropic_stc_backend_internal_models.PermissionResponse'
+        type: array
+    type: object
+  github_com_anthropic_stc_backend_internal_models.PermissionResponse:
+    properties:
+      action:
+        type: string
+      category:
+        type: string
+      code:
+        type: string
+      description:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      resource:
+        type: string
+      scope:
+        type: string
+    type: object
+  github_com_anthropic_stc_backend_internal_models.ProjectResponse:
+    properties:
+      created_at:
+        type: string
+      description:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      owner_id:
+        type: integer
+      owner_name:
+        type: string
+      status:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  github_com_anthropic_stc_backend_internal_models.ReportErrorRequest:
+    properties:
+      message:
+        type: string
+      stack:
+        type: string
+      type:
+        type: string
+      url:
+        type: string
+    required:
+    - message
+    - type
+    type: object
+  github_com_anthropic_stc_backend_internal_models.RoleResponse:
+    properties:
+      created_at:
+        type: string
+      description:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      permissions:
+        items:
+          type: string
+        type: array
+      user_count:
+        type: integer
+    type: object
+  github_com_anthropic_stc_backend_internal_models.SettingGroupResponse:
+    properties:
+      group_name:
+        type: string
+      settings:
+        items:
+          $ref: '#/definitions/github_com_anthropic_stc_backend_internal_models.SettingItemResponse'
+        type: array
+    type: object
+  github_com_anthropic_stc_backend_internal_models.SettingItemResponse:
+    properties:
+      default_value:
+        type: string
+      description:
+        type: string
+      display_name:
+        type: string
+      is_secret:
+        type: boolean
+      key:
+        type: string
+      value:
+        type: string
+      value_type:
+        type: string
+    type: object
+  github_com_anthropic_stc_backend_internal_models.UpdateAIConfigRequest:
+    properties:
+      api_base:
+        type: string
+      api_key:
+        type: string
+      max_tokens:
+        type: integer
+      model:
+        type: string
+      provider:
+        type: string
+      system_prompt:
+        type: string
+      temperature:
+        type: number
+    type: object
+  github_com_anthropic_stc_backend_internal_models.UpdateProjectRequest:
+    properties:
+      description:
+        type: string
+      name:
+        maxLength: 128
+        minLength: 1
+        type: string
+      status:
+        enum:
+        - active
+        - archived
+        - draft
+        type: string
+    type: object
+  github_com_anthropic_stc_backend_internal_models.UpdateRoleRequest:
+    properties:
+      description:
+        type: string
+      name:
+        maxLength: 32
+        minLength: 2
+        type: string
+      permissions:
+        items:
+          type: string
+        type: array
+    type: object
+  github_com_anthropic_stc_backend_internal_models.UpdateSettingsRequest:
+    properties:
+      settings:
+        additionalProperties:
+          type: string
+        type: object
+    required:
+    - settings
+    type: object
+  github_com_anthropic_stc_backend_internal_models.UpdateUserRequest:
+    properties:
+      email:
+        type: string
+      nickname:
+        type: string
+      role_id:
+        type: integer
+    type: object
+  github_com_anthropic_stc_backend_internal_models.UserResponse:
+    properties:
+      created_at:
+        type: string
+      email:
+        type: string
+      id:
+        type: integer
+      nickname:
+        type: string
+      role:
+        $ref: '#/definitions/github_com_anthropic_stc_backend_internal_models.RoleResponse'
+      username:
+        type: string
+    type: object
+  github_com_anthropic_stc_backend_internal_queue.QueueStats:
+    properties:
+      completed:
+        type: integer
+      failed:
+        type: integer
+      pending:
+        type: integer
+      running:
+        type: integer
+      workers:
+        type: integer
+    type: object
+  github_com_anthropic_stc_backend_internal_server.OnlineUser:
+    properties:
+      user_id:
+        type: integer
+      username:
+        type: string
+    type: object
+  github_com_anthropic_stc_backend_internal_services.ActivityStats:
+    properties:
+      by_action:
+        additionalProperties:
+          type: integer
+        type: object
+      by_resource_type:
+        additionalProperties:
+          type: integer
+        type: object
+      by_user:
+        items:
+          $ref: '#/definitions/github_com_anthropic_stc_backend_internal_services.UserActivityCount'
+        type: array
+      today_count:
+        type: integer
+      total:
+        type: integer
+    type: object
+  github_com_anthropic_stc_backend_internal_services.LoginLogStats:
+    properties:
+      failure_count:
+        type: integer
+      success_count:
+        type: integer
+      success_rate:
+        type: number
+      today_count:
+        type: integer
+      total:
+        type: integer
+    type: object
+  github_com_anthropic_stc_backend_internal_services.UserActivityCount:
+    properties:
+      count:
+        type: integer
+      user_id:
+        type: integer
+      username:
+        type: string
+    type: object
+  github_com_anthropic_stc_backend_pkg_response.Response:
+    properties:
+      code:
+        type: integer
+      data: {}
+      message:
+        type: string
+    type: object
+info:
+  contact: {}
+  description: Prowl Range Backend API
+  title: Prowl Range API
+  version: 0.1.0
+paths:
+  /activities:
+    get:
+      description: 分页获取操作日志，支持按资源类型、用户和动作过滤
+      parameters:
+      - default: 1
+        description: 页码
+        in: query
+        name: page
+        type: integer
+      - default: 20
+        description: 每页数量
+        in: query
+        name: page_size
+        type: integer
+      - description: 资源类型
+        in: query
+        name: resource_type
+        type: string
+      - description: 用户 ID
+        in: query
+        name: user_id
+        type: integer
+      - description: 动作类型
+        in: query
+        name: action
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/github_com_anthropic_stc_backend_pkg_response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/github_com_anthropic_stc_backend_internal_models.PaginatedResponse'
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_anthropic_stc_backend_pkg_response.Response'
+      security:
+      - BearerAuth: []
+      summary: 获取操作日志列表
+      tags:
+      - activities
+  /activities/export:
+    get:
+      description: 导出操作日志为 CSV 文件，支持过滤
+      parameters:
+      - description: 资源类型
+        in: query
+        name: resource_type
+        type: string
+      - description: 用户 ID
+        in: query
+        name: user_id
+        type: integer
+      - description: 动作类型
+        in: query
+        name: action
+        type: string
+      produces:
+      - text/csv
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: file
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_anthropic_stc_backend_pkg_response.Response'
+      security:
+      - BearerAuth: []
+      summary: 导出操作日志 CSV
+      tags:
+      - activities
+  /activities/statistics:
+    get:
+      description: 获取操作日志的统计信息，包括总数、今日数量、按动作和资源类型分组
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/github_com_anthropic_stc_backend_pkg_response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/github_com_anthropic_stc_backend_internal_services.ActivityStats'
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_anthropic_stc_backend_pkg_response.Response'
+      security:
+      - BearerAuth: []
+      summary: 获取操作日志统计
+      tags:
+      - activities
+  /ai/config:
+    get:
+      description: 获取当前 AI Copilot 配置（不返回 API Key 明文）
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/github_com_anthropic_stc_backend_pkg_response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/github_com_anthropic_stc_backend_internal_models.AIConfigResponse'
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_anthropic_stc_backend_pkg_response.Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/github_com_anthropic_stc_backend_pkg_response.Response'
+      security:
+      - BearerAuth: []
+      summary: 获取 AI 配置
+      tags:
+      - ai
+    put:
+      consumes:
+      - application/json
+      description: 更新 AI Copilot 配置（需 system:settings 权限）
+      parameters:
+      - description: 更新配置请求
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_anthropic_stc_backend_internal_models.UpdateAIConfigRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/github_com_anthropic_stc_backend_pkg_response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/github_com_anthropic_stc_backend_internal_models.AIConfigResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_anthropic_stc_backend_pkg_response.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_anthropic_stc_backend_pkg_response.Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/github_com_anthropic_stc_backend_pkg_response.Response'
+      security:
+      - BearerAuth: []
+      summary: 更新 AI 配置
+      tags:
+      - ai
+  /ai/conversations:
+    get:
+      description: 列出当前用户的所有对话（最新优先）
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/github_com_anthropic_stc_backend_pkg_response.Response'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/github_com_anthropic_stc_backend_internal_models.ConversationResponse'
+                  type: array
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_anthropic_stc_backend_pkg_response.Response'
+      security:
+      - BearerAuth: []
+      summary: 列出对话
+      tags:
+      - ai
+    post:
+      consumes:
+      - application/json
+      description: 创建一个新的 AI 对话
+      parameters:
+      - description: 创建对话请求
+        in: body
+        name: request
+        schema:
+          $ref: '#/definitions/github_com_anthropic_stc_backend_internal_models.CreateConversationRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/github_com_anthropic_stc_backend_pkg_response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/github_com_anthropic_stc_backend_internal_models.ConversationResponse'
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_anthropic_stc_backend_pkg_response.Response'
+      security:
+      - BearerAuth: []
+      summary: 创建对话
+      tags:
+      - ai
+  /ai/conversations/{id}:
+    delete:
+      description: 删除指定对话及其所有消息
+      parameters:
+      - description: 对话 ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_anthropic_stc_backend_pkg_response.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_anthropic_stc_backend_pkg_response.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/github_com_anthropic_stc_backend_pkg_response.Response'
+      security:
+      - BearerAuth: []
+      summary: 删除对话
+      tags:
+      - ai
+  /ai/conversations/{id}/chat:
+    post:
+      consumes:
+      - application/json
+      description: 发送消息并以 SSE 流式返回 AI 回复
+      parameters:
+      - description: 对话 ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 聊天请求
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_anthropic_stc_backend_internal_models.ChatRequest'
+      produces:
+      - text/event-stream
+      responses:
+        "200":
+          description: SSE event stream
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_anthropic_stc_backend_pkg_response.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_anthropic_stc_backend_pkg_response.Response'
+      security:
+      - BearerAuth: []
+      summary: AI 流式对话
+      tags:
+      - ai
+  /ai/conversations/{id}/messages:
+    get:
+      description: 获取指定对话的所有消息（按时间升序）
+      parameters:
+      - description: 对话 ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/github_com_anthropic_stc_backend_pkg_response.Response'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/github_com_anthropic_stc_backend_internal_models.MessageResponse'
+                  type: array
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_anthropic_stc_backend_pkg_response.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/github_com_anthropic_stc_backend_pkg_response.Response'
+      security:
+      - BearerAuth: []
+      summary: 获取对话消息
+      tags:
+      - ai
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      description: 使用用户名密码登录，返回 JWT
+      parameters:
+      - description: 登录请求
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_anthropic_stc_backend_internal_models.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/github_com_anthropic_stc_backend_pkg_response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/github_com_anthropic_stc_backend_internal_models.LoginResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_anthropic_stc_backend_pkg_response.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_anthropic_stc_backend_pkg_response.Response'
+      summary: 用户登录
+      tags:
+      - auth
+  /auth/logout:
+    post:
+      description: 登出当前用户
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_anthropic_stc_backend_pkg_response.Response'
+      security:
+      - BearerAuth: []
+      summary: 用户登出
+      tags:
+      - auth
+  /auth/oauth/callback:
+    get:
+      description: 处理 OAuth 提供商回调
+      parameters:
+      - description: 授权码
+        in: query
+        name: code
+        required: true
+        type: string
+      - description: 状态参数
+        in: query
+        name: state
+        required: true
+        type: string
+      responses:
+        "302":
+          description: Found
+      summary: OAuth 回调
+      tags:
+      - auth
+  /auth/oauth/config:
+    get:
+      description: 获取 OAuth 配置信息（用于前端判断是否显示 OAuth 按钮）
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_anthropic_stc_backend_pkg_response.Response'
+      summary: OAuth 配置
+      tags:
+      - auth
+  /auth/oauth/login:
+    get:
+      description: 重定向到 OAuth 提供商进行授权
+      responses:
+        "302":
+          description: Found
+      summary: OAuth 登录
+      tags:
+      - auth
+  /error-logs:
+    get:
+      description: 分页获取错误日志，支持按来源、类型、严重程度、状态过滤
+      parameters:
+      - default: 1
+        description: 页码
+        in: query
+        name: page
+        type: integer
+      - default: 20
+        description: 每页数量
+        in: query
+        name: page_size
+        type: integer
+      - description: '来源: frontend/backend'
+        in: query
+        name: source
+        type: string
+      - description: 错误类型
+        in: query
+        name: err_type
+        type: string
+      - description: '严重程度: critical/high/medium/low'
+        in: query
+        name: severity
+        type: string
+      - description: 是否已解决
+        in: query
+        name: resolved
+        type: boolean
+      - description: 搜索关键词
+        in: query
+        name: search
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/github_com_anthropic_stc_backend_pkg_response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/github_com_anthropic_stc_backend_internal_models.PaginatedResponse'
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_anthropic_stc_backend_pkg_response.Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/github_com_anthropic_stc_backend_pkg_response.Response'
+      security:
+      - BearerAuth: []
+      summary: 获取错误日志列表
+      tags:
+      - error-logs
+  /error-logs/{id}:
+    get:
+      description: 根据 ID 获取错误日志详情
+      parameters:
+      - description: 错误日志 ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/github_com_anthropic_stc_backend_pkg_response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/github_com_anthropic_stc_backend_internal_models.ErrorLogResponse'
+              type: object
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/github_com_anthropic_stc_backend_pkg_response.Response'
+      security:
+      - BearerAuth: []
+      summary: 获取错误日志详情
+      tags:
+      - error-logs
+  /error-logs/{id}/resolve:
+    put:
+      description: 将指定错误日志标记为已解决
+      parameters:
+      - description: 错误日志 ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_anthropic_stc_backend_pkg_response.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/github_com_anthropic_stc_backend_pkg_response.Response'
+      security:
+      - BearerAuth: []
+      summary: 标记错误已解决
+      tags:
+      - error-logs
+  /error-logs/{id}/unresolve:
+    put:
+      description: 将已解决的错误日志重新打开
+      parameters:
+      - description: 错误日志 ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_anthropic_stc_backend_pkg_response.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/github_com_anthropic_stc_backend_pkg_response.Response'
+      security:
+      - BearerAuth: []
+      summary: 重新打开错误
+      tags:
+      - error-logs
+  /error-logs/bulk-resolve:
+    post:
+      consumes:
+      - application/json
+      description: 批量将错误日志标记为已解决
+      parameters:
+      - description: 批量解决请求
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_anthropic_stc_backend_internal_models.BulkResolveRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_anthropic_stc_backend_pkg_response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_anthropic_stc_backend_pkg_response.Response'
+      security:
+      - BearerAuth: []
+      summary: 批量解决错误
+      tags:
+      - error-logs
+  /error-logs/report:
+    post:
+      consumes:
+      - application/json
+      description: 前端上报错误信息，认证后即可调用
+      parameters:
+      - description: 上报错误请求
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_anthropic_stc_backend_internal_models.ReportErrorRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_anthropic_stc_backend_pkg_response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_anthropic_stc_backend_pkg_response.Response'
+      security:
+      - BearerAuth: []
+      summary: 前端上报错误
+      tags:
+      - error-logs
+  /error-logs/statistics:
+    get:
+      description: 获取错误日志的统计信息
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/github_com_anthropic_stc_backend_pkg_response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/github_com_anthropic_stc_backend_internal_models.ErrorLogStats'
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_anthropic_stc_backend_pkg_response.Response'
+      security:
+      - BearerAuth: []
+      summary: 获取错误日志统计
+      tags:
+      - error-logs
+  /files:
+    get:
+      description: 分页获取文件列表
+      parameters:
+      - default: 1
+        description: 页码
+        in: query
+        name: page
+        type: integer
+      - default: 20
+        description: 每页数量
+        in: query
+        name: page_size
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/github_com_anthropic_stc_backend_pkg_response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/github_com_anthropic_stc_backend_internal_models.PaginatedResponse'
+              type: object
+      security:
+      - BearerAuth: []
+      summary: 文件列表
+      tags:
+      - files
+  /files/{id}:
+    delete:
+      description: 删除文件记录及磁盘文件（仅上传者可删除）
+      parameters:
+      - description: 文件 ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_anthropic_stc_backend_pkg_response.Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/github_com_anthropic_stc_backend_pkg_response.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/github_com_anthropic_stc_backend_pkg_response.Response'
+      security:
+      - BearerAuth: []
+      summary: 删除文件
+      tags:
+      - files
+    get:
+      description: 根据 ID 获取文件详情
+      parameters:
+      - description: 文件 ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/github_com_anthropic_stc_backend_pkg_response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/github_com_anthropic_stc_backend_internal_models.FileResponse'
+              type: object
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/github_com_anthropic_stc_backend_pkg_response.Response'
+      security:
+      - BearerAuth: []
+      summary: 获取文件信息
+      tags:
+      - files
+  /files/upload:
+    post:
+      consumes:
+      - multipart/form-data
+      description: 上传单个文件，限制 10MB，同时创建文件记录
+      parameters:
+      - description: 上传文件
+        in: formData
+        name: file
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/github_com_anthropic_stc_backend_pkg_response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/github_com_anthropic_stc_backend_internal_models.FileResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_anthropic_stc_backend_pkg_response.Response'
+      security:
+      - BearerAuth: []
+      summary: 上传文件
+      tags:
+      - files
+  /health:
+    get:
+      description: 返回服务状态和版本信息
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_anthropic_stc_backend_pkg_response.Response'
+      summary: 健康检查
+      tags:
+      - system
+  /health/deep:
+    get:
+      description: 验证 DB 和 Redis 连通性
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_anthropic_stc_backend_pkg_response.Response'
+        "503":
+          description: Service Unavailable
+          schema:
+            $ref: '#/definitions/github_com_anthropic_stc_backend_pkg_response.Response'
+      summary: 深度健康检查
+      tags:
+      - system
+  /health/metrics:
+    get:
+      description: 返回请求指标统计数据
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_anthropic_stc_backend_pkg_response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_anthropic_stc_backend_pkg_response.Response'
+      security:
+      - BearerAuth: []
+      summary: 请求指标汇总
+      tags:
+      - system
+  /health/monitor:
+    get:
+      description: 返回完整系统健康信息，包含各组件状态
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_anthropic_stc_backend_pkg_response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_anthropic_stc_backend_pkg_response.Response'
+      security:
+      - BearerAuth: []
+      summary: 系统健康监控
+      tags:
+      - system
+  /login-logs:
+    get:
+      description: 分页获取登录日志，支持按用户名、IP、成功状态过滤
+      parameters:
+      - default: 1
+        description: 页码
+        in: query
+        name: page
+        type: integer
+      - default: 20
+        description: 每页数量
+        in: query
+        name: page_size
+        type: integer
+      - description: 用户名
+        in: query
+        name: username
+        type: string
+      - description: IP 地址
+        in: query
+        name: ip
+        type: string
+      - description: 成功状态 true/false
+        in: query
+        name: success
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/github_com_anthropic_stc_backend_pkg_response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/github_com_anthropic_stc_backend_internal_models.PaginatedResponse'
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_anthropic_stc_backend_pkg_response.Response'
+      security:
+      - BearerAuth: []
+      summary: 获取登录日志列表
+      tags:
+      - login-logs
+  /login-logs/statistics:
+    get:
+      description: 获取登录日志的统计信息
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/github_com_anthropic_stc_backend_pkg_response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/github_com_anthropic_stc_backend_internal_services.LoginLogStats'
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_anthropic_stc_backend_pkg_response.Response'
+      security:
+      - BearerAuth: []
+      summary: 获取登录日志统计
+      tags:
+      - login-logs
+  /notifications:
+    get:
+      description: 查询当前用户的通知列表，支持分页和仅未读过滤
+      parameters:
+      - default: 1
+        description: 页码
+        in: query
+        name: page
+        type: integer
+      - default: 20
+        description: 每页数量
+        in: query
+        name: page_size
+        type: integer
+      - default: false
+        description: 仅未读
+        in: query
+        name: unread_only
+        type: boolean
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/github_com_anthropic_stc_backend_pkg_response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/github_com_anthropic_stc_backend_internal_models.PaginatedResponse'
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_anthropic_stc_backend_pkg_response.Response'
+      security:
+      - BearerAuth: []
+      summary: 查询通知列表
+      tags:
+      - notification
+    post:
+      consumes:
+      - application/json
+      description: 创建通知并实时推送给目标用户（需 notification:create 权限）
+      parameters:
+      - description: 创建通知请求
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_anthropic_stc_backend_internal_models.CreateNotificationRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_anthropic_stc_backend_pkg_response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_anthropic_stc_backend_pkg_response.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_anthropic_stc_backend_pkg_response.Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/github_com_anthropic_stc_backend_pkg_response.Response'
+      security:
+      - BearerAuth: []
+      summary: 创建通知
+      tags:
+      - notification
+  /notifications/{id}/read:
+    put:
+      description: 标记指定通知为已读
+      parameters:
+      - description: 通知 ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_anthropic_stc_backend_pkg_response.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_anthropic_stc_backend_pkg_response.Response'
+      security:
+      - BearerAuth: []
+      summary: 标记通知已读
+      tags:
+      - notification
+  /notifications/read-all:
+    put:
+      description: 将当前用户所有未读通知标记为已读
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_anthropic_stc_backend_pkg_response.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_anthropic_stc_backend_pkg_response.Response'
+      security:
+      - BearerAuth: []
+      summary: 全部标记已读
+      tags:
+      - notification
+  /notifications/unread-count:
+    get:
+      description: 返回当前用户的未读通知数量
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/github_com_anthropic_stc_backend_pkg_response.Response'
+            - properties:
+                data:
+                  type: integer
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_anthropic_stc_backend_pkg_response.Response'
+      security:
+      - BearerAuth: []
+      summary: 获取未读通知数量
+      tags:
+      - notification
+  /permissions:
+    get:
+      description: 获取全部权限
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/github_com_anthropic_stc_backend_pkg_response.Response'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/github_com_anthropic_stc_backend_internal_models.PermissionResponse'
+                  type: array
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_anthropic_stc_backend_pkg_response.Response'
+      security:
+      - BearerAuth: []
+      summary: 获取权限列表
+      tags:
+      - permissions
+  /permissions/categories:
+    get:
+      description: 按分类分组返回全部权限
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/github_com_anthropic_stc_backend_pkg_response.Response'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/github_com_anthropic_stc_backend_internal_models.PermissionCategoryResponse'
+                  type: array
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_anthropic_stc_backend_pkg_response.Response'
+      security:
+      - BearerAuth: []
+      summary: 按分类获取权限
+      tags:
+      - permissions
+  /ping:
+    get:
+      description: 返回 pong，用于简单存活探针
+      produces:
+      - text/plain
+      responses:
+        "200":
+          description: pong
+          schema:
+            type: string
+      summary: 存活检测
+      tags:
+      - system
+  /projects:
+    get:
+      description: 分页获取项目列表，支持搜索和状态过滤
+      parameters:
+      - default: 1
+        description: 页码
+        in: query
+        name: page
+        type: integer
+      - default: 20
+        description: 每页数量
+        in: query
+        name: page_size
+        type: integer
+      - description: 搜索关键词
+        in: query
+        name: search
+        type: string
+      - description: 状态过滤
+        enum:
+        - active
+        - archived
+        - draft
+        in: query
+        name: status
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/github_com_anthropic_stc_backend_pkg_response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/github_com_anthropic_stc_backend_internal_models.PaginatedResponse'
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_anthropic_stc_backend_pkg_response.Response'
+      security:
+      - BearerAuth: []
+      summary: 获取项目列表
+      tags:
+      - projects
+    post:
+      consumes:
+      - application/json
+      description: 创建新项目
+      parameters:
+      - description: 创建项目请求
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_anthropic_stc_backend_internal_models.CreateProjectRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/github_com_anthropic_stc_backend_pkg_response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/github_com_anthropic_stc_backend_internal_models.ProjectResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_anthropic_stc_backend_pkg_response.Response'
+      security:
+      - BearerAuth: []
+      summary: 创建项目
+      tags:
+      - projects
+  /projects/{id}:
+    delete:
+      description: 删除指定项目
+      parameters:
+      - description: 项目 ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_anthropic_stc_backend_pkg_response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_anthropic_stc_backend_pkg_response.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/github_com_anthropic_stc_backend_pkg_response.Response'
+      security:
+      - BearerAuth: []
+      summary: 删除项目
+      tags:
+      - projects
+    get:
+      description: 根据 ID 获取项目详情
+      parameters:
+      - description: 项目 ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/github_com_anthropic_stc_backend_pkg_response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/github_com_anthropic_stc_backend_internal_models.ProjectResponse'
+              type: object
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/github_com_anthropic_stc_backend_pkg_response.Response'
+      security:
+      - BearerAuth: []
+      summary: 获取项目详情
+      tags:
+      - projects
+    put:
+      consumes:
+      - application/json
+      description: 更新项目信息
+      parameters:
+      - description: 项目 ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 更新项目请求
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_anthropic_stc_backend_internal_models.UpdateProjectRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/github_com_anthropic_stc_backend_pkg_response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/github_com_anthropic_stc_backend_internal_models.ProjectResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_anthropic_stc_backend_pkg_response.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/github_com_anthropic_stc_backend_pkg_response.Response'
+      security:
+      - BearerAuth: []
+      summary: 更新项目
+      tags:
+      - projects
+  /queue/stats:
+    get:
+      description: 返回任务队列统计信息
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/github_com_anthropic_stc_backend_pkg_response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/github_com_anthropic_stc_backend_internal_queue.QueueStats'
+              type: object
+      security:
+      - BearerAuth: []
+      summary: 队列统计
+      tags:
+      - queue
+  /queue/tasks:
+    get:
+      description: 返回最近的任务列表
+      parameters:
+      - default: 20
+        description: 数量限制
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_anthropic_stc_backend_pkg_response.Response'
+      security:
+      - BearerAuth: []
+      summary: 最近任务列表
+      tags:
+      - queue
+    post:
+      description: 创建一个 demo 任务（sleep 5s 模拟工作）
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_anthropic_stc_backend_pkg_response.Response'
+      security:
+      - BearerAuth: []
+      summary: 入队示例任务
+      tags:
+      - queue
+  /roles:
+    get:
+      description: 获取全部角色
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/github_com_anthropic_stc_backend_pkg_response.Response'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/github_com_anthropic_stc_backend_internal_models.RoleResponse'
+                  type: array
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_anthropic_stc_backend_pkg_response.Response'
+      security:
+      - BearerAuth: []
+      summary: 获取角色列表
+      tags:
+      - roles
+    post:
+      consumes:
+      - application/json
+      description: 创建新角色
+      parameters:
+      - description: 创建角色请求
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_anthropic_stc_backend_internal_models.CreateRoleRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/github_com_anthropic_stc_backend_pkg_response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/github_com_anthropic_stc_backend_internal_models.RoleResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_anthropic_stc_backend_pkg_response.Response'
+      security:
+      - BearerAuth: []
+      summary: 创建角色
+      tags:
+      - roles
+  /roles/{id}:
+    delete:
+      description: 删除指定角色
+      parameters:
+      - description: 角色 ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_anthropic_stc_backend_pkg_response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_anthropic_stc_backend_pkg_response.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/github_com_anthropic_stc_backend_pkg_response.Response'
+      security:
+      - BearerAuth: []
+      summary: 删除角色
+      tags:
+      - roles
+    get:
+      description: 根据 ID 获取角色详情
+      parameters:
+      - description: 角色 ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/github_com_anthropic_stc_backend_pkg_response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/github_com_anthropic_stc_backend_internal_models.RoleResponse'
+              type: object
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/github_com_anthropic_stc_backend_pkg_response.Response'
+      security:
+      - BearerAuth: []
+      summary: 获取角色详情
+      tags:
+      - roles
+    put:
+      consumes:
+      - application/json
+      description: 更新角色信息
+      parameters:
+      - description: 角色 ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 更新角色请求
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_anthropic_stc_backend_internal_models.UpdateRoleRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/github_com_anthropic_stc_backend_pkg_response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/github_com_anthropic_stc_backend_internal_models.RoleResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_anthropic_stc_backend_pkg_response.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/github_com_anthropic_stc_backend_pkg_response.Response'
+      security:
+      - BearerAuth: []
+      summary: 更新角色
+      tags:
+      - roles
+  /settings/system:
+    get:
+      description: 按分组返回所有系统配置项，敏感字段值会被遮盖
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/github_com_anthropic_stc_backend_pkg_response.Response'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/github_com_anthropic_stc_backend_internal_models.SettingGroupResponse'
+                  type: array
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_anthropic_stc_backend_pkg_response.Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/github_com_anthropic_stc_backend_pkg_response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_anthropic_stc_backend_pkg_response.Response'
+      security:
+      - BearerAuth: []
+      summary: 获取所有系统配置
+      tags:
+      - settings
+    put:
+      consumes:
+      - application/json
+      description: 批量更新配置项，敏感字段传入遮盖值时会跳过不更新
+      parameters:
+      - description: 配置更新
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_anthropic_stc_backend_internal_models.UpdateSettingsRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_anthropic_stc_backend_pkg_response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_anthropic_stc_backend_pkg_response.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_anthropic_stc_backend_pkg_response.Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/github_com_anthropic_stc_backend_pkg_response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_anthropic_stc_backend_pkg_response.Response'
+      security:
+      - BearerAuth: []
+      summary: 批量更新系统配置
+      tags:
+      - settings
+  /settings/system/{group}:
+    get:
+      description: 获取指定分组的系统配置项
+      parameters:
+      - description: 分组名称
+        in: path
+        name: group
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/github_com_anthropic_stc_backend_pkg_response.Response'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/github_com_anthropic_stc_backend_internal_models.SettingItemResponse'
+                  type: array
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_anthropic_stc_backend_pkg_response.Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/github_com_anthropic_stc_backend_pkg_response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_anthropic_stc_backend_pkg_response.Response'
+      security:
+      - BearerAuth: []
+      summary: 获取分组配置
+      tags:
+      - settings
+  /sse:
+    get:
+      description: 通过 query param token 认证，建立 SSE 实时事件流
+      parameters:
+      - description: JWT Token
+        in: query
+        name: token
+        required: true
+        type: string
+      produces:
+      - text/event-stream
+      responses: {}
+      summary: SSE 事件流
+      tags:
+      - sse
+  /system-logs:
+    get:
+      parameters:
+      - description: 日志级别
+        in: query
+        name: level
+        type: string
+      - description: 关键词
+        in: query
+        name: keyword
+        type: string
+      - default: 100
+        description: 条数限制
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses: {}
+      summary: 获取最近系统日志
+      tags:
+      - system-logs
+  /system-logs/stream:
+    get:
+      parameters:
+      - description: JWT Token
+        in: query
+        name: token
+        required: true
+        type: string
+      produces:
+      - text/event-stream
+      responses: {}
+      summary: SSE 实时系统日志流
+      tags:
+      - system-logs
+  /users:
+    get:
+      description: 分页获取用户列表，支持搜索
+      parameters:
+      - default: 1
+        description: 页码
+        in: query
+        name: page
+        type: integer
+      - default: 20
+        description: 每页数量
+        in: query
+        name: page_size
+        type: integer
+      - description: 搜索关键词
+        in: query
+        name: search
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/github_com_anthropic_stc_backend_pkg_response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/github_com_anthropic_stc_backend_internal_models.PaginatedResponse'
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_anthropic_stc_backend_pkg_response.Response'
+      security:
+      - BearerAuth: []
+      summary: 获取用户列表
+      tags:
+      - users
+    post:
+      consumes:
+      - application/json
+      description: 创建新用户
+      parameters:
+      - description: 创建用户请求
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_anthropic_stc_backend_internal_models.CreateUserRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/github_com_anthropic_stc_backend_pkg_response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/github_com_anthropic_stc_backend_internal_models.UserResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_anthropic_stc_backend_pkg_response.Response'
+      security:
+      - BearerAuth: []
+      summary: 创建用户
+      tags:
+      - users
+  /users/{id}:
+    delete:
+      description: 删除指定用户
+      parameters:
+      - description: 用户 ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_anthropic_stc_backend_pkg_response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_anthropic_stc_backend_pkg_response.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/github_com_anthropic_stc_backend_pkg_response.Response'
+      security:
+      - BearerAuth: []
+      summary: 删除用户
+      tags:
+      - users
+    get:
+      description: 根据 ID 获取用户详情
+      parameters:
+      - description: 用户 ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/github_com_anthropic_stc_backend_pkg_response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/github_com_anthropic_stc_backend_internal_models.UserResponse'
+              type: object
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/github_com_anthropic_stc_backend_pkg_response.Response'
+      security:
+      - BearerAuth: []
+      summary: 获取用户详情
+      tags:
+      - users
+    put:
+      consumes:
+      - application/json
+      description: 更新用户信息
+      parameters:
+      - description: 用户 ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 更新用户请求
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_anthropic_stc_backend_internal_models.UpdateUserRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/github_com_anthropic_stc_backend_pkg_response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/github_com_anthropic_stc_backend_internal_models.UserResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_anthropic_stc_backend_pkg_response.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/github_com_anthropic_stc_backend_pkg_response.Response'
+      security:
+      - BearerAuth: []
+      summary: 更新用户
+      tags:
+      - users
+  /users/me:
+    get:
+      description: 返回当前登录用户的信息
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/github_com_anthropic_stc_backend_pkg_response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/github_com_anthropic_stc_backend_internal_models.UserResponse'
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_anthropic_stc_backend_pkg_response.Response'
+      security:
+      - BearerAuth: []
+      summary: 获取当前用户信息
+      tags:
+      - users
+  /users/me/password:
+    put:
+      consumes:
+      - application/json
+      description: 修改当前用户密码
+      parameters:
+      - description: 修改密码请求
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_anthropic_stc_backend_internal_models.ChangePasswordRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_anthropic_stc_backend_pkg_response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_anthropic_stc_backend_pkg_response.Response'
+      security:
+      - BearerAuth: []
+      summary: 修改密码
+      tags:
+      - users
+  /ws:
+    get:
+      description: 通过 query param token 认证，升级为 WebSocket 实时通信
+      parameters:
+      - description: JWT Token
+        in: query
+        name: token
+        required: true
+        type: string
+      responses: {}
+      summary: WebSocket 连接
+      tags:
+      - ws
+  /ws/online:
+    get:
+      description: 返回当前 WebSocket 在线用户
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/github_com_anthropic_stc_backend_pkg_response.Response'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/github_com_anthropic_stc_backend_internal_server.OnlineUser'
+                  type: array
+              type: object
+      summary: 获取在线用户列表
+      tags:
+      - ws
+securityDefinitions:
+  BearerAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

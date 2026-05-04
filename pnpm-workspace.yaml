@@ -1,0 +1,7 @@
+packages:
+  - "frontend"
+  - "frontend-shadcn"
+  - "portal"
+  - "desktop"
+  - "design-system/packages/*"
+  - "docs-site"

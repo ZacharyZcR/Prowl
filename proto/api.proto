@@ -1,0 +1,63 @@
+syntax = "proto3";
+package stc.api.v1;
+option go_package = "github.com/ZacharyZcR/STC/backend/internal/pb";
+
+// gRPC 服务定义
+service STCService {
+  rpc GetHealth (HealthRequest) returns (HealthResponse);
+  rpc Login (AuthRequest) returns (AuthResponse);
+}
+
+// 通用消息
+message Timestamp {
+  int64 seconds = 1;
+  int32 nanos = 2;
+}
+
+// 实时通信消息
+message ClientMessage {
+  string id = 1;
+  string type = 2;
+  bytes payload = 3;
+  Timestamp timestamp = 4;
+}
+
+message ServerMessage {
+  string id = 1;
+  string type = 2;
+  bytes payload = 3;
+  Timestamp timestamp = 4;
+}
+
+// SSE 事件
+message SSEEvent {
+  string event = 1;
+  string data = 2;
+  string id = 3;
+}
+
+// 示例业务消息
+message UserInfo {
+  int64 id = 1;
+  string username = 2;
+  string email = 3;
+  string role = 4;
+}
+
+message AuthRequest {
+  string username = 1;
+  string password = 2;
+}
+
+message AuthResponse {
+  string token = 1;
+  UserInfo user = 2;
+}
+
+message HealthRequest {}
+
+message HealthResponse {
+  string status = 1;
+  string version = 2;
+  Timestamp uptime = 3;
+}

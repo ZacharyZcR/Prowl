@@ -1,0 +1,22 @@
+{
+  "name": "stc",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Standard Template Construct - Monorepo Project Template",
+  "scripts": {
+    "prepare": "husky",
+    "dev": "make dev",
+    "build": "make build",
+    "lint": "make lint",
+    "frontend:dev": "pnpm --filter frontend dev",
+    "frontend:build": "pnpm --filter frontend build",
+    "desktop:dev": "pnpm --filter desktop dev",
+    "desktop:build": "pnpm --filter desktop build"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^19.6.0",
+    "@commitlint/config-conventional": "^19.6.0",
+    "husky": "^9.1.7"
+  }
+}
