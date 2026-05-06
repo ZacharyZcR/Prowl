@@ -305,6 +305,18 @@ func (_u *ChallengeUpdate) ClearDockerCompose() *ChallengeUpdate {
 	return _u
 }
 
+// SetNetworkTopology sets the "network_topology" field.
+func (_u *ChallengeUpdate) SetNetworkTopology(v map[string]interface{}) *ChallengeUpdate {
+	_u.mutation.SetNetworkTopology(v)
+	return _u
+}
+
+// ClearNetworkTopology clears the value of the "network_topology" field.
+func (_u *ChallengeUpdate) ClearNetworkTopology() *ChallengeUpdate {
+	_u.mutation.ClearNetworkTopology()
+	return _u
+}
+
 // SetExposedPorts sets the "exposed_ports" field.
 func (_u *ChallengeUpdate) SetExposedPorts(v []map[string]interface{}) *ChallengeUpdate {
 	_u.mutation.SetExposedPorts(v)
@@ -918,6 +930,12 @@ func (_u *ChallengeUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	}
 	if _u.mutation.DockerComposeCleared() {
 		_spec.ClearField(challenge.FieldDockerCompose, field.TypeString)
+	}
+	if value, ok := _u.mutation.NetworkTopology(); ok {
+		_spec.SetField(challenge.FieldNetworkTopology, field.TypeJSON, value)
+	}
+	if _u.mutation.NetworkTopologyCleared() {
+		_spec.ClearField(challenge.FieldNetworkTopology, field.TypeJSON)
 	}
 	if value, ok := _u.mutation.ExposedPorts(); ok {
 		_spec.SetField(challenge.FieldExposedPorts, field.TypeJSON, value)
@@ -1653,6 +1671,18 @@ func (_u *ChallengeUpdateOne) ClearDockerCompose() *ChallengeUpdateOne {
 	return _u
 }
 
+// SetNetworkTopology sets the "network_topology" field.
+func (_u *ChallengeUpdateOne) SetNetworkTopology(v map[string]interface{}) *ChallengeUpdateOne {
+	_u.mutation.SetNetworkTopology(v)
+	return _u
+}
+
+// ClearNetworkTopology clears the value of the "network_topology" field.
+func (_u *ChallengeUpdateOne) ClearNetworkTopology() *ChallengeUpdateOne {
+	_u.mutation.ClearNetworkTopology()
+	return _u
+}
+
 // SetExposedPorts sets the "exposed_ports" field.
 func (_u *ChallengeUpdateOne) SetExposedPorts(v []map[string]interface{}) *ChallengeUpdateOne {
 	_u.mutation.SetExposedPorts(v)
@@ -2296,6 +2326,12 @@ func (_u *ChallengeUpdateOne) sqlSave(ctx context.Context) (_node *Challenge, er
 	}
 	if _u.mutation.DockerComposeCleared() {
 		_spec.ClearField(challenge.FieldDockerCompose, field.TypeString)
+	}
+	if value, ok := _u.mutation.NetworkTopology(); ok {
+		_spec.SetField(challenge.FieldNetworkTopology, field.TypeJSON, value)
+	}
+	if _u.mutation.NetworkTopologyCleared() {
+		_spec.ClearField(challenge.FieldNetworkTopology, field.TypeJSON)
 	}
 	if value, ok := _u.mutation.ExposedPorts(); ok {
 		_spec.SetField(challenge.FieldExposedPorts, field.TypeJSON, value)

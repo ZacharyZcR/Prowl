@@ -113,6 +113,7 @@ var challengeCreateCmd = &cobra.Command{
 		setIfChanged(cmd, body, "static-flag", "static_flag")
 		setIfChanged(cmd, body, "description", "description")
 		setIfChanged(cmd, body, "docker-image", "docker_image")
+		setJSONFileIfChanged(cmd, body, "network-topology", "network_topology")
 		if cmd.Flags().Changed("base-score") {
 			v, _ := cmd.Flags().GetInt("base-score")
 			body["base_score"] = v
@@ -156,6 +157,7 @@ var challengeUpdateCmd = &cobra.Command{
 		setIfChanged(cmd, body, "static-flag", "static_flag")
 		setIfChanged(cmd, body, "description", "description")
 		setIfChanged(cmd, body, "docker-image", "docker_image")
+		setJSONFileIfChanged(cmd, body, "network-topology", "network_topology")
 		if cmd.Flags().Changed("base-score") {
 			v, _ := cmd.Flags().GetInt("base-score")
 			body["base_score"] = v
@@ -245,6 +247,24 @@ func setIfChanged(cmd *cobra.Command, body map[string]interface{}, flag, key str
 	}
 }
 
+func setJSONFileIfChanged(cmd *cobra.Command, body map[string]interface{}, flag, key string) {
+	if !cmd.Flags().Changed(flag) {
+		return
+	}
+	path, _ := cmd.Flags().GetString(flag)
+	data, err := os.ReadFile(path)
+	if err != nil {
+		output.Error(fmt.Sprintf("failed to read %s: %v", path, err))
+		os.Exit(1)
+	}
+	var value interface{}
+	if err := json.Unmarshal(data, &value); err != nil {
+		output.Error(fmt.Sprintf("failed to parse %s: %v", path, err))
+		os.Exit(1)
+	}
+	body[key] = value
+}
+
 func setIntIfChanged(cmd *cobra.Command, body map[string]interface{}, flag, key string) {
 	if cmd.Flags().Changed(flag) {
 		v, _ := cmd.Flags().GetInt(flag)
@@ -285,6 +305,7 @@ func init() {
 	challengeCreateCmd.Flags().String("static-flag", "", "Static flag value")
 	challengeCreateCmd.Flags().String("description", "", "Description")
 	challengeCreateCmd.Flags().String("docker-image", "", "Docker image for dynamic challenge")
+	challengeCreateCmd.Flags().String("network-topology", "", "Path to network topology JSON")
 	challengeCreateCmd.Flags().Int("base-score", 100, "Base score")
 	challengeCreateCmd.Flags().Bool("dynamic", false, "Is dynamic (container-based)")
 	challengeCreateCmd.Flags().Bool("hidden", false, "Is hidden")
@@ -297,6 +318,7 @@ func init() {
 	challengeUpdateCmd.Flags().String("static-flag", "", "Static flag")
 	challengeUpdateCmd.Flags().String("description", "", "Description")
 	challengeUpdateCmd.Flags().String("docker-image", "", "Docker image")
+	challengeUpdateCmd.Flags().String("network-topology", "", "Path to network topology JSON")
 	challengeUpdateCmd.Flags().Int("base-score", 0, "Base score")
 	challengeUpdateCmd.Flags().Bool("dynamic", false, "Is dynamic")
 	challengeUpdateCmd.Flags().Bool("hidden", false, "Is hidden")

@@ -5761,6 +5761,7 @@ type ChallengeMutation struct {
 	is_dynamic                    *bool
 	docker_image                  *string
 	docker_compose                *string
+	network_topology              *map[string]interface{}
 	exposed_ports                 *[]map[string]interface{}
 	appendexposed_ports           []map[string]interface{}
 	env_vars                      *map[string]string
@@ -6582,6 +6583,55 @@ func (m *ChallengeMutation) DockerComposeCleared() bool {
 func (m *ChallengeMutation) ResetDockerCompose() {
 	m.docker_compose = nil
 	delete(m.clearedFields, challenge.FieldDockerCompose)
+}
+
+// SetNetworkTopology sets the "network_topology" field.
+func (m *ChallengeMutation) SetNetworkTopology(value map[string]interface{}) {
+	m.network_topology = &value
+}
+
+// NetworkTopology returns the value of the "network_topology" field in the mutation.
+func (m *ChallengeMutation) NetworkTopology() (r map[string]interface{}, exists bool) {
+	v := m.network_topology
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldNetworkTopology returns the old "network_topology" field's value of the Challenge entity.
+// If the Challenge object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ChallengeMutation) OldNetworkTopology(ctx context.Context) (v map[string]interface{}, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldNetworkTopology is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldNetworkTopology requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldNetworkTopology: %w", err)
+	}
+	return oldValue.NetworkTopology, nil
+}
+
+// ClearNetworkTopology clears the value of the "network_topology" field.
+func (m *ChallengeMutation) ClearNetworkTopology() {
+	m.network_topology = nil
+	m.clearedFields[challenge.FieldNetworkTopology] = struct{}{}
+}
+
+// NetworkTopologyCleared returns if the "network_topology" field was cleared in this mutation.
+func (m *ChallengeMutation) NetworkTopologyCleared() bool {
+	_, ok := m.clearedFields[challenge.FieldNetworkTopology]
+	return ok
+}
+
+// ResetNetworkTopology resets all changes to the "network_topology" field.
+func (m *ChallengeMutation) ResetNetworkTopology() {
+	m.network_topology = nil
+	delete(m.clearedFields, challenge.FieldNetworkTopology)
 }
 
 // SetExposedPorts sets the "exposed_ports" field.
@@ -7617,7 +7667,7 @@ func (m *ChallengeMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *ChallengeMutation) Fields() []string {
-	fields := make([]string, 0, 26)
+	fields := make([]string, 0, 27)
 	if m.title != nil {
 		fields = append(fields, challenge.FieldTitle)
 	}
@@ -7662,6 +7712,9 @@ func (m *ChallengeMutation) Fields() []string {
 	}
 	if m.docker_compose != nil {
 		fields = append(fields, challenge.FieldDockerCompose)
+	}
+	if m.network_topology != nil {
+		fields = append(fields, challenge.FieldNetworkTopology)
 	}
 	if m.exposed_ports != nil {
 		fields = append(fields, challenge.FieldExposedPorts)
@@ -7734,6 +7787,8 @@ func (m *ChallengeMutation) Field(name string) (ent.Value, bool) {
 		return m.DockerImage()
 	case challenge.FieldDockerCompose:
 		return m.DockerCompose()
+	case challenge.FieldNetworkTopology:
+		return m.NetworkTopology()
 	case challenge.FieldExposedPorts:
 		return m.ExposedPorts()
 	case challenge.FieldEnvVars:
@@ -7795,6 +7850,8 @@ func (m *ChallengeMutation) OldField(ctx context.Context, name string) (ent.Valu
 		return m.OldDockerImage(ctx)
 	case challenge.FieldDockerCompose:
 		return m.OldDockerCompose(ctx)
+	case challenge.FieldNetworkTopology:
+		return m.OldNetworkTopology(ctx)
 	case challenge.FieldExposedPorts:
 		return m.OldExposedPorts(ctx)
 	case challenge.FieldEnvVars:
@@ -7930,6 +7987,13 @@ func (m *ChallengeMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetDockerCompose(v)
+		return nil
+	case challenge.FieldNetworkTopology:
+		v, ok := value.(map[string]interface{})
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetNetworkTopology(v)
 		return nil
 	case challenge.FieldExposedPorts:
 		v, ok := value.([]map[string]interface{})
@@ -8131,6 +8195,9 @@ func (m *ChallengeMutation) ClearedFields() []string {
 	if m.FieldCleared(challenge.FieldDockerCompose) {
 		fields = append(fields, challenge.FieldDockerCompose)
 	}
+	if m.FieldCleared(challenge.FieldNetworkTopology) {
+		fields = append(fields, challenge.FieldNetworkTopology)
+	}
 	if m.FieldCleared(challenge.FieldExposedPorts) {
 		fields = append(fields, challenge.FieldExposedPorts)
 	}
@@ -8174,6 +8241,9 @@ func (m *ChallengeMutation) ClearField(name string) error {
 		return nil
 	case challenge.FieldDockerCompose:
 		m.ClearDockerCompose()
+		return nil
+	case challenge.FieldNetworkTopology:
+		m.ClearNetworkTopology()
 		return nil
 	case challenge.FieldExposedPorts:
 		m.ClearExposedPorts()
@@ -8239,6 +8309,9 @@ func (m *ChallengeMutation) ResetField(name string) error {
 		return nil
 	case challenge.FieldDockerCompose:
 		m.ResetDockerCompose()
+		return nil
+	case challenge.FieldNetworkTopology:
+		m.ResetNetworkTopology()
 		return nil
 	case challenge.FieldExposedPorts:
 		m.ResetExposedPorts()

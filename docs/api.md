@@ -120,6 +120,46 @@ curl -X PUT http://localhost:38080/api/v1/users/me/password \
   -d '{"old_password":"admin123","new_password":"newpass123"}'
 ```
 
+---
+
+## 题目网络拓扑
+
+`POST /challenges` 和 `PUT /challenges/:id` 支持 `network_topology`。第一阶段仅负责保存和校验拓扑，不会按该字段启动多容器环境。
+
+```json
+{
+  "network_topology": {
+    "services": [
+      {
+        "name": "web",
+        "image": "challenge-web:latest",
+        "networks": ["dmz"],
+        "ports": ["80"],
+        "env": { "FLAG": "{{FLAG}}" },
+        "expose_to_player": true
+      },
+      {
+        "name": "jump",
+        "image": "jumpbox:latest",
+        "networks": ["dmz", "internal"]
+      },
+      {
+        "name": "db",
+        "image": "mysql:8",
+        "networks": ["internal"]
+      }
+    ],
+    "networks": [
+      { "name": "dmz", "subnet": "10.10.1.0/24", "exposed": true },
+      { "name": "internal", "subnet": "10.10.2.0/24", "internal": true }
+    ],
+    "entry_service": "web"
+  }
+}
+```
+
+校验规则: service/network 名称必须唯一；service 必须引用已声明网络；`entry_service` 必须引用已声明 service。
+
 ### GET /users
 
 认证: 需要。RBAC: `user:read`。

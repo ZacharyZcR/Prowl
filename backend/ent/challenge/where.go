@@ -920,6 +920,16 @@ func DockerComposeContainsFold(v string) predicate.Challenge {
 	return predicate.Challenge(sql.FieldContainsFold(FieldDockerCompose, v))
 }
 
+// NetworkTopologyIsNil applies the IsNil predicate on the "network_topology" field.
+func NetworkTopologyIsNil() predicate.Challenge {
+	return predicate.Challenge(sql.FieldIsNull(FieldNetworkTopology))
+}
+
+// NetworkTopologyNotNil applies the NotNil predicate on the "network_topology" field.
+func NetworkTopologyNotNil() predicate.Challenge {
+	return predicate.Challenge(sql.FieldNotNull(FieldNetworkTopology))
+}
+
 // ExposedPortsIsNil applies the IsNil predicate on the "exposed_ports" field.
 func ExposedPortsIsNil() predicate.Challenge {
 	return predicate.Challenge(sql.FieldIsNull(FieldExposedPorts))

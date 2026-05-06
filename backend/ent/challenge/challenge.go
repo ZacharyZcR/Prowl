@@ -45,6 +45,8 @@ const (
 	FieldDockerImage = "docker_image"
 	// FieldDockerCompose holds the string denoting the docker_compose field in the database.
 	FieldDockerCompose = "docker_compose"
+	// FieldNetworkTopology holds the string denoting the network_topology field in the database.
+	FieldNetworkTopology = "network_topology"
 	// FieldExposedPorts holds the string denoting the exposed_ports field in the database.
 	FieldExposedPorts = "exposed_ports"
 	// FieldEnvVars holds the string denoting the env_vars field in the database.
@@ -170,6 +172,7 @@ var Columns = []string{
 	FieldIsDynamic,
 	FieldDockerImage,
 	FieldDockerCompose,
+	FieldNetworkTopology,
 	FieldExposedPorts,
 	FieldEnvVars,
 	FieldResourceLimits,

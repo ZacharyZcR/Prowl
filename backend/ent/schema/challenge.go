@@ -58,6 +58,8 @@ func (Challenge) Fields() []ent.Field {
 		field.Text("docker_compose").
 			Optional().
 			Default(""),
+		field.JSON("network_topology", map[string]interface{}{}).
+			Optional(),
 		field.JSON("exposed_ports", []map[string]interface{}{}).
 			Optional(),
 		field.JSON("env_vars", map[string]string{}).

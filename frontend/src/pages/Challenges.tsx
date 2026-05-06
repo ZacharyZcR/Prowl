@@ -28,6 +28,8 @@ import {
   useUpdateChallenge,
   useDeleteChallenge,
   type Challenge,
+  type ChallengePayload,
+  type NetworkTopology,
 } from "@/hooks/useChallenges";
 
 type TagTone = "info" | "success" | "warning" | "neutral" | "danger";
@@ -67,6 +69,7 @@ function emptyForm() {
     base_score: 100,
     is_dynamic: false,
     docker_image: "",
+    network_topology_json: "",
     is_hidden: false,
   };
 }
@@ -135,9 +138,34 @@ export default function Challenges({ mode }: ChallengesProps = {}) {
       base_score: challenge.base_score,
       is_dynamic: challenge.is_dynamic,
       docker_image: challenge.docker_image,
+      network_topology_json: challenge.network_topology
+        ? JSON.stringify(challenge.network_topology, null, 2)
+        : "",
       is_hidden: challenge.is_hidden,
     });
     setEditTarget(challenge);
+  }
+
+  function parseNetworkTopology(): NetworkTopology | Record<string, never> | null {
+    const raw = form.network_topology_json.trim();
+    if (!raw) {
+      return {};
+    }
+    try {
+      return JSON.parse(raw) as NetworkTopology;
+    } catch {
+      toast.error("网络拓扑 JSON 格式无效");
+      return null;
+    }
+  }
+
+  function buildPayload(): ChallengePayload | null {
+    const networkTopology = parseNetworkTopology();
+    if (networkTopology === null) {
+      return null;
+    }
+    const { network_topology_json, ...payload } = form;
+    return { ...payload, network_topology: networkTopology };
   }
 
   function resetFilters() {
@@ -148,8 +176,10 @@ export default function Challenges({ mode }: ChallengesProps = {}) {
   }
 
   async function handleCreate() {
+    const payload = buildPayload();
+    if (!payload) return;
     try {
-      await createMutation.mutateAsync(form);
+      await createMutation.mutateAsync(payload);
       toast.success(t("challenges.createTitle"));
       setCreateOpen(false);
     } catch (e) {
@@ -159,8 +189,10 @@ export default function Challenges({ mode }: ChallengesProps = {}) {
 
   async function handleUpdate() {
     if (!editTarget) return;
+    const payload = buildPayload();
+    if (!payload) return;
     try {
-      await updateMutation.mutateAsync({ id: editTarget.id, ...form });
+      await updateMutation.mutateAsync({ id: editTarget.id, ...payload });
       toast.success(t("challenges.editTitle"));
       setEditTarget(null);
     } catch (e) {
@@ -300,18 +332,29 @@ export default function Challenges({ mode }: ChallengesProps = {}) {
         {t("challenges.isDynamic")}
       </label>
       {form.is_dynamic && (
-        <Select
-          label={t("challenges.dockerImage")}
-          value={form.docker_image}
-          onChange={(e) => setField("docker_image", e.target.value)}
-        >
-          <option value="">-- 选择镜像 --</option>
-          {(dockerImages ?? []).flatMap((img) =>
-            img.tags.map((tag) => (
-              <option key={tag} value={tag}>{tag}</option>
-            ))
-          )}
-        </Select>
+        <>
+          <Select
+            label={t("challenges.dockerImage")}
+            value={form.docker_image}
+            onChange={(e) => setField("docker_image", e.target.value)}
+          >
+            <option value="">-- 选择镜像 --</option>
+            {(dockerImages ?? []).flatMap((img) =>
+              img.tags.map((tag) => (
+                <option key={tag} value={tag}>{tag}</option>
+              ))
+            )}
+          </Select>
+          <div>
+            <label className="yza-label">网络拓扑 JSON</label>
+            <textarea
+              className="yza-textarea"
+              rows={8}
+              value={form.network_topology_json}
+              onChange={(e) => setField("network_topology_json", e.target.value)}
+            />
+          </div>
+        </>
       )}
       <label className="yza-checkbox">
         <input

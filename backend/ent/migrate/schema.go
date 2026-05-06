@@ -201,6 +201,7 @@ var (
 		{Name: "is_dynamic", Type: field.TypeBool, Default: false},
 		{Name: "docker_image", Type: field.TypeString, Nullable: true, Default: ""},
 		{Name: "docker_compose", Type: field.TypeString, Nullable: true, Size: 2147483647, Default: ""},
+		{Name: "network_topology", Type: field.TypeJSON, Nullable: true},
 		{Name: "exposed_ports", Type: field.TypeJSON, Nullable: true},
 		{Name: "env_vars", Type: field.TypeJSON, Nullable: true},
 		{Name: "resource_limits", Type: field.TypeJSON, Nullable: true},
@@ -221,7 +222,7 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "challenges_users_authored_challenges",
-				Columns:    []*schema.Column{ChallengesColumns[26]},
+				Columns:    []*schema.Column{ChallengesColumns[27]},
 				RefColumns: []*schema.Column{UsersColumns[0]},
 				OnDelete:   schema.Cascade,
 			},

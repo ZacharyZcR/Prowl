@@ -2,6 +2,7 @@ package services
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"math"
 
@@ -104,8 +105,13 @@ func (s *ChallengeService) GetByID(ctx context.Context, id int) (*models.Challen
 }
 
 func (s *ChallengeService) Create(ctx context.Context, req *models.CreateChallengeRequest, authorID int, username, ip string) (*ent.Challenge, error) {
+	networkTopology, err := normalizeNetworkTopology(req.NetworkTopology)
+	if err != nil {
+		return nil, apperr.ErrBadRequest.WithMessage(err.Error())
+	}
+
 	var result *ent.Challenge
-	err := tx.WithTx(ctx, s.client, func(t *ent.Tx) error {
+	err = tx.WithTx(ctx, s.client, func(t *ent.Tx) error {
 		mode := challenge.ModeCtfJeopardy
 		if req.Mode != "" {
 			mode = challenge.Mode(req.Mode)
@@ -144,6 +150,9 @@ func (s *ChallengeService) Create(ctx context.Context, req *models.CreateChallen
 		}
 		if req.DockerCompose != "" {
 			builder = builder.SetDockerCompose(req.DockerCompose)
+		}
+		if networkTopology != nil {
+			builder = builder.SetNetworkTopology(networkTopology)
 		}
 		if req.ExposedPorts != nil {
 			builder = builder.SetExposedPorts(req.ExposedPorts)
@@ -207,8 +216,13 @@ func (s *ChallengeService) Create(ctx context.Context, req *models.CreateChallen
 }
 
 func (s *ChallengeService) Update(ctx context.Context, id int, req *models.UpdateChallengeRequest, userID int, username, ip string) (*ent.Challenge, error) {
+	networkTopology, err := normalizeNetworkTopology(req.NetworkTopology)
+	if err != nil {
+		return nil, apperr.ErrBadRequest.WithMessage(err.Error())
+	}
+
 	var result *ent.Challenge
-	err := tx.WithTx(ctx, s.client, func(t *ent.Tx) error {
+	err = tx.WithTx(ctx, s.client, func(t *ent.Tx) error {
 		builder := t.Challenge.UpdateOneID(id)
 
 		if req.Title != nil {
@@ -252,6 +266,9 @@ func (s *ChallengeService) Update(ctx context.Context, id int, req *models.Updat
 		}
 		if req.DockerCompose != nil {
 			builder = builder.SetDockerCompose(*req.DockerCompose)
+		}
+		if req.NetworkTopology != nil {
+			builder = builder.SetNetworkTopology(networkTopology)
 		}
 		if req.ExposedPorts != nil {
 			builder = builder.SetExposedPorts(req.ExposedPorts)
@@ -404,6 +421,11 @@ func buildChallengeResponse(c *ent.Challenge) models.ChallengeResponse {
 		FlagType:             string(c.FlagType),
 		IsDynamic:            c.IsDynamic,
 		DockerImage:          c.DockerImage,
+		DockerCompose:        c.DockerCompose,
+		NetworkTopology:      networkTopologyFromMap(c.NetworkTopology),
+		ExposedPorts:         c.ExposedPorts,
+		EnvVars:              c.EnvVars,
+		ResourceLimits:       c.ResourceLimits,
 		MaxContainerDuration: c.MaxContainerDuration,
 		HintCost:             c.HintCost,
 		AttachmentIDs:        c.AttachmentIds,
@@ -445,18 +467,55 @@ func buildChallengeResponse(c *ent.Challenge) models.ChallengeResponse {
 	return resp
 }
 
+func normalizeNetworkTopology(topology *models.NetworkTopology) (map[string]interface{}, error) {
+	if topology == nil {
+		return nil, nil
+	}
+	if err := topology.Validate(); err != nil {
+		return nil, err
+	}
+	if topology.IsEmpty() {
+		return map[string]interface{}{}, nil
+	}
+
+	data, err := json.Marshal(topology)
+	if err != nil {
+		return nil, err
+	}
+	var result map[string]interface{}
+	if err := json.Unmarshal(data, &result); err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
+func networkTopologyFromMap(raw map[string]interface{}) *models.NetworkTopology {
+	if len(raw) == 0 {
+		return nil
+	}
+	data, err := json.Marshal(raw)
+	if err != nil {
+		return nil
+	}
+	var topology models.NetworkTopology
+	if err := json.Unmarshal(data, &topology); err != nil {
+		return nil
+	}
+	return &topology
+}
+
 type PortalChallenge struct {
-	ID          int                  `json:"id"`
-	Title       string               `json:"title"`
-	Description string               `json:"description"`
-	Category    string               `json:"category"`
-	Difficulty  string               `json:"difficulty"`
-	Score       int                  `json:"score"`
-	SolveCount  int                  `json:"solve_count"`
-	IsDynamic   bool                 `json:"is_dynamic"`
-	IsSolved    bool                 `json:"is_solved"`
+	ID          int                           `json:"id"`
+	Title       string                        `json:"title"`
+	Description string                        `json:"description"`
+	Category    string                        `json:"category"`
+	Difficulty  string                        `json:"difficulty"`
+	Score       int                           `json:"score"`
+	SolveCount  int                           `json:"solve_count"`
+	IsDynamic   bool                          `json:"is_dynamic"`
+	IsSolved    bool                          `json:"is_solved"`
 	Tags        []models.ChallengeTagResponse `json:"tags"`
-	Hints       []PortalHint         `json:"hints"`
+	Hints       []PortalHint                  `json:"hints"`
 }
 
 type PortalHint struct {

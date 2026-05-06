@@ -15,6 +15,29 @@ export interface ChallengeHint {
   order_num: number;
 }
 
+export interface TopologyService {
+  name: string;
+  image: string;
+  networks: string[];
+  ports?: string[];
+  env?: Record<string, string>;
+  entrypoint?: string;
+  expose_to_player?: boolean;
+}
+
+export interface TopologyNetwork {
+  name: string;
+  subnet?: string;
+  internal?: boolean;
+  exposed?: boolean;
+}
+
+export interface NetworkTopology {
+  services: TopologyService[];
+  networks: TopologyNetwork[];
+  entry_service: string;
+}
+
 export interface Challenge {
   id: number;
   title: string;
@@ -27,6 +50,11 @@ export interface Challenge {
   flag_type: string;
   is_dynamic: boolean;
   docker_image: string;
+  docker_compose: string;
+  network_topology?: NetworkTopology | null;
+  exposed_ports?: Record<string, unknown>[];
+  env_vars?: Record<string, string>;
+  resource_limits?: Record<string, unknown>;
   is_hidden: boolean;
   solve_count: number;
   author_name: string;
@@ -35,6 +63,11 @@ export interface Challenge {
   created_at: string;
   updated_at: string;
 }
+
+export type ChallengePayload = Omit<Partial<Challenge>, "network_topology"> & {
+  static_flag?: string;
+  network_topology?: NetworkTopology | Record<string, never>;
+};
 
 interface ChallengeQuery {
   page?: number;
@@ -73,7 +106,7 @@ export function useChallenge(id: number) {
 export function useCreateChallenge() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (payload: Partial<Challenge>) =>
+    mutationFn: (payload: ChallengePayload) =>
       api.post("/api/v1/challenges", payload),
     onSuccess: () => {
       invalidateChallengeQueries(qc);
@@ -84,7 +117,7 @@ export function useCreateChallenge() {
 export function useUpdateChallenge() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, ...payload }: { id: number } & Partial<Challenge>) =>
+    mutationFn: ({ id, ...payload }: { id: number } & ChallengePayload) =>
       api.put(`/api/v1/challenges/${id}`, payload),
     onSuccess: () => {
       invalidateChallengeQueries(qc);

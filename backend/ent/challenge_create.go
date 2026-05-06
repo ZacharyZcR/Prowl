@@ -223,6 +223,12 @@ func (_c *ChallengeCreate) SetNillableDockerCompose(v *string) *ChallengeCreate 
 	return _c
 }
 
+// SetNetworkTopology sets the "network_topology" field.
+func (_c *ChallengeCreate) SetNetworkTopology(v map[string]interface{}) *ChallengeCreate {
+	_c.mutation.SetNetworkTopology(v)
+	return _c
+}
+
 // SetExposedPorts sets the "exposed_ports" field.
 func (_c *ChallengeCreate) SetExposedPorts(v []map[string]interface{}) *ChallengeCreate {
 	_c.mutation.SetExposedPorts(v)
@@ -738,6 +744,10 @@ func (_c *ChallengeCreate) createSpec() (*Challenge, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.DockerCompose(); ok {
 		_spec.SetField(challenge.FieldDockerCompose, field.TypeString, value)
 		_node.DockerCompose = value
+	}
+	if value, ok := _c.mutation.NetworkTopology(); ok {
+		_spec.SetField(challenge.FieldNetworkTopology, field.TypeJSON, value)
+		_node.NetworkTopology = value
 	}
 	if value, ok := _c.mutation.ExposedPorts(); ok {
 		_spec.SetField(challenge.FieldExposedPorts, field.TypeJSON, value)

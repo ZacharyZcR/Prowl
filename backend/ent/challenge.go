@@ -49,6 +49,8 @@ type Challenge struct {
 	DockerImage string `json:"docker_image,omitempty"`
 	// DockerCompose holds the value of the "docker_compose" field.
 	DockerCompose string `json:"docker_compose,omitempty"`
+	// NetworkTopology holds the value of the "network_topology" field.
+	NetworkTopology map[string]interface{} `json:"network_topology,omitempty"`
 	// ExposedPorts holds the value of the "exposed_ports" field.
 	ExposedPorts []map[string]interface{} `json:"exposed_ports,omitempty"`
 	// EnvVars holds the value of the "env_vars" field.
@@ -190,7 +192,7 @@ func (*Challenge) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case challenge.FieldExposedPorts, challenge.FieldEnvVars, challenge.FieldResourceLimits, challenge.FieldAttachmentIds:
+		case challenge.FieldNetworkTopology, challenge.FieldExposedPorts, challenge.FieldEnvVars, challenge.FieldResourceLimits, challenge.FieldAttachmentIds:
 			values[i] = new([]byte)
 		case challenge.FieldIsDynamic, challenge.FieldIsHidden:
 			values[i] = new(sql.NullBool)
@@ -312,6 +314,14 @@ func (_m *Challenge) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field docker_compose", values[i])
 			} else if value.Valid {
 				_m.DockerCompose = value.String
+			}
+		case challenge.FieldNetworkTopology:
+			if value, ok := values[i].(*[]byte); !ok {
+				return fmt.Errorf("unexpected type %T for field network_topology", values[i])
+			} else if value != nil && len(*value) > 0 {
+				if err := json.Unmarshal(*value, &_m.NetworkTopology); err != nil {
+					return fmt.Errorf("unmarshal field network_topology: %w", err)
+				}
 			}
 		case challenge.FieldExposedPorts:
 			if value, ok := values[i].(*[]byte); !ok {
@@ -511,6 +521,9 @@ func (_m *Challenge) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("docker_compose=")
 	builder.WriteString(_m.DockerCompose)
+	builder.WriteString(", ")
+	builder.WriteString("network_topology=")
+	builder.WriteString(fmt.Sprintf("%v", _m.NetworkTopology))
 	builder.WriteString(", ")
 	builder.WriteString("exposed_ports=")
 	builder.WriteString(fmt.Sprintf("%v", _m.ExposedPorts))

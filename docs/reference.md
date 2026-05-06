@@ -247,6 +247,9 @@ Indexes: (conversation_id, created_at)
 ### AiConfig (`backend/ent/schema/ai_config.go`)
 id, provider (default "openai"), api_key (sensitive), api_base, model (default "gpt-4o"), max_tokens (4096), temperature (0.7), system_prompt, updated_at
 
+### Challenge Network Topology
+`Challenge.network_topology` 保存多层网络题的拓扑草案。结构包含 `services`、`networks`、`entry_service`。当前阶段只做存储与校验，运行时仍走单容器实例逻辑。
+
 ## 前端架构
 
 ### 路由表

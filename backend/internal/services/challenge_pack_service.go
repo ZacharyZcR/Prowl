@@ -10,6 +10,7 @@ import (
 
 	"github.com/ZacharyZcR/STC/backend/ent"
 	"github.com/ZacharyZcR/STC/backend/ent/challenge"
+	"github.com/ZacharyZcR/STC/backend/internal/models"
 	apperr "github.com/ZacharyZcR/STC/backend/pkg/errors"
 )
 
@@ -35,6 +36,7 @@ type ChallengeMeta struct {
 	FlagRegex            string                   `json:"flag_regex,omitempty"`
 	IsDynamic            bool                     `json:"is_dynamic"`
 	DockerImage          string                   `json:"docker_image,omitempty"`
+	NetworkTopology      *models.NetworkTopology  `json:"network_topology,omitempty"`
 	ExposedPorts         []map[string]interface{} `json:"exposed_ports,omitempty"`
 	EnvVars              map[string]string        `json:"env_vars,omitempty"`
 	ResourceLimits       map[string]interface{}   `json:"resource_limits,omitempty"`
@@ -84,6 +86,7 @@ func (s *ChallengePackService) ExportPack(ctx context.Context, challengeIDs []in
 			FlagRegex:            c.FlagRegex,
 			IsDynamic:            c.IsDynamic,
 			DockerImage:          c.DockerImage,
+			NetworkTopology:      networkTopologyFromMap(c.NetworkTopology),
 			ExposedPorts:         c.ExposedPorts,
 			EnvVars:              c.EnvVars,
 			ResourceLimits:       c.ResourceLimits,
@@ -186,6 +189,13 @@ func (s *ChallengePackService) ImportPack(ctx context.Context, data []byte, auth
 
 		if meta.ExposedPorts != nil {
 			builder = builder.SetExposedPorts(meta.ExposedPorts)
+		}
+		if meta.NetworkTopology != nil {
+			networkTopology, err := normalizeNetworkTopology(meta.NetworkTopology)
+			if err != nil {
+				return imported, apperr.ErrBadRequest.WithMessage(fmt.Sprintf("invalid network topology for challenge '%s': %v", meta.Title, err))
+			}
+			builder = builder.SetNetworkTopology(networkTopology)
 		}
 		if meta.EnvVars != nil {
 			builder = builder.SetEnvVars(meta.EnvVars)

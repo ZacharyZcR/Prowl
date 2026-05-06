@@ -329,27 +329,27 @@ func init() {
 	// challenge.DefaultDockerCompose holds the default value on creation for the docker_compose field.
 	challenge.DefaultDockerCompose = challengeDescDockerCompose.Default.(string)
 	// challengeDescMaxContainerDuration is the schema descriptor for max_container_duration field.
-	challengeDescMaxContainerDuration := challengeFields[18].Descriptor()
+	challengeDescMaxContainerDuration := challengeFields[19].Descriptor()
 	// challenge.DefaultMaxContainerDuration holds the default value on creation for the max_container_duration field.
 	challenge.DefaultMaxContainerDuration = challengeDescMaxContainerDuration.Default.(int)
 	// challengeDescHintCost is the schema descriptor for hint_cost field.
-	challengeDescHintCost := challengeFields[19].Descriptor()
+	challengeDescHintCost := challengeFields[20].Descriptor()
 	// challenge.DefaultHintCost holds the default value on creation for the hint_cost field.
 	challenge.DefaultHintCost = challengeDescHintCost.Default.(int)
 	// challengeDescIsHidden is the schema descriptor for is_hidden field.
-	challengeDescIsHidden := challengeFields[22].Descriptor()
+	challengeDescIsHidden := challengeFields[23].Descriptor()
 	// challenge.DefaultIsHidden holds the default value on creation for the is_hidden field.
 	challenge.DefaultIsHidden = challengeDescIsHidden.Default.(bool)
 	// challengeDescSolveCount is the schema descriptor for solve_count field.
-	challengeDescSolveCount := challengeFields[23].Descriptor()
+	challengeDescSolveCount := challengeFields[24].Descriptor()
 	// challenge.DefaultSolveCount holds the default value on creation for the solve_count field.
 	challenge.DefaultSolveCount = challengeDescSolveCount.Default.(int)
 	// challengeDescCreatedAt is the schema descriptor for created_at field.
-	challengeDescCreatedAt := challengeFields[24].Descriptor()
+	challengeDescCreatedAt := challengeFields[25].Descriptor()
 	// challenge.DefaultCreatedAt holds the default value on creation for the created_at field.
 	challenge.DefaultCreatedAt = challengeDescCreatedAt.Default.(func() time.Time)
 	// challengeDescUpdatedAt is the schema descriptor for updated_at field.
-	challengeDescUpdatedAt := challengeFields[25].Descriptor()
+	challengeDescUpdatedAt := challengeFields[26].Descriptor()
 	// challenge.DefaultUpdatedAt holds the default value on creation for the updated_at field.
 	challenge.DefaultUpdatedAt = challengeDescUpdatedAt.Default.(func() time.Time)
 	// challenge.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.

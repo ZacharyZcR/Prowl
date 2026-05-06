@@ -13,6 +13,11 @@ type ChallengeResponse struct {
 	FlagType             string                   `json:"flag_type"`
 	IsDynamic            bool                     `json:"is_dynamic"`
 	DockerImage          string                   `json:"docker_image"`
+	DockerCompose        string                   `json:"docker_compose"`
+	NetworkTopology      *NetworkTopology         `json:"network_topology,omitempty"`
+	ExposedPorts         []map[string]interface{} `json:"exposed_ports"`
+	EnvVars              map[string]string        `json:"env_vars"`
+	ResourceLimits       map[string]interface{}   `json:"resource_limits"`
 	MaxContainerDuration int                      `json:"max_container_duration"`
 	HintCost             int                      `json:"hint_cost"`
 	AttachmentIDs        []int                    `json:"attachment_ids"`
@@ -27,16 +32,16 @@ type ChallengeResponse struct {
 }
 
 type ChallengePortalResponse struct {
-	ID          int                          `json:"id"`
-	Title       string                       `json:"title"`
-	Description string                       `json:"description"`
-	Category    string                       `json:"category"`
-	Difficulty  string                       `json:"difficulty"`
-	Score       int                          `json:"score"`
-	SolveCount  int                          `json:"solve_count"`
-	IsDynamic   bool                         `json:"is_dynamic"`
-	IsSolved    bool                         `json:"is_solved"`
-	Tags        []ChallengeTagResponse       `json:"tags"`
+	ID          int                           `json:"id"`
+	Title       string                        `json:"title"`
+	Description string                        `json:"description"`
+	Category    string                        `json:"category"`
+	Difficulty  string                        `json:"difficulty"`
+	Score       int                           `json:"score"`
+	SolveCount  int                           `json:"solve_count"`
+	IsDynamic   bool                          `json:"is_dynamic"`
+	IsSolved    bool                          `json:"is_solved"`
+	Tags        []ChallengeTagResponse        `json:"tags"`
 	Hints       []ChallengeHintPortalResponse `json:"hints,omitempty"`
 }
 
@@ -78,6 +83,7 @@ type CreateChallengeRequest struct {
 	IsDynamic            bool                     `json:"is_dynamic"`
 	DockerImage          string                   `json:"docker_image"`
 	DockerCompose        string                   `json:"docker_compose"`
+	NetworkTopology      *NetworkTopology         `json:"network_topology"`
 	ExposedPorts         []map[string]interface{} `json:"exposed_ports"`
 	EnvVars              map[string]string        `json:"env_vars"`
 	ResourceLimits       map[string]interface{}   `json:"resource_limits"`
@@ -89,28 +95,29 @@ type CreateChallengeRequest struct {
 }
 
 type UpdateChallengeRequest struct {
-	Title                *string                   `json:"title" binding:"omitempty,min=1,max=200"`
-	Description          *string                   `json:"description"`
-	Category             *string                   `json:"category"`
-	Difficulty           *string                   `json:"difficulty" binding:"omitempty,oneof=easy medium hard insane"`
-	BaseScore            *int                      `json:"base_score" binding:"omitempty,min=1"`
-	MinScore             *int                      `json:"min_score" binding:"omitempty,min=0"`
-	DecayFactor          *float64                  `json:"decay_factor" binding:"omitempty,min=0"`
-	FlagType             *string                   `json:"flag_type" binding:"omitempty,oneof=static dynamic_per_team regex"`
-	StaticFlag           *string                   `json:"static_flag"`
-	FlagTemplate         *string                   `json:"flag_template"`
-	FlagRegex            *string                   `json:"flag_regex"`
-	IsDynamic            *bool                     `json:"is_dynamic"`
-	DockerImage          *string                   `json:"docker_image"`
-	DockerCompose        *string                   `json:"docker_compose"`
-	ExposedPorts         []map[string]interface{}  `json:"exposed_ports"`
-	EnvVars              map[string]string         `json:"env_vars"`
-	ResourceLimits       map[string]interface{}    `json:"resource_limits"`
-	MaxContainerDuration *int                      `json:"max_container_duration"`
-	HintCost             *int                      `json:"hint_cost"`
-	AttachmentIDs        []int                     `json:"attachment_ids"`
-	IsHidden             *bool                     `json:"is_hidden"`
-	Tags                 []string                  `json:"tags"`
+	Title                *string                  `json:"title" binding:"omitempty,min=1,max=200"`
+	Description          *string                  `json:"description"`
+	Category             *string                  `json:"category"`
+	Difficulty           *string                  `json:"difficulty" binding:"omitempty,oneof=easy medium hard insane"`
+	BaseScore            *int                     `json:"base_score" binding:"omitempty,min=1"`
+	MinScore             *int                     `json:"min_score" binding:"omitempty,min=0"`
+	DecayFactor          *float64                 `json:"decay_factor" binding:"omitempty,min=0"`
+	FlagType             *string                  `json:"flag_type" binding:"omitempty,oneof=static dynamic_per_team regex"`
+	StaticFlag           *string                  `json:"static_flag"`
+	FlagTemplate         *string                  `json:"flag_template"`
+	FlagRegex            *string                  `json:"flag_regex"`
+	IsDynamic            *bool                    `json:"is_dynamic"`
+	DockerImage          *string                  `json:"docker_image"`
+	DockerCompose        *string                  `json:"docker_compose"`
+	NetworkTopology      *NetworkTopology         `json:"network_topology"`
+	ExposedPorts         []map[string]interface{} `json:"exposed_ports"`
+	EnvVars              map[string]string        `json:"env_vars"`
+	ResourceLimits       map[string]interface{}   `json:"resource_limits"`
+	MaxContainerDuration *int                     `json:"max_container_duration"`
+	HintCost             *int                     `json:"hint_cost"`
+	AttachmentIDs        []int                    `json:"attachment_ids"`
+	IsHidden             *bool                    `json:"is_hidden"`
+	Tags                 []string                 `json:"tags"`
 }
 
 type ChallengeListQuery struct {
