@@ -51,6 +51,17 @@ func TestStackNetworkLabelsIncludesAccessPolicy(t *testing.T) {
 	}
 }
 
+func TestStackNetworkLabelsIncludesRequestedSubnet(t *testing.T) {
+	labels := stackNetworkLabels(nil, "stack-1", models.TopologyNetwork{
+		Name:   "dmz",
+		Subnet: "10.77.1.0/24",
+	})
+
+	if labels["topology-network-requested-subnet"] != "10.77.1.0/24" {
+		t.Fatalf("expected requested subnet label, got %#v", labels)
+	}
+}
+
 func TestExposedPortsForServiceDefaultsToHTTP(t *testing.T) {
 	got := exposedPortsForService(models.TopologyService{Name: "web"})
 	if len(got) != 1 || got[0] != "80" {

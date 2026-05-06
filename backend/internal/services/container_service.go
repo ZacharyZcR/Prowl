@@ -34,9 +34,10 @@ type NetworkAttachment struct {
 }
 
 type NetworkOptions struct {
-	Internal bool
-	Subnet   string
-	Labels   map[string]string
+	Internal            bool
+	Subnet              string
+	AllowSubnetFallback bool
+	Labels              map[string]string
 }
 
 type ContainerInfo struct {
@@ -119,9 +120,27 @@ func (s *ContainerService) EnsureNetworkWithOptions(ctx context.Context, network
 
 	resp, err := s.cli.NetworkCreate(ctx, networkName, createOptions)
 	if err != nil {
+		if opts.AllowSubnetFallback && opts.Subnet != "" && isPoolOverlapError(err) {
+			createOptions.IPAM = nil
+			resp, err = s.cli.NetworkCreate(ctx, networkName, createOptions)
+			if err == nil {
+				s.logger.Warn("created network without requested subnet after overlap",
+					zap.String("network", networkName),
+					zap.String("requested_subnet", opts.Subnet),
+				)
+				return resp.ID, nil
+			}
+		}
 		return "", fmt.Errorf("failed to create network %s: %w", networkName, err)
 	}
 	return resp.ID, nil
+}
+
+func isPoolOverlapError(err error) bool {
+	if err == nil {
+		return false
+	}
+	return strings.Contains(strings.ToLower(err.Error()), "pool overlaps")
 }
 
 func (s *ContainerService) CreateAndStart(ctx context.Context, cfg *ContainerConfig) (*ContainerInfo, error) {

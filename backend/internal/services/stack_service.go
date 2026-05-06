@@ -66,9 +66,10 @@ func (s *StackService) Start(ctx context.Context, cfg StackConfig) (*StackInfo, 
 		net.Name = networkName
 		actualName := stackResourceName(stackID, "net", networkName)
 		networkID, err := s.container.EnsureNetworkWithOptions(ctx, actualName, NetworkOptions{
-			Internal: net.Internal,
-			Subnet:   net.Subnet,
-			Labels:   stackNetworkLabels(cfg.Labels, stackID, net),
+			Internal:            net.Internal,
+			Subnet:              net.Subnet,
+			AllowSubnetFallback: true,
+			Labels:              stackNetworkLabels(cfg.Labels, stackID, net),
 		})
 		if err != nil {
 			cleanup()
@@ -168,6 +169,9 @@ func stackNetworkLabels(base map[string]string, stackID string, net models.Topol
 	labels := stackLabels(base, stackID, "network", net.Name)
 	labels["topology-network-exposed"] = fmt.Sprintf("%t", net.Exposed)
 	labels["topology-network-internal"] = fmt.Sprintf("%t", net.Internal)
+	if net.Subnet != "" {
+		labels["topology-network-requested-subnet"] = net.Subnet
+	}
 	return labels
 }
 
