@@ -10,6 +10,7 @@ import (
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/ZacharyZcR/STC/backend/ent/challenge"
 	"github.com/ZacharyZcR/STC/backend/ent/challengetag"
 )
 
@@ -52,6 +53,21 @@ func (_c *ChallengeTagCreate) SetNillableCreatedAt(v *time.Time) *ChallengeTagCr
 		_c.SetCreatedAt(*v)
 	}
 	return _c
+}
+
+// AddChallengeIDs adds the "challenges" edge to the Challenge entity by IDs.
+func (_c *ChallengeTagCreate) AddChallengeIDs(ids ...int) *ChallengeTagCreate {
+	_c.mutation.AddChallengeIDs(ids...)
+	return _c
+}
+
+// AddChallenges adds the "challenges" edges to the Challenge entity.
+func (_c *ChallengeTagCreate) AddChallenges(v ...*Challenge) *ChallengeTagCreate {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddChallengeIDs(ids...)
 }
 
 // Mutation returns the ChallengeTagMutation object of the builder.
@@ -149,6 +165,22 @@ func (_c *ChallengeTagCreate) createSpec() (*ChallengeTag, *sqlgraph.CreateSpec)
 	if value, ok := _c.mutation.CreatedAt(); ok {
 		_spec.SetField(challengetag.FieldCreatedAt, field.TypeTime, value)
 		_node.CreatedAt = value
+	}
+	if nodes := _c.mutation.ChallengesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   challengetag.ChallengesTable,
+			Columns: challengetag.ChallengesPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(challenge.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec
 }

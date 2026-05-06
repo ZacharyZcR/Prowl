@@ -22,9 +22,29 @@ type ChallengeTag struct {
 	// Color holds the value of the "color" field.
 	Color string `json:"color,omitempty"`
 	// CreatedAt holds the value of the "created_at" field.
-	CreatedAt      time.Time `json:"created_at,omitempty"`
-	challenge_tags *int
-	selectValues   sql.SelectValues
+	CreatedAt time.Time `json:"created_at,omitempty"`
+	// Edges holds the relations/edges for other nodes in the graph.
+	// The values are being populated by the ChallengeTagQuery when eager-loading is set.
+	Edges        ChallengeTagEdges `json:"edges"`
+	selectValues sql.SelectValues
+}
+
+// ChallengeTagEdges holds the relations/edges for other nodes in the graph.
+type ChallengeTagEdges struct {
+	// Challenges holds the value of the challenges edge.
+	Challenges []*Challenge `json:"challenges,omitempty"`
+	// loadedTypes holds the information for reporting if a
+	// type was loaded (or requested) in eager-loading or not.
+	loadedTypes [1]bool
+}
+
+// ChallengesOrErr returns the Challenges value or an error if the edge
+// was not loaded in eager-loading.
+func (e ChallengeTagEdges) ChallengesOrErr() ([]*Challenge, error) {
+	if e.loadedTypes[0] {
+		return e.Challenges, nil
+	}
+	return nil, &NotLoadedError{edge: "challenges"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -38,8 +58,6 @@ func (*ChallengeTag) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullString)
 		case challengetag.FieldCreatedAt:
 			values[i] = new(sql.NullTime)
-		case challengetag.ForeignKeys[0]: // challenge_tags
-			values[i] = new(sql.NullInt64)
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -79,13 +97,6 @@ func (_m *ChallengeTag) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				_m.CreatedAt = value.Time
 			}
-		case challengetag.ForeignKeys[0]:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for edge-field challenge_tags", value)
-			} else if value.Valid {
-				_m.challenge_tags = new(int)
-				*_m.challenge_tags = int(value.Int64)
-			}
 		default:
 			_m.selectValues.Set(columns[i], values[i])
 		}
@@ -97,6 +108,11 @@ func (_m *ChallengeTag) assignValues(columns []string, values []any) error {
 // This includes values selected through modifiers, order, etc.
 func (_m *ChallengeTag) Value(name string) (ent.Value, error) {
 	return _m.selectValues.Get(name)
+}
+
+// QueryChallenges queries the "challenges" edge of the ChallengeTag entity.
+func (_m *ChallengeTag) QueryChallenges() *ChallengeQuery {
+	return NewChallengeTagClient(_m.config).QueryChallenges(_m)
 }
 
 // Update returns a builder for updating this ChallengeTag.

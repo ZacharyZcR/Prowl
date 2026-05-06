@@ -10,6 +10,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/ZacharyZcR/STC/backend/ent/challenge"
 	"github.com/ZacharyZcR/STC/backend/ent/challengetag"
 	"github.com/ZacharyZcR/STC/backend/ent/predicate"
 )
@@ -61,9 +62,45 @@ func (_u *ChallengeTagUpdate) ClearColor() *ChallengeTagUpdate {
 	return _u
 }
 
+// AddChallengeIDs adds the "challenges" edge to the Challenge entity by IDs.
+func (_u *ChallengeTagUpdate) AddChallengeIDs(ids ...int) *ChallengeTagUpdate {
+	_u.mutation.AddChallengeIDs(ids...)
+	return _u
+}
+
+// AddChallenges adds the "challenges" edges to the Challenge entity.
+func (_u *ChallengeTagUpdate) AddChallenges(v ...*Challenge) *ChallengeTagUpdate {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddChallengeIDs(ids...)
+}
+
 // Mutation returns the ChallengeTagMutation object of the builder.
 func (_u *ChallengeTagUpdate) Mutation() *ChallengeTagMutation {
 	return _u.mutation
+}
+
+// ClearChallenges clears all "challenges" edges to the Challenge entity.
+func (_u *ChallengeTagUpdate) ClearChallenges() *ChallengeTagUpdate {
+	_u.mutation.ClearChallenges()
+	return _u
+}
+
+// RemoveChallengeIDs removes the "challenges" edge to Challenge entities by IDs.
+func (_u *ChallengeTagUpdate) RemoveChallengeIDs(ids ...int) *ChallengeTagUpdate {
+	_u.mutation.RemoveChallengeIDs(ids...)
+	return _u
+}
+
+// RemoveChallenges removes "challenges" edges to Challenge entities.
+func (_u *ChallengeTagUpdate) RemoveChallenges(v ...*Challenge) *ChallengeTagUpdate {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveChallengeIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -124,6 +161,51 @@ func (_u *ChallengeTagUpdate) sqlSave(ctx context.Context) (_node int, err error
 	if _u.mutation.ColorCleared() {
 		_spec.ClearField(challengetag.FieldColor, field.TypeString)
 	}
+	if _u.mutation.ChallengesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   challengetag.ChallengesTable,
+			Columns: challengetag.ChallengesPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(challenge.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedChallengesIDs(); len(nodes) > 0 && !_u.mutation.ChallengesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   challengetag.ChallengesTable,
+			Columns: challengetag.ChallengesPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(challenge.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.ChallengesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   challengetag.ChallengesTable,
+			Columns: challengetag.ChallengesPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(challenge.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
 	if _node, err = sqlgraph.UpdateNodes(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{challengetag.Label}
@@ -178,9 +260,45 @@ func (_u *ChallengeTagUpdateOne) ClearColor() *ChallengeTagUpdateOne {
 	return _u
 }
 
+// AddChallengeIDs adds the "challenges" edge to the Challenge entity by IDs.
+func (_u *ChallengeTagUpdateOne) AddChallengeIDs(ids ...int) *ChallengeTagUpdateOne {
+	_u.mutation.AddChallengeIDs(ids...)
+	return _u
+}
+
+// AddChallenges adds the "challenges" edges to the Challenge entity.
+func (_u *ChallengeTagUpdateOne) AddChallenges(v ...*Challenge) *ChallengeTagUpdateOne {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddChallengeIDs(ids...)
+}
+
 // Mutation returns the ChallengeTagMutation object of the builder.
 func (_u *ChallengeTagUpdateOne) Mutation() *ChallengeTagMutation {
 	return _u.mutation
+}
+
+// ClearChallenges clears all "challenges" edges to the Challenge entity.
+func (_u *ChallengeTagUpdateOne) ClearChallenges() *ChallengeTagUpdateOne {
+	_u.mutation.ClearChallenges()
+	return _u
+}
+
+// RemoveChallengeIDs removes the "challenges" edge to Challenge entities by IDs.
+func (_u *ChallengeTagUpdateOne) RemoveChallengeIDs(ids ...int) *ChallengeTagUpdateOne {
+	_u.mutation.RemoveChallengeIDs(ids...)
+	return _u
+}
+
+// RemoveChallenges removes "challenges" edges to Challenge entities.
+func (_u *ChallengeTagUpdateOne) RemoveChallenges(v ...*Challenge) *ChallengeTagUpdateOne {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveChallengeIDs(ids...)
 }
 
 // Where appends a list predicates to the ChallengeTagUpdate builder.
@@ -270,6 +388,51 @@ func (_u *ChallengeTagUpdateOne) sqlSave(ctx context.Context) (_node *ChallengeT
 	}
 	if _u.mutation.ColorCleared() {
 		_spec.ClearField(challengetag.FieldColor, field.TypeString)
+	}
+	if _u.mutation.ChallengesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   challengetag.ChallengesTable,
+			Columns: challengetag.ChallengesPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(challenge.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedChallengesIDs(); len(nodes) > 0 && !_u.mutation.ChallengesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   challengetag.ChallengesTable,
+			Columns: challengetag.ChallengesPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(challenge.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.ChallengesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   challengetag.ChallengesTable,
+			Columns: challengetag.ChallengesPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(challenge.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	_node = &ChallengeTag{config: _u.config}
 	_spec.Assign = _node.assignValues

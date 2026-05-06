@@ -103,13 +103,11 @@ const (
 	HintsInverseTable = "challenge_hints"
 	// HintsColumn is the table column denoting the hints relation/edge.
 	HintsColumn = "challenge_id"
-	// TagsTable is the table that holds the tags relation/edge.
-	TagsTable = "challenge_tags"
+	// TagsTable is the table that holds the tags relation/edge. The primary key declared below.
+	TagsTable = "challenge_tag_links"
 	// TagsInverseTable is the table name for the ChallengeTag entity.
 	// It exists in this package in order to avoid circular dependency with the "challengetag" package.
 	TagsInverseTable = "challenge_tags"
-	// TagsColumn is the table column denoting the tags relation/edge.
-	TagsColumn = "challenge_tags"
 	// CompetitionChallengesTable is the table that holds the competition_challenges relation/edge.
 	CompetitionChallengesTable = "competition_challenges"
 	// CompetitionChallengesInverseTable is the table name for the CompetitionChallenge entity.
@@ -185,6 +183,12 @@ var Columns = []string{
 	FieldCreatedAt,
 	FieldUpdatedAt,
 }
+
+var (
+	// TagsPrimaryKey and TagsColumn2 are the table columns denoting the
+	// primary key for the tags relation (M2M).
+	TagsPrimaryKey = []string{"challenge_id", "tag_id"}
+)
 
 // ValidColumn reports if the column name is valid (part of the table columns).
 func ValidColumn(column string) bool {
@@ -574,7 +578,7 @@ func newTagsStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(TagsInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.O2M, false, TagsTable, TagsColumn),
+		sqlgraph.Edge(sqlgraph.M2M, false, TagsTable, TagsPrimaryKey...),
 	)
 }
 func newCompetitionChallengesStep() *sqlgraph.Step {

@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"entgo.io/ent/dialect/sql"
+	"entgo.io/ent/dialect/sql/sqlgraph"
 )
 
 const (
@@ -19,8 +20,15 @@ const (
 	FieldColor = "color"
 	// FieldCreatedAt holds the string denoting the created_at field in the database.
 	FieldCreatedAt = "created_at"
+	// EdgeChallenges holds the string denoting the challenges edge name in mutations.
+	EdgeChallenges = "challenges"
 	// Table holds the table name of the challengetag in the database.
 	Table = "challenge_tags"
+	// ChallengesTable is the table that holds the challenges relation/edge. The primary key declared below.
+	ChallengesTable = "challenge_tag_links"
+	// ChallengesInverseTable is the table name for the Challenge entity.
+	// It exists in this package in order to avoid circular dependency with the "challenge" package.
+	ChallengesInverseTable = "challenges"
 )
 
 // Columns holds all SQL columns for challengetag fields.
@@ -31,21 +39,16 @@ var Columns = []string{
 	FieldCreatedAt,
 }
 
-// ForeignKeys holds the SQL foreign-keys that are owned by the "challenge_tags"
-// table and are not defined as standalone fields in the schema.
-var ForeignKeys = []string{
-	"challenge_tags",
-}
+var (
+	// ChallengesPrimaryKey and ChallengesColumn2 are the table columns denoting the
+	// primary key for the challenges relation (M2M).
+	ChallengesPrimaryKey = []string{"challenge_id", "tag_id"}
+)
 
 // ValidColumn reports if the column name is valid (part of the table columns).
 func ValidColumn(column string) bool {
 	for i := range Columns {
 		if column == Columns[i] {
-			return true
-		}
-	}
-	for i := range ForeignKeys {
-		if column == ForeignKeys[i] {
 			return true
 		}
 	}
@@ -82,4 +85,25 @@ func ByColor(opts ...sql.OrderTermOption) OrderOption {
 // ByCreatedAt orders the results by the created_at field.
 func ByCreatedAt(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldCreatedAt, opts...).ToFunc()
+}
+
+// ByChallengesCount orders the results by challenges count.
+func ByChallengesCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newChallengesStep(), opts...)
+	}
+}
+
+// ByChallenges orders the results by challenges terms.
+func ByChallenges(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newChallengesStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+func newChallengesStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(ChallengesInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2M, true, ChallengesTable, ChallengesPrimaryKey...),
+	)
 }

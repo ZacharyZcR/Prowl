@@ -1,50 +1,50 @@
 package models
 
 type CompetitionResponse struct {
-	ID                     int                    `json:"id"`
-	Title                  string                 `json:"title"`
-	Description            string                 `json:"description"`
-	Mode                   string                 `json:"mode"`
-	Status                 string                 `json:"status"`
-	StartTime              *string                `json:"start_time"`
-	EndTime                *string                `json:"end_time"`
-	RegistrationStart      *string                `json:"registration_start"`
-	RegistrationEnd        *string                `json:"registration_end"`
-	MaxTeams               int                    `json:"max_teams"`
-	MaxTeamSize            int                    `json:"max_team_size"`
-	IsPublic               bool                   `json:"is_public"`
-	ScoringConfig          map[string]interface{} `json:"scoring_config"`
-	BannerURL              string                 `json:"banner_url"`
-	Rules                  string                 `json:"rules"`
-	ScoreboardFreezeAt     *string                `json:"scoreboard_freeze_at"`
-	SubmitIntervalSeconds  int                    `json:"submit_interval_seconds"`
-	CreatedBy              int                    `json:"created_by"`
-	CreatorName            string                 `json:"creator_name"`
-	TeamCount              int                    `json:"team_count"`
-	ChallengeCount         int                    `json:"challenge_count"`
-	CreatedAt              string                 `json:"created_at"`
-	UpdatedAt              string                 `json:"updated_at"`
+	ID                    int                    `json:"id"`
+	Title                 string                 `json:"title"`
+	Description           string                 `json:"description"`
+	Mode                  string                 `json:"mode"`
+	Status                string                 `json:"status"`
+	StartTime             *string                `json:"start_time"`
+	EndTime               *string                `json:"end_time"`
+	RegistrationStart     *string                `json:"registration_start"`
+	RegistrationEnd       *string                `json:"registration_end"`
+	MaxTeams              int                    `json:"max_teams"`
+	MaxTeamSize           int                    `json:"max_team_size"`
+	IsPublic              bool                   `json:"is_public"`
+	ScoringConfig         map[string]interface{} `json:"scoring_config"`
+	BannerURL             string                 `json:"banner_url"`
+	Rules                 string                 `json:"rules"`
+	ScoreboardFreezeAt    *string                `json:"scoreboard_freeze_at"`
+	SubmitIntervalSeconds int                    `json:"submit_interval_seconds"`
+	CreatedBy             int                    `json:"created_by"`
+	CreatorName           string                 `json:"creator_name"`
+	TeamCount             int                    `json:"team_count"`
+	ChallengeCount        int                    `json:"challenge_count"`
+	CreatedAt             string                 `json:"created_at"`
+	UpdatedAt             string                 `json:"updated_at"`
 }
 
 type CompetitionPortalResponse struct {
-	ID                int                    `json:"id"`
-	Title             string                 `json:"title"`
-	Description       string                 `json:"description"`
-	Mode              string                 `json:"mode"`
-	Status            string                 `json:"status"`
-	StartTime         *string                `json:"start_time"`
-	EndTime           *string                `json:"end_time"`
-	RegistrationStart *string                `json:"registration_start"`
-	RegistrationEnd   *string                `json:"registration_end"`
-	MaxTeams          int                    `json:"max_teams"`
-	MaxTeamSize       int                    `json:"max_team_size"`
-	IsPublic          bool                   `json:"is_public"`
-	BannerURL         string                 `json:"banner_url"`
-	Rules             string                 `json:"rules"`
-	TeamCount         int                    `json:"team_count"`
-	ChallengeCount    int                    `json:"challenge_count"`
-	IsRegistered      bool                   `json:"is_registered"`
-	TeamRole          string                 `json:"team_role"`
+	ID                int     `json:"id"`
+	Title             string  `json:"title"`
+	Description       string  `json:"description"`
+	Mode              string  `json:"mode"`
+	Status            string  `json:"status"`
+	StartTime         *string `json:"start_time"`
+	EndTime           *string `json:"end_time"`
+	RegistrationStart *string `json:"registration_start"`
+	RegistrationEnd   *string `json:"registration_end"`
+	MaxTeams          int     `json:"max_teams"`
+	MaxTeamSize       int     `json:"max_team_size"`
+	IsPublic          bool    `json:"is_public"`
+	BannerURL         string  `json:"banner_url"`
+	Rules             string  `json:"rules"`
+	TeamCount         int     `json:"team_count"`
+	ChallengeCount    int     `json:"challenge_count"`
+	IsRegistered      bool    `json:"is_registered"`
+	TeamRole          string  `json:"team_role"`
 }
 
 type CreateCompetitionRequest struct {
@@ -63,7 +63,7 @@ type CreateCompetitionRequest struct {
 	BannerURL             string                 `json:"banner_url"`
 	Rules                 string                 `json:"rules"`
 	ScoreboardFreezeAt    *string                `json:"scoreboard_freeze_at"`
-	SubmitIntervalSeconds int                    `json:"submit_interval_seconds"`
+	SubmitIntervalSeconds *int                   `json:"submit_interval_seconds"`
 }
 
 type UpdateCompetitionRequest struct {

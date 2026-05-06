@@ -1376,7 +1376,7 @@ func (c *ChallengeClient) QueryTags(_m *Challenge) *ChallengeTagQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(challenge.Table, challenge.FieldID, id),
 			sqlgraph.To(challengetag.Table, challengetag.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, challenge.TagsTable, challenge.TagsColumn),
+			sqlgraph.Edge(sqlgraph.M2M, false, challenge.TagsTable, challenge.TagsPrimaryKey...),
 		)
 		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
 		return fromV, nil
@@ -1941,6 +1941,22 @@ func (c *ChallengeTagClient) GetX(ctx context.Context, id int) *ChallengeTag {
 		panic(err)
 	}
 	return obj
+}
+
+// QueryChallenges queries the challenges edge of a ChallengeTag.
+func (c *ChallengeTagClient) QueryChallenges(_m *ChallengeTag) *ChallengeQuery {
+	query := (&ChallengeClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(challengetag.Table, challengetag.FieldID, id),
+			sqlgraph.To(challenge.Table, challenge.FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, true, challengetag.ChallengesTable, challengetag.ChallengesPrimaryKey...),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
 }
 
 // Hooks returns the client hooks.

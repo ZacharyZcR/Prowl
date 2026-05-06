@@ -146,8 +146,8 @@ func (s *CompetitionService) Create(ctx context.Context, req *models.CreateCompe
 				builder = builder.SetScoreboardFreezeAt(t)
 			}
 		}
-		if req.SubmitIntervalSeconds > 0 {
-			builder = builder.SetSubmitIntervalSeconds(req.SubmitIntervalSeconds)
+		if req.SubmitIntervalSeconds != nil {
+			builder = builder.SetSubmitIntervalSeconds(*req.SubmitIntervalSeconds)
 		}
 
 		c, err := builder.Save(ctx)
@@ -519,14 +519,24 @@ func (s *CompetitionService) ListPublicForTeam(ctx context.Context, q *models.Co
 	query := s.client.Competition.Query().
 		Where(competition.IsPublic(true)).
 		Where(competition.StatusNotIn(competition.StatusDraft, competition.StatusArchived))
-	if q.Search != "" { query = query.Where(competition.TitleContains(q.Search)) }
-	if q.Mode != "" { query = query.Where(competition.ModeEQ(competition.Mode(q.Mode))) }
-	if q.Page < 1 { q.Page = 1 }
-	if q.PageSize < 1 || q.PageSize > 100 { q.PageSize = 20 }
+	if q.Search != "" {
+		query = query.Where(competition.TitleContains(q.Search))
+	}
+	if q.Mode != "" {
+		query = query.Where(competition.ModeEQ(competition.Mode(q.Mode)))
+	}
+	if q.Page < 1 {
+		q.Page = 1
+	}
+	if q.PageSize < 1 || q.PageSize > 100 {
+		q.PageSize = 20
+	}
 
 	total, _ := query.Count(ctx)
-	competitions, err := query.Limit(q.PageSize).Offset((q.Page-1)*q.PageSize).Order(ent.Desc(competition.FieldCreatedAt)).All(ctx)
-	if err != nil { return nil, apperr.ErrInternal.WithMessage("failed to list competitions: " + err.Error()) }
+	competitions, err := query.Limit(q.PageSize).Offset((q.Page - 1) * q.PageSize).Order(ent.Desc(competition.FieldCreatedAt)).All(ctx)
+	if err != nil {
+		return nil, apperr.ErrInternal.WithMessage("failed to list competitions: " + err.Error())
+	}
 
 	items := make([]models.CompetitionPortalResponse, 0, len(competitions))
 	for _, c := range competitions {
@@ -538,7 +548,9 @@ func (s *CompetitionService) ListPublicForTeam(ctx context.Context, q *models.Co
 func (s *CompetitionService) GetByIDForTeam(ctx context.Context, id, teamID int) (*models.CompetitionPortalResponse, error) {
 	c, err := s.client.Competition.Query().Where(competition.ID(id)).Only(ctx)
 	if err != nil {
-		if ent.IsNotFound(err) { return nil, apperr.ErrNotFound.WithMessage("competition not found") }
+		if ent.IsNotFound(err) {
+			return nil, apperr.ErrNotFound.WithMessage("competition not found")
+		}
 		return nil, apperr.ErrInternal.WithMessage("failed to get competition: " + err.Error())
 	}
 	resp := s.buildPortalResponse(ctx, c, teamID)

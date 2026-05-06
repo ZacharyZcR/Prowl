@@ -94,7 +94,9 @@ func (Challenge) Edges() []ent.Edge {
 			Unique().
 			Required(),
 		edge.To("hints", ChallengeHint.Type).Annotations(entsql.OnDelete(entsql.Cascade)),
-		edge.To("tags", ChallengeTag.Type).Annotations(entsql.OnDelete(entsql.Cascade)),
+		edge.To("tags", ChallengeTag.Type).
+			StorageKey(edge.Table("challenge_tag_links"), edge.Columns("challenge_id", "tag_id")).
+			Annotations(entsql.OnDelete(entsql.Cascade)),
 		edge.To("competition_challenges", CompetitionChallenge.Type).Annotations(entsql.OnDelete(entsql.Cascade)),
 		edge.To("flag_submissions", FlagSubmission.Type).Annotations(entsql.OnDelete(entsql.Cascade)),
 		edge.To("challenge_instances", ChallengeInstance.Type).Annotations(entsql.OnDelete(entsql.Cascade)),

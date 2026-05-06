@@ -1071,10 +1071,10 @@ func (_u *ChallengeUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	}
 	if _u.mutation.TagsCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
+			Rel:     sqlgraph.M2M,
 			Inverse: false,
 			Table:   challenge.TagsTable,
-			Columns: []string{challenge.TagsColumn},
+			Columns: challenge.TagsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(challengetag.FieldID, field.TypeInt),
@@ -1084,10 +1084,10 @@ func (_u *ChallengeUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	}
 	if nodes := _u.mutation.RemovedTagsIDs(); len(nodes) > 0 && !_u.mutation.TagsCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
+			Rel:     sqlgraph.M2M,
 			Inverse: false,
 			Table:   challenge.TagsTable,
-			Columns: []string{challenge.TagsColumn},
+			Columns: challenge.TagsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(challengetag.FieldID, field.TypeInt),
@@ -1100,10 +1100,10 @@ func (_u *ChallengeUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	}
 	if nodes := _u.mutation.TagsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
+			Rel:     sqlgraph.M2M,
 			Inverse: false,
 			Table:   challenge.TagsTable,
-			Columns: []string{challenge.TagsColumn},
+			Columns: challenge.TagsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(challengetag.FieldID, field.TypeInt),
@@ -2467,10 +2467,10 @@ func (_u *ChallengeUpdateOne) sqlSave(ctx context.Context) (_node *Challenge, er
 	}
 	if _u.mutation.TagsCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
+			Rel:     sqlgraph.M2M,
 			Inverse: false,
 			Table:   challenge.TagsTable,
-			Columns: []string{challenge.TagsColumn},
+			Columns: challenge.TagsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(challengetag.FieldID, field.TypeInt),
@@ -2480,10 +2480,10 @@ func (_u *ChallengeUpdateOne) sqlSave(ctx context.Context) (_node *Challenge, er
 	}
 	if nodes := _u.mutation.RemovedTagsIDs(); len(nodes) > 0 && !_u.mutation.TagsCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
+			Rel:     sqlgraph.M2M,
 			Inverse: false,
 			Table:   challenge.TagsTable,
-			Columns: []string{challenge.TagsColumn},
+			Columns: challenge.TagsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(challengetag.FieldID, field.TypeInt),
@@ -2496,10 +2496,10 @@ func (_u *ChallengeUpdateOne) sqlSave(ctx context.Context) (_node *Challenge, er
 	}
 	if nodes := _u.mutation.TagsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
+			Rel:     sqlgraph.M2M,
 			Inverse: false,
 			Table:   challenge.TagsTable,
-			Columns: []string{challenge.TagsColumn},
+			Columns: challenge.TagsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(challengetag.FieldID, field.TypeInt),

@@ -824,10 +824,10 @@ func (_c *ChallengeCreate) createSpec() (*Challenge, *sqlgraph.CreateSpec) {
 	}
 	if nodes := _c.mutation.TagsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
+			Rel:     sqlgraph.M2M,
 			Inverse: false,
 			Table:   challenge.TagsTable,
-			Columns: []string{challenge.TagsColumn},
+			Columns: challenge.TagsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(challengetag.FieldID, field.TypeInt),

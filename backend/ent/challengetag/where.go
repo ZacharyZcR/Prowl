@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"entgo.io/ent/dialect/sql"
+	"entgo.io/ent/dialect/sql/sqlgraph"
 	"github.com/ZacharyZcR/STC/backend/ent/predicate"
 )
 
@@ -247,6 +248,29 @@ func CreatedAtLT(v time.Time) predicate.ChallengeTag {
 // CreatedAtLTE applies the LTE predicate on the "created_at" field.
 func CreatedAtLTE(v time.Time) predicate.ChallengeTag {
 	return predicate.ChallengeTag(sql.FieldLTE(FieldCreatedAt, v))
+}
+
+// HasChallenges applies the HasEdge predicate on the "challenges" edge.
+func HasChallenges() predicate.ChallengeTag {
+	return predicate.ChallengeTag(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, true, ChallengesTable, ChallengesPrimaryKey...),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasChallengesWith applies the HasEdge predicate on the "challenges" edge with a given conditions (other predicates).
+func HasChallengesWith(preds ...predicate.Challenge) predicate.ChallengeTag {
+	return predicate.ChallengeTag(func(s *sql.Selector) {
+		step := newChallengesStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
 }
 
 // And groups predicates with the AND operator between them.

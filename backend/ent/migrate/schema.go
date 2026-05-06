@@ -350,21 +350,12 @@ var (
 		{Name: "name", Type: field.TypeString, Unique: true, Size: 50},
 		{Name: "color", Type: field.TypeString, Nullable: true, Default: "#6366f1"},
 		{Name: "created_at", Type: field.TypeTime},
-		{Name: "challenge_tags", Type: field.TypeInt, Nullable: true},
 	}
 	// ChallengeTagsTable holds the schema information for the "challenge_tags" table.
 	ChallengeTagsTable = &schema.Table{
 		Name:       "challenge_tags",
 		Columns:    ChallengeTagsColumns,
 		PrimaryKey: []*schema.Column{ChallengeTagsColumns[0]},
-		ForeignKeys: []*schema.ForeignKey{
-			{
-				Symbol:     "challenge_tags_challenges_tags",
-				Columns:    []*schema.Column{ChallengeTagsColumns[4]},
-				RefColumns: []*schema.Column{ChallengesColumns[0]},
-				OnDelete:   schema.Cascade,
-			},
-		},
 	}
 	// CheckResultsColumns holds the columns for the "check_results" table.
 	CheckResultsColumns = []*schema.Column{
@@ -1448,6 +1439,31 @@ var (
 			},
 		},
 	}
+	// ChallengeTagLinksColumns holds the columns for the "challenge_tag_links" table.
+	ChallengeTagLinksColumns = []*schema.Column{
+		{Name: "challenge_id", Type: field.TypeInt},
+		{Name: "tag_id", Type: field.TypeInt},
+	}
+	// ChallengeTagLinksTable holds the schema information for the "challenge_tag_links" table.
+	ChallengeTagLinksTable = &schema.Table{
+		Name:       "challenge_tag_links",
+		Columns:    ChallengeTagLinksColumns,
+		PrimaryKey: []*schema.Column{ChallengeTagLinksColumns[0], ChallengeTagLinksColumns[1]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "challenge_tag_links_challenge_id",
+				Columns:    []*schema.Column{ChallengeTagLinksColumns[0]},
+				RefColumns: []*schema.Column{ChallengesColumns[0]},
+				OnDelete:   schema.Cascade,
+			},
+			{
+				Symbol:     "challenge_tag_links_tag_id",
+				Columns:    []*schema.Column{ChallengeTagLinksColumns[1]},
+				RefColumns: []*schema.Column{ChallengeTagsColumns[0]},
+				OnDelete:   schema.Cascade,
+			},
+		},
+	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
 		ActivitiesTable,
@@ -1488,6 +1504,7 @@ var (
 		UserPreferencesTable,
 		WebhooksTable,
 		WriteupsTable,
+		ChallengeTagLinksTable,
 	}
 )
 
@@ -1500,7 +1517,6 @@ func init() {
 	ChallengeInstancesTable.ForeignKeys[0].RefTable = ChallengesTable
 	ChallengeInstancesTable.ForeignKeys[1].RefTable = CompetitionsTable
 	ChallengeInstancesTable.ForeignKeys[2].RefTable = TeamsTable
-	ChallengeTagsTable.ForeignKeys[0].RefTable = ChallengesTable
 	CheckResultsTable.ForeignKeys[0].RefTable = ChallengesTable
 	CheckResultsTable.ForeignKeys[1].RefTable = ScoringRoundsTable
 	CheckResultsTable.ForeignKeys[2].RefTable = TeamsTable
@@ -1537,4 +1553,6 @@ func init() {
 	WriteupsTable.ForeignKeys[1].RefTable = CompetitionsTable
 	WriteupsTable.ForeignKeys[2].RefTable = TeamsTable
 	WriteupsTable.ForeignKeys[3].RefTable = UsersTable
+	ChallengeTagLinksTable.ForeignKeys[0].RefTable = ChallengesTable
+	ChallengeTagLinksTable.ForeignKeys[1].RefTable = ChallengeTagsTable
 }

@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"entgo.io/ent"
+	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
 )
 
@@ -27,5 +28,8 @@ func (ChallengeTag) Fields() []ent.Field {
 }
 
 func (ChallengeTag) Edges() []ent.Edge {
-	return nil
+	return []ent.Edge{
+		edge.From("challenges", Challenge.Type).
+			Ref("tags"),
+	}
 }
