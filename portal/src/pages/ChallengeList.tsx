@@ -2,8 +2,8 @@ import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import { Button, Tag, Select, Alert } from "@yza/ui";
-import { ArrowLeft, Flag, CheckCircle, Lock, Unlock, Send } from "lucide-react";
-import { useChallenges, useSubmitFlag, useUnlockHint } from "@/hooks/usePortal";
+import { ArrowLeft, Flag, CheckCircle, Lock, Unlock, Send, FileText } from "lucide-react";
+import { useChallenges, useCompetition, useMyWriteups, useSubmitFlag, useSubmitWriteup, useUnlockHint } from "@/hooks/usePortal";
 import { toast } from "sonner";
 import { useSSE } from "@/hooks/useSSE";
 import ContainerControls from "@/components/ContainerControls";
@@ -19,11 +19,16 @@ export default function ChallengeList() {
   const compId = Number(id);
   const navigate = useNavigate();
   const qc = useQueryClient();
+  const { data: comp } = useCompetition(compId);
   const { data, isLoading, error } = useChallenges(compId);
+  const { data: writeupData } = useMyWriteups(compId);
   const submitMutation = useSubmitFlag();
+  const submitWriteupMutation = useSubmitWriteup();
   const unlockMutation = useUnlockHint();
 
   const [flagInputs, setFlagInputs] = useState<Record<number, string>>({});
+  const [writeupInputs, setWriteupInputs] = useState<Record<number, string>>({});
+  const [openWriteups, setOpenWriteups] = useState<Record<number, boolean>>({});
   const [categoryFilter, setCategoryFilter] = useState("");
   const [difficultyFilter, setDifficultyFilter] = useState("");
   const [showSolved, setShowSolved] = useState(true);
@@ -37,6 +42,18 @@ export default function ChallengeList() {
 
   if (isLoading) return <div className="portal-empty">{t("common.loading")}</div>;
   if (error) return <Alert tone="danger" heading={t("common.loadFailed")} />;
+  if (comp?.registration_status === "rejected") {
+    return (
+      <div>
+        <button onClick={() => navigate(`/competitions/${compId}`)} className="comp-back" type="button">
+          <ArrowLeft size={16} /> {t("competition.backToComp")}
+        </button>
+        <Alert tone="danger" heading={t("competition.bannedTitle")}>
+          {t("competition.bannedDesc")}
+        </Alert>
+      </div>
+    );
+  }
 
   const allChallenges = data?.items ?? [];
   const categories = [...new Set(allChallenges.map((c) => c.category))].sort();
@@ -73,6 +90,21 @@ export default function ChallengeList() {
       toast.error(err instanceof Error ? err.message : t("competition.unlockFailed"));
     }
   }
+
+  async function handleSubmitWriteup(challengeId: number) {
+    const content = writeupInputs[challengeId]?.trim();
+    if (!content) return;
+    try {
+      await submitWriteupMutation.mutateAsync({ competitionId: compId, challenge_id: challengeId, content });
+      toast.success("WriteUp 已提交，等待裁判审核");
+      setWriteupInputs((p) => ({ ...p, [challengeId]: "" }));
+      setOpenWriteups((p) => ({ ...p, [challengeId]: false }));
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : t("common.submitFailed"));
+    }
+  }
+
+  const writeupByChallenge = new Map((writeupData?.items ?? []).map((w) => [w.challenge_id, w]));
 
   return (
     <div>
@@ -154,6 +186,57 @@ export default function ChallengeList() {
                 <Button size="sm" tone="primary" onClick={() => handleSubmit(c.id)} disabled={submitMutation.isPending}>
                   <Send size={12} /> {t("common.submit")}
                 </Button>
+              </div>
+            )}
+
+            {c.is_solved && (
+              <div className="writeup-box">
+                {(() => {
+                  const writeup = writeupByChallenge.get(c.id);
+                  if (writeup) {
+                    return (
+                      <>
+                        <div className="writeup-box__header">
+                          <span><FileText size={14} /> WriteUp</span>
+                          <Tag tone={writeup.status === "approved" ? "success" : writeup.status === "rejected" ? "danger" : "warning"}>
+                            {writeup.status}
+                          </Tag>
+                        </div>
+                        <p className="writeup-box__content">{writeup.content}</p>
+                        {writeup.reviewer_comment && <p className="writeup-box__review">裁判意见：{writeup.reviewer_comment}</p>}
+                      </>
+                    );
+                  }
+                  const isOpen = openWriteups[c.id];
+                  return (
+                    <>
+                      <button
+                        type="button"
+                        className="writeup-toggle"
+                        onClick={() => setOpenWriteups((p) => ({ ...p, [c.id]: !p[c.id] }))}
+                      >
+                        <FileText size={14} /> 提交 WriteUp
+                      </button>
+                      {isOpen && (
+                        <div className="writeup-form">
+                          <textarea
+                            className="rb-textarea"
+                            rows={5}
+                            placeholder="记录关键思路、利用步骤、证据和最终提交过程。"
+                            value={writeupInputs[c.id] ?? ""}
+                            onChange={(e) => setWriteupInputs((p) => ({ ...p, [c.id]: e.target.value }))}
+                          />
+                          <div className="writeup-form__actions">
+                            <Button size="sm" tone="outline" onClick={() => setOpenWriteups((p) => ({ ...p, [c.id]: false }))}>取消</Button>
+                            <Button size="sm" tone="primary" onClick={() => handleSubmitWriteup(c.id)} disabled={submitWriteupMutation.isPending}>
+                              <Send size={12} /> 提交
+                            </Button>
+                          </div>
+                        </div>
+                      )}
+                    </>
+                  );
+                })()}
               </div>
             )}
           </div>

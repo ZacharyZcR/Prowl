@@ -27,24 +27,25 @@ type CompetitionResponse struct {
 }
 
 type CompetitionPortalResponse struct {
-	ID                int     `json:"id"`
-	Title             string  `json:"title"`
-	Description       string  `json:"description"`
-	Mode              string  `json:"mode"`
-	Status            string  `json:"status"`
-	StartTime         *string `json:"start_time"`
-	EndTime           *string `json:"end_time"`
-	RegistrationStart *string `json:"registration_start"`
-	RegistrationEnd   *string `json:"registration_end"`
-	MaxTeams          int     `json:"max_teams"`
-	MaxTeamSize       int     `json:"max_team_size"`
-	IsPublic          bool    `json:"is_public"`
-	BannerURL         string  `json:"banner_url"`
-	Rules             string  `json:"rules"`
-	TeamCount         int     `json:"team_count"`
-	ChallengeCount    int     `json:"challenge_count"`
-	IsRegistered      bool    `json:"is_registered"`
-	TeamRole          string  `json:"team_role"`
+	ID                 int     `json:"id"`
+	Title              string  `json:"title"`
+	Description        string  `json:"description"`
+	Mode               string  `json:"mode"`
+	Status             string  `json:"status"`
+	StartTime          *string `json:"start_time"`
+	EndTime            *string `json:"end_time"`
+	RegistrationStart  *string `json:"registration_start"`
+	RegistrationEnd    *string `json:"registration_end"`
+	MaxTeams           int     `json:"max_teams"`
+	MaxTeamSize        int     `json:"max_team_size"`
+	IsPublic           bool    `json:"is_public"`
+	BannerURL          string  `json:"banner_url"`
+	Rules              string  `json:"rules"`
+	TeamCount          int     `json:"team_count"`
+	ChallengeCount     int     `json:"challenge_count"`
+	IsRegistered       bool    `json:"is_registered"`
+	RegistrationStatus string  `json:"registration_status"`
+	TeamRole           string  `json:"team_role"`
 }
 
 type CreateCompetitionRequest struct {

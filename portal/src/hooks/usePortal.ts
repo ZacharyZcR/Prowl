@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/lib/api";
-import type { PaginatedResponse, Competition, Challenge, Team, Scoreboard } from "@/types";
+import type { PaginatedResponse, Competition, Challenge, Team, Scoreboard, Writeup } from "@/types";
 
 export function useCompetitions(query: { page?: number; page_size?: number; search?: string }) {
   return useQuery({
@@ -91,6 +91,26 @@ export function useSubmitFlag() {
         `/api/v1/portal/competitions/${competitionId}/flags`,
         { challenge_id, flag },
       ).then((r) => r.data),
+  });
+}
+
+export function useMyWriteups(competitionId: number) {
+  return useQuery({
+    queryKey: ["portal-writeups", competitionId],
+    queryFn: () =>
+      api.get<PaginatedResponse<Writeup>>(`/api/v1/portal/competitions/${competitionId}/writeups/my`).then((r) => r.data),
+    enabled: competitionId > 0,
+  });
+}
+
+export function useSubmitWriteup() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ competitionId, challenge_id, content }: { competitionId: number; challenge_id: number; content: string }) =>
+      api.post<{ id: number }>(`/api/v1/portal/competitions/${competitionId}/writeups`, { challenge_id, content }).then((r) => r.data),
+    onSuccess: (_data, variables) => {
+      qc.invalidateQueries({ queryKey: ["portal-writeups", variables.competitionId] });
+    },
   });
 }
 

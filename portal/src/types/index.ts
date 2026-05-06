@@ -24,6 +24,7 @@ export interface Competition {
   team_count: number;
   challenge_count: number;
   is_registered: boolean;
+  registration_status?: "pending" | "approved" | "rejected";
   team_role: string;
 }
 
@@ -75,4 +76,21 @@ export interface TeamScore {
   awd_attack_score?: number;
   awd_defense_score?: number;
   awd_check_score?: number;
+}
+
+export interface Writeup {
+  id: number;
+  competition_id: number;
+  challenge_id: number;
+  challenge_name: string;
+  team_id: number;
+  team_name: string;
+  user_id: number;
+  username: string;
+  content: string;
+  file_id?: number;
+  status: "submitted" | "reviewed" | "approved" | "rejected";
+  reviewer_comment?: string;
+  reviewed_by?: number;
+  submitted_at: string;
 }

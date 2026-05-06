@@ -1,5 +1,6 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router-dom";
 import {
   Alert,
   Button,
@@ -72,6 +73,7 @@ function emptyForm(mode: string) {
 
 export default function CompetitionPage({ mode }: CompetitionPageProps) {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const { can } = usePermission();
   const canCreate = can("competition:create");
   const canEdit = can("competition:update");
@@ -178,6 +180,12 @@ export default function CompetitionPage({ mode }: CompetitionPageProps) {
     }
   }
 
+  function detailPath(competition: Competition) {
+    if (competition.mode === "awd") return `/competitions/${competition.id}/awd`;
+    if (competition.mode === "red_blue") return `/competitions/${competition.id}/redblue`;
+    return `/competitions/${competition.id}/challenges`;
+  }
+
   const competitions = data?.items ?? [];
   const totalPages = data?.total_pages ?? 1;
   const total = data?.total ?? 0;
@@ -196,7 +204,11 @@ export default function CompetitionPage({ mode }: CompetitionPageProps) {
   ];
 
   const rows: CompetitionRow[] = competitions.map((c) => ({
-    title: c.title,
+    title: (
+      <button className="stc-link" onClick={() => navigate(detailPath(c))} type="button">
+        {c.title}
+      </button>
+    ),
     status: (
       canEdit ? (
         <Select
@@ -218,6 +230,8 @@ export default function CompetitionPage({ mode }: CompetitionPageProps) {
     created_at: formatDate(c.created_at),
     actions: (
       <div className="yza-button-row">
+        <Button size="sm" tone="primary" onClick={() => navigate(detailPath(c))} aria-label={`${t("common.enter")} ${c.title}`}>{t("common.enter")}</Button>
+        <Button size="sm" tone="outline" onClick={() => navigate(`/competitions/${c.id}/audit`)} aria-label={`审计 ${c.title}`}>审计</Button>
         {canEdit && (
           <Button size="sm" tone="outline" onClick={() => openEdit(c)} aria-label={`${t("common.edit")} ${c.title}`}>{t("common.edit")}</Button>
         )}

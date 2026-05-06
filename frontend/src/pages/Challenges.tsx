@@ -41,9 +41,14 @@ const DIFFICULTY_TONE: Record<string, TagTone> = {
   insane: "danger",
 };
 
-const CATEGORIES = ["web", "pwn", "crypto", "reverse", "misc", "forensics"];
+const CATEGORIES = ["web", "pwn", "crypto", "reverse", "misc", "forensics", "network"];
 const DIFFICULTIES = ["easy", "medium", "hard", "insane"];
 const FLAG_TYPES = ["static", "dynamic_per_team", "regex"];
+
+function categoryLabel(t: (key: string, options?: Record<string, unknown>) => string, category: string) {
+  const normalized = category.trim().toLowerCase();
+  return t(`challenges.cat_${normalized}`, { defaultValue: category || normalized });
+}
 
 interface ChallengeRow extends Record<string, ReactNode> {
   title: ReactNode;
@@ -231,7 +236,7 @@ export default function Challenges({ mode }: ChallengesProps = {}) {
 
   const rows: ChallengeRow[] = challenges.map((c) => ({
     title: c.title,
-    category: <Tag tone="info">{t(`challenges.cat_${c.category}`)}</Tag>,
+    category: <Tag tone="info">{categoryLabel(t, c.category)}</Tag>,
     difficulty: <Tag tone={DIFFICULTY_TONE[c.difficulty] ?? "neutral"}>{t(`challenges.diff_${c.difficulty}`)}</Tag>,
     base_score: c.base_score,
     solve_count: c.solve_count,
@@ -252,7 +257,7 @@ export default function Challenges({ mode }: ChallengesProps = {}) {
 
   const summaryChips = [
     table.search.trim() ? <Tag key="search" tone="info">{`${t("common.search")}: ${table.search.trim()}`}</Tag> : null,
-    categoryFilter ? <Tag key="category" tone="info">{t(`challenges.cat_${categoryFilter}`)}</Tag> : null,
+    categoryFilter ? <Tag key="category" tone="info">{categoryLabel(t, categoryFilter)}</Tag> : null,
     difficultyFilter ? <Tag key="difficulty" tone={DIFFICULTY_TONE[difficultyFilter] ?? "neutral"}>{t(`challenges.diff_${difficultyFilter}`)}</Tag> : null,
   ].filter(Boolean);
 
@@ -289,7 +294,7 @@ export default function Challenges({ mode }: ChallengesProps = {}) {
         onChange={(e) => setField("category", e.target.value)}
       >
         {CATEGORIES.map((c) => (
-          <option key={c} value={c}>{t(`challenges.cat_${c}`)}</option>
+          <option key={c} value={c}>{categoryLabel(t, c)}</option>
         ))}
       </Select>
       <Select
@@ -398,7 +403,7 @@ export default function Challenges({ mode }: ChallengesProps = {}) {
             >
               <option value="">{t("challenges.allCategory")}</option>
               {CATEGORIES.map((c) => (
-                <option key={c} value={c}>{t(`challenges.cat_${c}`)}</option>
+                <option key={c} value={c}>{categoryLabel(t, c)}</option>
               ))}
             </Select>
             <Select

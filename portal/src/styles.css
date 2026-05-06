@@ -242,7 +242,7 @@ body {
 }
 
 .chal-card:hover { box-shadow: var(--yza-shadow-sm); }
-.chal-card--solved { opacity: 0.55; }
+.chal-card--solved { opacity: 0.86; }
 .chal-card--easy { border-left: 3px solid var(--yza-color-success-500); }
 .chal-card--medium { border-left: 3px solid var(--yza-color-brand-500); }
 .chal-card--hard { border-left: 3px solid var(--yza-color-warning-500); }
@@ -398,6 +398,78 @@ body {
   transition: border-color 0.15s;
 }
 .flag-input:focus { outline: none; border-color: var(--yza-color-primary-500); }
+
+/* ========== WriteUp ========== */
+.writeup-box {
+  margin-top: var(--yza-space-3);
+  padding: var(--yza-space-3);
+  background: var(--yza-surface-raised);
+  border: 1px solid var(--yza-border-subtle);
+  border-radius: var(--yza-radius-md);
+}
+
+.writeup-box__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.writeup-box__header span,
+.writeup-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.writeup-box__content {
+  margin: 8px 0 0;
+  max-height: 120px;
+  overflow: auto;
+  white-space: pre-wrap;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--yza-text-secondary);
+}
+
+.writeup-box__review {
+  margin: 8px 0 0;
+  font-size: 12px;
+  color: var(--yza-color-warning-700);
+}
+
+.writeup-toggle {
+  width: 100%;
+  justify-content: center;
+  padding: 7px 10px;
+  background: var(--yza-surface-page);
+  border: 1px solid var(--yza-border-default);
+  border-radius: var(--yza-radius-md);
+  color: var(--yza-text-primary);
+  font-size: 13px;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.writeup-toggle:hover {
+  border-color: var(--yza-color-primary-500);
+  background: color-mix(in srgb, var(--yza-color-primary-400) 8%, var(--yza-surface-page));
+}
+
+.writeup-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--yza-space-2);
+  margin-top: var(--yza-space-2);
+}
+
+.writeup-form__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--yza-space-2);
+}
 
 /* ========== Challenge Extras ========== */
 .chal-card__solve-count {

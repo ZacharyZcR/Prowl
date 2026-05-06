@@ -137,6 +137,7 @@ export default function CompetitionChallengesPage() {
       actions={
         <div className="yza-button-row">
           <Button tone="outline" onClick={() => navigate(-1)}>返回</Button>
+          <Button tone="outline" onClick={() => navigate(`/competitions/${compId}/audit`)}>审计</Button>
           <Button tone="outline" onClick={handleReleaseAll} disabled={release.isPending}>全部释放</Button>
           <Button tone="primary" onClick={() => { setSelected(new Set()); setAddOpen(true); }}>添加题目</Button>
         </div>

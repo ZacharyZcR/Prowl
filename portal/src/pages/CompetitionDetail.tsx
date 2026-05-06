@@ -54,6 +54,8 @@ export default function CompetitionDetail() {
   if (error || !comp) return <Alert tone="danger" heading={t("competition.notFound")} />;
 
   const ModeIcon = MODE_ICON[comp.mode] ?? Trophy;
+  const isBanned = comp.registration_status === "rejected";
+  const isApproved = comp.registration_status === "approved";
 
   async function handleRegister() {
     try {
@@ -112,6 +114,7 @@ export default function CompetitionDetail() {
 
           return (
             <>
+              {isBanned && <Tag tone="danger">{t("competition.banned")}</Tag>}
               {canRegister && (
                 <Button tone="primary" onClick={handleRegister} disabled={registerMutation.isPending}>
                   {registerMutation.isPending ? t("competition.registering") : t("competition.register")}
@@ -120,9 +123,9 @@ export default function CompetitionDetail() {
               {!comp.is_registered && regOpen && regExpired && (
                 <Tag tone="neutral">{t("competition.regClosed")}</Tag>
               )}
-              {comp.is_registered && <Tag tone="success">{t("competition.registered")}</Tag>}
-              {comp.status === "running" && comp.is_registered && <ModeActions compId={compId} mode={comp.mode} teamRole={comp.team_role} />}
-              {comp.status === "running" && !comp.is_registered && (
+              {comp.is_registered && !isBanned && <Tag tone={isApproved ? "success" : "warning"}>{isApproved ? t("competition.registered") : t("competition.registrationPending")}</Tag>}
+              {comp.status === "running" && comp.is_registered && isApproved && <ModeActions compId={compId} mode={comp.mode} teamRole={comp.team_role} />}
+              {comp.status === "running" && (!comp.is_registered || isBanned) && (
                 <Link to={`/competitions/${compId}/scoreboard`}><Button tone="outline"><Trophy size={14} /> {t("competition.scoreboard")}</Button></Link>
               )}
               {(comp.status === "ended" || comp.status === "archived") && (
@@ -135,6 +138,16 @@ export default function CompetitionDetail() {
           );
         })()}
       </div>
+
+      {isBanned && (
+        <Alert
+          tone="danger"
+          heading={t("competition.bannedTitle")}
+          style={{ marginBottom: "var(--yza-space-4)" }}
+        >
+          {t("competition.bannedDesc")}
+        </Alert>
+      )}
 
       {/* Rules */}
       {comp.rules && (

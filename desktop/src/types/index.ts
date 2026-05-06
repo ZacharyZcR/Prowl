@@ -185,4 +185,87 @@ export interface TeamRegistration {
   status: string;
   registered_at: string;
   reviewed_at: string;
+  team_role?: string;
+}
+
+export interface Writeup {
+  id: number;
+  competition_id: number;
+  challenge_id: number;
+  challenge_name: string;
+  team_id: number;
+  team_name: string;
+  user_id: number;
+  username: string;
+  content: string;
+  file_id?: number;
+  status: "submitted" | "reviewed" | "approved" | "rejected";
+  reviewer_comment?: string;
+  reviewed_by?: number;
+  submitted_at: string;
+}
+
+export interface FlagSubmission {
+  id: number;
+  competition_id: number;
+  challenge_id: number;
+  challenge_name: string;
+  team_id: number;
+  team_name: string;
+  user_id: number;
+  username: string;
+  submitted_flag: string;
+  is_correct: boolean;
+  points_awarded: number;
+  is_first_blood: boolean;
+  ip: string;
+  submitted_at: string;
+}
+
+export interface CrossFlagAlert {
+  submitter_team_id: number;
+  submitter_team_name: string;
+  victim_team_id: number;
+  victim_team_name: string;
+  challenge_id: number;
+  challenge_name: string;
+  submitted_flag: string;
+  submitted_at: string;
+}
+
+export interface IPCorrelation {
+  ip: string;
+  team_ids: number[];
+  team_names: string[];
+  count: number;
+}
+
+export interface RapidSubmission {
+  challenge_id: number;
+  challenge_name: string;
+  team_a_id: number;
+  team_a_name: string;
+  team_b_id: number;
+  team_b_name: string;
+  time_diff_secs: number;
+  solved_at_a: string;
+  solved_at_b: string;
+}
+
+export interface TeamSubmitStats {
+  team_id: number;
+  team_name: string;
+  total_submits: number;
+  correct_count: number;
+  wrong_count: number;
+  success_rate: number;
+}
+
+export interface AntiCheatReport {
+  competition_id: number;
+  generated_at: string;
+  cross_flag_alerts: CrossFlagAlert[];
+  ip_correlations: IPCorrelation[];
+  rapid_submissions: RapidSubmission[];
+  submission_stats: TeamSubmitStats[];
 }

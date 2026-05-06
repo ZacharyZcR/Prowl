@@ -1,4 +1,4 @@
-import { createBrowserRouter, Navigate } from "react-router-dom";
+import { createBrowserRouter, Navigate, useParams } from "react-router-dom";
 import { lazy, Suspense, type ReactNode } from "react";
 import { Skeleton } from "@yza/ui";
 import { Layout } from "@/components/Layout";
@@ -44,6 +44,7 @@ const AWDCompetitions = lazy(() => import("@/pages/AWDCompetitions"));
 const Scenarios = lazy(() => import("@/pages/Scenarios"));
 const RedBlueCompetitions = lazy(() => import("@/pages/RedBlueCompetitions"));
 const CompetitionChallenges = lazy(() => import("@/pages/CompetitionChallenges"));
+const CompetitionAudit = lazy(() => import("@/pages/CompetitionAudit"));
 const AWDControl = lazy(() => import("@/pages/AWDControl"));
 const RedBlueControl = lazy(() => import("@/pages/RedBlueControl"));
 const DockerImages = lazy(() => import("@/pages/DockerImages"));
@@ -78,6 +79,12 @@ function SuspenseWrapper({ children, fallback }: { children: ReactNode; fallback
       <ErrorBoundary>{children}</ErrorBoundary>
     </Suspense>
   );
+}
+
+function CompetitionRedirect({ section }: { section: "challenges" | "awd" | "redblue" }) {
+  const { id } = useParams();
+  if (!id) return <Navigate to="/dashboard" replace />;
+  return <Navigate to={`/competitions/${id}/${section}`} replace />;
 }
 
 export const router = createBrowserRouter([
@@ -177,6 +184,10 @@ export const router = createBrowserRouter([
         ),
       },
       {
+        path: "ctf/:id",
+        element: <CompetitionRedirect section="challenges" />,
+      },
+      {
         path: "awd/challenges",
         element: (
           <SuspenseWrapper>
@@ -185,6 +196,10 @@ export const router = createBrowserRouter([
             </PermissionGuard>
           </SuspenseWrapper>
         ),
+      },
+      {
+        path: "awd/:id",
+        element: <CompetitionRedirect section="awd" />,
       },
       {
         path: "awd",
@@ -202,6 +217,16 @@ export const router = createBrowserRouter([
           <SuspenseWrapper>
             <PermissionGuard permission="competition:update">
               <CompetitionChallenges />
+            </PermissionGuard>
+          </SuspenseWrapper>
+        ),
+      },
+      {
+        path: "competitions/:id/audit",
+        element: (
+          <SuspenseWrapper fallback={<DetailPageSkeleton />}>
+            <PermissionGuard permission="competition:read">
+              <CompetitionAudit />
             </PermissionGuard>
           </SuspenseWrapper>
         ),
@@ -245,6 +270,10 @@ export const router = createBrowserRouter([
             </PermissionGuard>
           </SuspenseWrapper>
         ),
+      },
+      {
+        path: "redblue/:id",
+        element: <CompetitionRedirect section="redblue" />,
       },
       {
         path: "teams",

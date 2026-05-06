@@ -5,7 +5,7 @@ import { loadEnv } from "vite";
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, __dirname, "");
-  const apiTarget = env.VITE_API_URL || "http://localhost:38080";
+  const apiTarget = env.VITE_API_URL || "http://localhost:38082";
 
   return {
     plugins: [react()],

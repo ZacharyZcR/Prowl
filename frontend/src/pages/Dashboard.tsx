@@ -155,7 +155,7 @@ function CompetitionSection() {
 
 function CompRow({ comp: c }: { comp: Competition }) {
   return (
-    <Link to={`/ctf/${c.id}`} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "8px 12px", borderRadius: "var(--yza-radius-md)", border: "1px solid var(--yza-border-subtle)", background: "var(--yza-surface-canvas)", textDecoration: "none", color: "inherit", marginBottom: 4 }}>
+    <Link to={competitionDetailPath(c)} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "8px 12px", borderRadius: "var(--yza-radius-md)", border: "1px solid var(--yza-border-subtle)", background: "var(--yza-surface-canvas)", textDecoration: "none", color: "inherit", marginBottom: 4 }}>
       <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
         <Tag tone={MODE_TONE[c.mode] ?? "neutral"}>{MODE_LABEL[c.mode] ?? c.mode}</Tag>
         <span style={{ fontWeight: 600, fontSize: 13 }}>{c.title}</span>
@@ -166,6 +166,12 @@ function CompRow({ comp: c }: { comp: Competition }) {
       </div>
     </Link>
   );
+}
+
+function competitionDetailPath(comp: Competition) {
+  if (comp.mode === "awd") return `/competitions/${comp.id}/awd`;
+  if (comp.mode === "red_blue") return `/competitions/${comp.id}/redblue`;
+  return `/competitions/${comp.id}/challenges`;
 }
 
 function NotificationSection() {

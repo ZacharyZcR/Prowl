@@ -685,6 +685,7 @@ func (s *CompetitionService) buildPortalResponse(ctx context.Context, c *ent.Com
 			Only(ctx)
 		if err == nil {
 			resp.IsRegistered = true
+			resp.RegistrationStatus = string(reg.Status)
 			resp.TeamRole = string(reg.TeamRole)
 		}
 	}

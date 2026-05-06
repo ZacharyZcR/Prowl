@@ -140,7 +140,7 @@ func (s *AntiCheatService) detectCrossFlags(ctx context.Context, competitionID i
 					VictimTeamID:    owner.teamID,
 					VictimTeamName:  owner.teamName,
 					ChallengeID:     sub.ChallengeID,
-					SubmittedFlag:   sub.SubmittedFlag[:8] + "...",
+					SubmittedFlag:   sub.SubmittedFlag,
 					SubmittedAt:     sub.SubmittedAt.Format("2006-01-02T15:04:05Z"),
 				}
 				if sub.Edges.Team != nil {
