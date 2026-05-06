@@ -1,6 +1,7 @@
 # Dependencies
 node_modules/
 vendor/
+.pnpm-store/
 
 # Build
 build/
@@ -20,6 +21,7 @@ cli/bin/
 
 # Frontend
 frontend/dist/
+frontend-shadcn/dist/
 desktop/dist/
 *.tsbuildinfo
 vite.config.js
@@ -27,6 +29,7 @@ vite.config.d.ts
 
 # Desktop
 desktop/src-tauri/target/
+desktop/src-tauri/gen/
 
 # Environment
 .env

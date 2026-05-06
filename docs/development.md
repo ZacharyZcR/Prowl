@@ -3,8 +3,8 @@
 ## 环境要求
 
 - Go 1.25+
-- Node.js 20+
-- pnpm 9+
+- Node.js 22+
+- pnpm 10+
 - Docker + Docker Compose
 - (可选) golangci-lint
 - (可选) Rust + Cargo (桌面端开发)
@@ -26,15 +26,18 @@ cd cli && go mod download && cd ..
 # 4. 启动基础设施 (PostgreSQL + Redis)
 make dev
 
-# 5. 启动后端 (编译 + 运行)
-cd backend && make run
+# 5. 加载本地开发环境
+set -a && . ./.env.development && set +a
+
+# 6. 启动后端 (编译 + 运行)
+make -C backend run
 # 后端启动在 :38080, 自动建表 + seed 数据
 
-# 6. 启动前端 (另一个终端)
+# 7. 启动前端 (另一个终端)
 pnpm --filter frontend dev
 # 前端启动在 :5174
 
-# 7. 访问
+# 8. 访问
 # 前端: http://localhost:5174
 # 后端 API: http://localhost:38080/api/v1
 # 登录: admin / admin123
@@ -50,6 +53,7 @@ pnpm --filter frontend dev
 | `make stop` | 停止基础设施 |
 | `make build` | 编译全部 (backend + cli + frontend) |
 | `make test` | 运行全部测试 |
+| `make e2e` | 运行 E2E 测试，默认访问前端 `:5174` |
 | `make lint` | 运行全部 lint |
 | `make clean` | 清理构建产物 |
 | `make docker-dev` | 完整 Docker 开发栈 |
@@ -100,6 +104,7 @@ pnpm --filter frontend dev
 ```bash
 # 设置 debug 模式 (默认)
 export GIN_MODE=debug
+set -a && . ./.env.development && set +a
 
 # 查看详细日志 (zap logger)
 cd backend && make run
@@ -116,6 +121,16 @@ pnpm --filter frontend dev
 
 # 指定后端地址
 VITE_API_URL=http://other-host:38080 pnpm --filter frontend dev
+```
+
+### E2E 测试
+
+```bash
+# 默认访问本机前端开发服务器 http://localhost:5174
+make e2e
+
+# 如果使用 make docker-dev，前端端口是 35173
+E2E_BASE_URL=http://localhost:35173 make e2e
 ```
 
 ### 数据库调试

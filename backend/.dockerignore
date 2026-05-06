@@ -1,0 +1,9 @@
+.git
+bin
+tmp
+uploads
+server
+cover.out
+coverage.out
+coverage.html
+*.log

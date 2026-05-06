@@ -3,6 +3,7 @@
 .PHONY: frontend-dev frontend-build frontend-lint frontend-test
 .PHONY: cli-build desktop-dev desktop-build
 .PHONY: proto docker-dev docker-prod
+.PHONY: e2e
 .PHONY: db-shell redis-shell backup restore
 .PHONY: docs-dev docs-build
 
@@ -70,6 +71,9 @@ test: backend-test frontend-test ## Run all tests
 
 frontend-test: ## Test frontend
 	pnpm --filter frontend test
+
+e2e: ## Run E2E tests (requires backend + frontend running; set E2E_BASE_URL for Docker dev)
+	pnpm --filter e2e test
 
 # ──────────────────────────────────────────────
 # Documentation

@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import type { ColumnDef } from "@tanstack/react-table";
-import { ShieldCheck, ShieldAlert, LogIn, TrendingUp } from "lucide-react";
+import { ShieldCheck, LogIn, TrendingUp } from "lucide-react";
 
 import { PageHeader } from "@/components/shared/page-header";
 import { FilterBar } from "@/components/shared/filter-bar";

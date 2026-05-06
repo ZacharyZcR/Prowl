@@ -1,5 +1,5 @@
 import { lazy, Suspense, type ReactNode } from "react";
-import { createBrowserRouter, Navigate, Outlet } from "react-router-dom";
+import { createBrowserRouter, Navigate } from "react-router-dom";
 import { useAuthStore } from "@/stores/auth";
 import { usePermission } from "@/hooks/usePermission";
 import { Layout } from "@/components/layout";

@@ -3,13 +3,22 @@ services:
     build:
       context: ../backend
       dockerfile: Dockerfile
+      target: dev
     ports: ["38080:38080"]
+    volumes:
+      - ../backend:/app
+      - /var/run/docker.sock:/var/run/docker.sock
     environment:
       DATABASE_URL: postgres://prowl:prowl_secret@postgres:5432/prowl?sslmode=disable
       REDIS_URL: redis:6379
       LISTEN_ADDR: ":38080"
       JWT_SECRET: dev-jwt-secret-change-in-production
       GIN_MODE: debug
+      DB_MIGRATION_MODE: auto
+      DOCKER_HOST: unix:///var/run/docker.sock
+      CONTAINER_NETWORK_PREFIX: range
+      CHALLENGE_BASE_URL: http://localhost
+      FLAG_SECRET_KEY: dev-flag-secret
     depends_on:
       postgres:
         condition: service_healthy
@@ -20,7 +29,17 @@ services:
     build:
       context: ..
       dockerfile: frontend/Dockerfile
-    ports: ["35173:80"]
+      target: dev
+    ports: ["35173:35173"]
+    volumes:
+      - ..:/app
+      - /app/node_modules
+      - /app/frontend/node_modules
+      - /app/frontend-shadcn/node_modules
+      - /app/portal/node_modules
+      - /app/desktop/node_modules
+      - /app/design-system/packages/tokens/node_modules
+      - /app/design-system/packages/ui/node_modules
     environment:
       VITE_API_URL: http://localhost:38080
     depends_on:

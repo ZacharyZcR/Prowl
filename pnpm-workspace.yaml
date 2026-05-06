@@ -5,3 +5,4 @@ packages:
   - "desktop"
   - "design-system/packages/*"
   - "docs-site"
+  - "e2e"

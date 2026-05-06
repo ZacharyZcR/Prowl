@@ -10,10 +10,20 @@ permissions:
 
 env:
   REGISTRY: ghcr.io
+  IMAGE_PREFIX: ghcr.io/${{ github.repository_owner }}/prowl
 
 jobs:
+  verify-versions:
+    name: Verify Versions
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check version consistency
+        run: ./scripts/verify-versions.sh "${{ github.ref_name }}"
+
   docker-backend:
     name: Docker Backend
+    needs: verify-versions
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -27,14 +37,15 @@ jobs:
           context: backend
           push: true
           tags: |
-            ghcr.io/zacharyzcr/prowl-backend:${{ github.ref_name }}
-            ghcr.io/zacharyzcr/prowl-backend:latest
+            ${{ env.IMAGE_PREFIX }}-backend:${{ github.ref_name }}
+            ${{ env.IMAGE_PREFIX }}-backend:latest
           build-args: |
             VERSION=${{ github.ref_name }}
             GIT_COMMIT=${{ github.sha }}
 
   docker-frontend:
     name: Docker Frontend
+    needs: verify-versions
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -49,11 +60,12 @@ jobs:
           file: frontend/Dockerfile
           push: true
           tags: |
-            ghcr.io/zacharyzcr/prowl-admin:${{ github.ref_name }}
-            ghcr.io/zacharyzcr/prowl-admin:latest
+            ${{ env.IMAGE_PREFIX }}-admin:${{ github.ref_name }}
+            ${{ env.IMAGE_PREFIX }}-admin:latest
 
   docker-portal:
     name: Docker Portal
+    needs: verify-versions
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -68,30 +80,58 @@ jobs:
           file: portal/Dockerfile
           push: true
           tags: |
-            ghcr.io/zacharyzcr/prowl-portal:${{ github.ref_name }}
-            ghcr.io/zacharyzcr/prowl-portal:latest
+            ${{ env.IMAGE_PREFIX }}-portal:${{ github.ref_name }}
+            ${{ env.IMAGE_PREFIX }}-portal:latest
 
   cli-release:
     name: CLI Release
+    needs: verify-versions
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - goos: linux
+            goarch: amd64
+            suffix: linux-amd64
+          - goos: linux
+            goarch: arm64
+            suffix: linux-arm64
+          - goos: darwin
+            goarch: amd64
+            suffix: darwin-amd64
+          - goos: darwin
+            goarch: arm64
+            suffix: darwin-arm64
+          - goos: windows
+            goarch: amd64
+            suffix: windows-amd64.exe
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-go@v5
         with:
           go-version-file: cli/go.mod
-      - name: Build all platforms
+      - name: Build
         working-directory: cli
-        run: |
-          mkdir -p ../dist
-          for pair in linux/amd64 linux/arm64 darwin/amd64 darwin/arm64; do
-            GOOS=${pair%/*} GOARCH=${pair#*/} CGO_ENABLED=0 \
-              go build -ldflags "-s -w -X main.version=${{ github.ref_name }}" \
-              -o ../dist/prowl-${pair%/*}-${pair#*/} ./cmd/prowl
-          done
-          GOOS=windows GOARCH=amd64 CGO_ENABLED=0 \
-            go build -ldflags "-s -w -X main.version=${{ github.ref_name }}" \
-            -o ../dist/prowl-windows-amd64.exe ./cmd/prowl
-          ls -la ../dist/
+        env:
+          GOOS: ${{ matrix.goos }}
+          GOARCH: ${{ matrix.goarch }}
+          CGO_ENABLED: "0"
+        run: go build -ldflags "-s -w -X main.version=${{ github.ref_name }}" -trimpath -o ../dist/prowl-${{ matrix.suffix }} ./cmd/prowl
+      - uses: actions/upload-artifact@v4
+        with:
+          name: prowl-${{ matrix.suffix }}
+          path: dist/prowl-${{ matrix.suffix }}
+
+  github-release:
+    name: GitHub Release
+    runs-on: ubuntu-latest
+    needs: [cli-release, docker-backend, docker-frontend, docker-portal]
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
       - uses: softprops/action-gh-release@v2
         with:
+          generate_release_notes: true
           files: dist/*

@@ -5,15 +5,53 @@ on:
     branches: [main]
   pull_request:
     branches: [main]
+  workflow_dispatch:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
+  changes:
+    name: Detect Changes
+    runs-on: ubuntu-latest
+    outputs:
+      backend: ${{ github.event_name == 'workflow_dispatch' || steps.filter.outputs.backend }}
+      frontend: ${{ github.event_name == 'workflow_dispatch' || steps.filter.outputs.frontend }}
+      cli: ${{ github.event_name == 'workflow_dispatch' || steps.filter.outputs.cli }}
+      e2e: ${{ github.event_name == 'workflow_dispatch' || steps.filter.outputs.e2e }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            backend:
+              - 'backend/**'
+              - 'proto/**'
+            frontend:
+              - 'frontend/**'
+              - 'frontend-shadcn/**'
+              - 'portal/**'
+              - 'design-system/**'
+              - 'package.json'
+              - 'pnpm-lock.yaml'
+              - 'pnpm-workspace.yaml'
+            cli:
+              - 'cli/**'
+            e2e:
+              - 'e2e/**'
+              - 'frontend/**'
+              - 'package.json'
+              - 'pnpm-lock.yaml'
+              - 'pnpm-workspace.yaml'
+
   backend:
     name: Backend
+    needs: changes
+    if: needs.changes.outputs.backend == 'true'
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-go@v5
@@ -26,16 +64,72 @@ jobs:
       - name: Vet
         working-directory: backend
         run: go vet ./...
+      - name: Lint
+        working-directory: backend
+        run: |
+          go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@latest
+          "$(go env GOPATH)/bin/golangci-lint" run ./...
       - name: Test
         working-directory: backend
         run: go test -race -count=1 -coverprofile=coverage.out ./...
       - name: Build
         working-directory: backend
-        run: CGO_ENABLED=0 go build -o bin/server ./cmd/server
+        run: CGO_ENABLED=0 go build -ldflags="-s -w" -trimpath -o bin/server ./cmd/server
 
   frontend:
     name: Frontend
+    needs: changes
+    if: needs.changes.outputs.frontend == 'true'
     runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Lint
+        run: pnpm --filter frontend lint
+      - name: Type Check
+        run: pnpm --filter frontend type-check
+      - name: Test
+        run: pnpm --filter frontend test
+      - name: Build
+        run: pnpm --filter frontend build
+      - name: Upload artifact
+        if: github.event_name != 'pull_request'
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-dist
+          path: frontend/dist
+          retention-days: 3
+
+  cli:
+    name: CLI
+    needs: changes
+    if: needs.changes.outputs.cli == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: cli/go.mod
+          cache-dependency-path: cli/go.sum
+      - name: Build
+        working-directory: cli
+        run: CGO_ENABLED=0 go build -ldflags="-s -w" -trimpath -o bin/prowl ./cmd/prowl
+
+  e2e:
+    name: E2E Type Check
+    needs: changes
+    if: needs.changes.outputs.e2e == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
@@ -47,21 +141,4 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - name: Type Check
-        run: pnpm --filter frontend type-check
-      - name: Test
-        run: pnpm --filter frontend test
-      - name: Build
-        run: pnpm --filter frontend build
-
-  cli:
-    name: CLI
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-go@v5
-        with:
-          go-version-file: cli/go.mod
-          cache-dependency-path: cli/go.sum
-      - name: Build
-        working-directory: cli
-        run: go build -o bin/prowl ./cmd/prowl
+        run: pnpm --filter e2e type-check

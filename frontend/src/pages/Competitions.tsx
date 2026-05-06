@@ -135,7 +135,6 @@ export default function CompetitionPage({ mode }: CompetitionPageProps) {
     setStatusFilter("");
     table.setSearch("");
     table.reset();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mode]);
 
   async function handleCreate() {

@@ -12,6 +12,15 @@ services:
       JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required}
       GIN_MODE: release
       CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-}
+      DB_MIGRATION_MODE: ${DB_MIGRATION_MODE:-auto}
+      DOCKER_HOST: ${DOCKER_HOST:-unix:///var/run/docker.sock}
+      MAX_CONTAINERS_TOTAL: ${MAX_CONTAINERS_TOTAL:-500}
+      MAX_CONTAINERS_PER_TEAM: ${MAX_CONTAINERS_PER_TEAM:-5}
+      CONTAINER_NETWORK_PREFIX: ${CONTAINER_NETWORK_PREFIX:-range}
+      CHALLENGE_BASE_URL: ${CHALLENGE_BASE_URL:-http://localhost}
+      FLAG_SECRET_KEY: ${FLAG_SECRET_KEY:?FLAG_SECRET_KEY is required}
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
     depends_on:
       postgres:
         condition: service_healthy
@@ -20,9 +29,10 @@ services:
 
   frontend:
     build:
-      context: ../frontend
-      dockerfile: Dockerfile
+      context: ..
+      dockerfile: frontend/Dockerfile
     ports: ["80:80"]
     restart: unless-stopped
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
