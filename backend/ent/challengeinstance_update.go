@@ -93,6 +93,50 @@ func (_u *ChallengeInstanceUpdate) ClearContainerID() *ChallengeInstanceUpdate {
 	return _u
 }
 
+// SetStackID sets the "stack_id" field.
+func (_u *ChallengeInstanceUpdate) SetStackID(v string) *ChallengeInstanceUpdate {
+	_u.mutation.SetStackID(v)
+	return _u
+}
+
+// SetNillableStackID sets the "stack_id" field if the given value is not nil.
+func (_u *ChallengeInstanceUpdate) SetNillableStackID(v *string) *ChallengeInstanceUpdate {
+	if v != nil {
+		_u.SetStackID(*v)
+	}
+	return _u
+}
+
+// ClearStackID clears the value of the "stack_id" field.
+func (_u *ChallengeInstanceUpdate) ClearStackID() *ChallengeInstanceUpdate {
+	_u.mutation.ClearStackID()
+	return _u
+}
+
+// SetStackContainers sets the "stack_containers" field.
+func (_u *ChallengeInstanceUpdate) SetStackContainers(v map[string]string) *ChallengeInstanceUpdate {
+	_u.mutation.SetStackContainers(v)
+	return _u
+}
+
+// ClearStackContainers clears the value of the "stack_containers" field.
+func (_u *ChallengeInstanceUpdate) ClearStackContainers() *ChallengeInstanceUpdate {
+	_u.mutation.ClearStackContainers()
+	return _u
+}
+
+// SetStackNetworks sets the "stack_networks" field.
+func (_u *ChallengeInstanceUpdate) SetStackNetworks(v map[string]string) *ChallengeInstanceUpdate {
+	_u.mutation.SetStackNetworks(v)
+	return _u
+}
+
+// ClearStackNetworks clears the value of the "stack_networks" field.
+func (_u *ChallengeInstanceUpdate) ClearStackNetworks() *ChallengeInstanceUpdate {
+	_u.mutation.ClearStackNetworks()
+	return _u
+}
+
 // SetStatus sets the "status" field.
 func (_u *ChallengeInstanceUpdate) SetStatus(v challengeinstance.Status) *ChallengeInstanceUpdate {
 	_u.mutation.SetStatus(v)
@@ -395,6 +439,24 @@ func (_u *ChallengeInstanceUpdate) sqlSave(ctx context.Context) (_node int, err 
 	if _u.mutation.ContainerIDCleared() {
 		_spec.ClearField(challengeinstance.FieldContainerID, field.TypeString)
 	}
+	if value, ok := _u.mutation.StackID(); ok {
+		_spec.SetField(challengeinstance.FieldStackID, field.TypeString, value)
+	}
+	if _u.mutation.StackIDCleared() {
+		_spec.ClearField(challengeinstance.FieldStackID, field.TypeString)
+	}
+	if value, ok := _u.mutation.StackContainers(); ok {
+		_spec.SetField(challengeinstance.FieldStackContainers, field.TypeJSON, value)
+	}
+	if _u.mutation.StackContainersCleared() {
+		_spec.ClearField(challengeinstance.FieldStackContainers, field.TypeJSON)
+	}
+	if value, ok := _u.mutation.StackNetworks(); ok {
+		_spec.SetField(challengeinstance.FieldStackNetworks, field.TypeJSON, value)
+	}
+	if _u.mutation.StackNetworksCleared() {
+		_spec.ClearField(challengeinstance.FieldStackNetworks, field.TypeJSON)
+	}
 	if value, ok := _u.mutation.Status(); ok {
 		_spec.SetField(challengeinstance.FieldStatus, field.TypeEnum, value)
 	}
@@ -621,6 +683,50 @@ func (_u *ChallengeInstanceUpdateOne) SetNillableContainerID(v *string) *Challen
 // ClearContainerID clears the value of the "container_id" field.
 func (_u *ChallengeInstanceUpdateOne) ClearContainerID() *ChallengeInstanceUpdateOne {
 	_u.mutation.ClearContainerID()
+	return _u
+}
+
+// SetStackID sets the "stack_id" field.
+func (_u *ChallengeInstanceUpdateOne) SetStackID(v string) *ChallengeInstanceUpdateOne {
+	_u.mutation.SetStackID(v)
+	return _u
+}
+
+// SetNillableStackID sets the "stack_id" field if the given value is not nil.
+func (_u *ChallengeInstanceUpdateOne) SetNillableStackID(v *string) *ChallengeInstanceUpdateOne {
+	if v != nil {
+		_u.SetStackID(*v)
+	}
+	return _u
+}
+
+// ClearStackID clears the value of the "stack_id" field.
+func (_u *ChallengeInstanceUpdateOne) ClearStackID() *ChallengeInstanceUpdateOne {
+	_u.mutation.ClearStackID()
+	return _u
+}
+
+// SetStackContainers sets the "stack_containers" field.
+func (_u *ChallengeInstanceUpdateOne) SetStackContainers(v map[string]string) *ChallengeInstanceUpdateOne {
+	_u.mutation.SetStackContainers(v)
+	return _u
+}
+
+// ClearStackContainers clears the value of the "stack_containers" field.
+func (_u *ChallengeInstanceUpdateOne) ClearStackContainers() *ChallengeInstanceUpdateOne {
+	_u.mutation.ClearStackContainers()
+	return _u
+}
+
+// SetStackNetworks sets the "stack_networks" field.
+func (_u *ChallengeInstanceUpdateOne) SetStackNetworks(v map[string]string) *ChallengeInstanceUpdateOne {
+	_u.mutation.SetStackNetworks(v)
+	return _u
+}
+
+// ClearStackNetworks clears the value of the "stack_networks" field.
+func (_u *ChallengeInstanceUpdateOne) ClearStackNetworks() *ChallengeInstanceUpdateOne {
+	_u.mutation.ClearStackNetworks()
 	return _u
 }
 
@@ -955,6 +1061,24 @@ func (_u *ChallengeInstanceUpdateOne) sqlSave(ctx context.Context) (_node *Chall
 	}
 	if _u.mutation.ContainerIDCleared() {
 		_spec.ClearField(challengeinstance.FieldContainerID, field.TypeString)
+	}
+	if value, ok := _u.mutation.StackID(); ok {
+		_spec.SetField(challengeinstance.FieldStackID, field.TypeString, value)
+	}
+	if _u.mutation.StackIDCleared() {
+		_spec.ClearField(challengeinstance.FieldStackID, field.TypeString)
+	}
+	if value, ok := _u.mutation.StackContainers(); ok {
+		_spec.SetField(challengeinstance.FieldStackContainers, field.TypeJSON, value)
+	}
+	if _u.mutation.StackContainersCleared() {
+		_spec.ClearField(challengeinstance.FieldStackContainers, field.TypeJSON)
+	}
+	if value, ok := _u.mutation.StackNetworks(); ok {
+		_spec.SetField(challengeinstance.FieldStackNetworks, field.TypeJSON, value)
+	}
+	if _u.mutation.StackNetworksCleared() {
+		_spec.ClearField(challengeinstance.FieldStackNetworks, field.TypeJSON)
 	}
 	if value, ok := _u.mutation.Status(); ok {
 		_spec.SetField(challengeinstance.FieldStatus, field.TypeEnum, value)

@@ -75,6 +75,11 @@ func ContainerID(v string) predicate.ChallengeInstance {
 	return predicate.ChallengeInstance(sql.FieldEQ(FieldContainerID, v))
 }
 
+// StackID applies equality check predicate on the "stack_id" field. It's identical to StackIDEQ.
+func StackID(v string) predicate.ChallengeInstance {
+	return predicate.ChallengeInstance(sql.FieldEQ(FieldStackID, v))
+}
+
 // AccessURL applies equality check predicate on the "access_url" field. It's identical to AccessURLEQ.
 func AccessURL(v string) predicate.ChallengeInstance {
 	return predicate.ChallengeInstance(sql.FieldEQ(FieldAccessURL, v))
@@ -258,6 +263,101 @@ func ContainerIDEqualFold(v string) predicate.ChallengeInstance {
 // ContainerIDContainsFold applies the ContainsFold predicate on the "container_id" field.
 func ContainerIDContainsFold(v string) predicate.ChallengeInstance {
 	return predicate.ChallengeInstance(sql.FieldContainsFold(FieldContainerID, v))
+}
+
+// StackIDEQ applies the EQ predicate on the "stack_id" field.
+func StackIDEQ(v string) predicate.ChallengeInstance {
+	return predicate.ChallengeInstance(sql.FieldEQ(FieldStackID, v))
+}
+
+// StackIDNEQ applies the NEQ predicate on the "stack_id" field.
+func StackIDNEQ(v string) predicate.ChallengeInstance {
+	return predicate.ChallengeInstance(sql.FieldNEQ(FieldStackID, v))
+}
+
+// StackIDIn applies the In predicate on the "stack_id" field.
+func StackIDIn(vs ...string) predicate.ChallengeInstance {
+	return predicate.ChallengeInstance(sql.FieldIn(FieldStackID, vs...))
+}
+
+// StackIDNotIn applies the NotIn predicate on the "stack_id" field.
+func StackIDNotIn(vs ...string) predicate.ChallengeInstance {
+	return predicate.ChallengeInstance(sql.FieldNotIn(FieldStackID, vs...))
+}
+
+// StackIDGT applies the GT predicate on the "stack_id" field.
+func StackIDGT(v string) predicate.ChallengeInstance {
+	return predicate.ChallengeInstance(sql.FieldGT(FieldStackID, v))
+}
+
+// StackIDGTE applies the GTE predicate on the "stack_id" field.
+func StackIDGTE(v string) predicate.ChallengeInstance {
+	return predicate.ChallengeInstance(sql.FieldGTE(FieldStackID, v))
+}
+
+// StackIDLT applies the LT predicate on the "stack_id" field.
+func StackIDLT(v string) predicate.ChallengeInstance {
+	return predicate.ChallengeInstance(sql.FieldLT(FieldStackID, v))
+}
+
+// StackIDLTE applies the LTE predicate on the "stack_id" field.
+func StackIDLTE(v string) predicate.ChallengeInstance {
+	return predicate.ChallengeInstance(sql.FieldLTE(FieldStackID, v))
+}
+
+// StackIDContains applies the Contains predicate on the "stack_id" field.
+func StackIDContains(v string) predicate.ChallengeInstance {
+	return predicate.ChallengeInstance(sql.FieldContains(FieldStackID, v))
+}
+
+// StackIDHasPrefix applies the HasPrefix predicate on the "stack_id" field.
+func StackIDHasPrefix(v string) predicate.ChallengeInstance {
+	return predicate.ChallengeInstance(sql.FieldHasPrefix(FieldStackID, v))
+}
+
+// StackIDHasSuffix applies the HasSuffix predicate on the "stack_id" field.
+func StackIDHasSuffix(v string) predicate.ChallengeInstance {
+	return predicate.ChallengeInstance(sql.FieldHasSuffix(FieldStackID, v))
+}
+
+// StackIDIsNil applies the IsNil predicate on the "stack_id" field.
+func StackIDIsNil() predicate.ChallengeInstance {
+	return predicate.ChallengeInstance(sql.FieldIsNull(FieldStackID))
+}
+
+// StackIDNotNil applies the NotNil predicate on the "stack_id" field.
+func StackIDNotNil() predicate.ChallengeInstance {
+	return predicate.ChallengeInstance(sql.FieldNotNull(FieldStackID))
+}
+
+// StackIDEqualFold applies the EqualFold predicate on the "stack_id" field.
+func StackIDEqualFold(v string) predicate.ChallengeInstance {
+	return predicate.ChallengeInstance(sql.FieldEqualFold(FieldStackID, v))
+}
+
+// StackIDContainsFold applies the ContainsFold predicate on the "stack_id" field.
+func StackIDContainsFold(v string) predicate.ChallengeInstance {
+	return predicate.ChallengeInstance(sql.FieldContainsFold(FieldStackID, v))
+}
+
+// StackContainersIsNil applies the IsNil predicate on the "stack_containers" field.
+func StackContainersIsNil() predicate.ChallengeInstance {
+	return predicate.ChallengeInstance(sql.FieldIsNull(FieldStackContainers))
+}
+
+// StackContainersNotNil applies the NotNil predicate on the "stack_containers" field.
+func StackContainersNotNil() predicate.ChallengeInstance {
+	return predicate.ChallengeInstance(sql.FieldNotNull(FieldStackContainers))
+}
+
+// StackNetworksIsNil applies the IsNil predicate on the "stack_networks" field.
+func StackNetworksIsNil() predicate.ChallengeInstance {
+	return predicate.ChallengeInstance(sql.FieldIsNull(FieldStackNetworks))
+}
+
+// StackNetworksNotNil applies the NotNil predicate on the "stack_networks" field.
+func StackNetworksNotNil() predicate.ChallengeInstance {
+	return predicate.ChallengeInstance(sql.FieldNotNull(FieldStackNetworks))
 }
 
 // StatusEQ applies the EQ predicate on the "status" field.

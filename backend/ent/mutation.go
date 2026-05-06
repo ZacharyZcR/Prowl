@@ -9306,6 +9306,9 @@ type ChallengeInstanceMutation struct {
 	typ                string
 	id                 *int
 	container_id       *string
+	stack_id           *string
+	stack_containers   *map[string]string
+	stack_networks     *map[string]string
 	status             *challengeinstance.Status
 	access_url         *string
 	ports              *map[string]string
@@ -9583,6 +9586,153 @@ func (m *ChallengeInstanceMutation) ContainerIDCleared() bool {
 func (m *ChallengeInstanceMutation) ResetContainerID() {
 	m.container_id = nil
 	delete(m.clearedFields, challengeinstance.FieldContainerID)
+}
+
+// SetStackID sets the "stack_id" field.
+func (m *ChallengeInstanceMutation) SetStackID(s string) {
+	m.stack_id = &s
+}
+
+// StackID returns the value of the "stack_id" field in the mutation.
+func (m *ChallengeInstanceMutation) StackID() (r string, exists bool) {
+	v := m.stack_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldStackID returns the old "stack_id" field's value of the ChallengeInstance entity.
+// If the ChallengeInstance object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ChallengeInstanceMutation) OldStackID(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldStackID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldStackID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldStackID: %w", err)
+	}
+	return oldValue.StackID, nil
+}
+
+// ClearStackID clears the value of the "stack_id" field.
+func (m *ChallengeInstanceMutation) ClearStackID() {
+	m.stack_id = nil
+	m.clearedFields[challengeinstance.FieldStackID] = struct{}{}
+}
+
+// StackIDCleared returns if the "stack_id" field was cleared in this mutation.
+func (m *ChallengeInstanceMutation) StackIDCleared() bool {
+	_, ok := m.clearedFields[challengeinstance.FieldStackID]
+	return ok
+}
+
+// ResetStackID resets all changes to the "stack_id" field.
+func (m *ChallengeInstanceMutation) ResetStackID() {
+	m.stack_id = nil
+	delete(m.clearedFields, challengeinstance.FieldStackID)
+}
+
+// SetStackContainers sets the "stack_containers" field.
+func (m *ChallengeInstanceMutation) SetStackContainers(value map[string]string) {
+	m.stack_containers = &value
+}
+
+// StackContainers returns the value of the "stack_containers" field in the mutation.
+func (m *ChallengeInstanceMutation) StackContainers() (r map[string]string, exists bool) {
+	v := m.stack_containers
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldStackContainers returns the old "stack_containers" field's value of the ChallengeInstance entity.
+// If the ChallengeInstance object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ChallengeInstanceMutation) OldStackContainers(ctx context.Context) (v map[string]string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldStackContainers is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldStackContainers requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldStackContainers: %w", err)
+	}
+	return oldValue.StackContainers, nil
+}
+
+// ClearStackContainers clears the value of the "stack_containers" field.
+func (m *ChallengeInstanceMutation) ClearStackContainers() {
+	m.stack_containers = nil
+	m.clearedFields[challengeinstance.FieldStackContainers] = struct{}{}
+}
+
+// StackContainersCleared returns if the "stack_containers" field was cleared in this mutation.
+func (m *ChallengeInstanceMutation) StackContainersCleared() bool {
+	_, ok := m.clearedFields[challengeinstance.FieldStackContainers]
+	return ok
+}
+
+// ResetStackContainers resets all changes to the "stack_containers" field.
+func (m *ChallengeInstanceMutation) ResetStackContainers() {
+	m.stack_containers = nil
+	delete(m.clearedFields, challengeinstance.FieldStackContainers)
+}
+
+// SetStackNetworks sets the "stack_networks" field.
+func (m *ChallengeInstanceMutation) SetStackNetworks(value map[string]string) {
+	m.stack_networks = &value
+}
+
+// StackNetworks returns the value of the "stack_networks" field in the mutation.
+func (m *ChallengeInstanceMutation) StackNetworks() (r map[string]string, exists bool) {
+	v := m.stack_networks
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldStackNetworks returns the old "stack_networks" field's value of the ChallengeInstance entity.
+// If the ChallengeInstance object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ChallengeInstanceMutation) OldStackNetworks(ctx context.Context) (v map[string]string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldStackNetworks is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldStackNetworks requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldStackNetworks: %w", err)
+	}
+	return oldValue.StackNetworks, nil
+}
+
+// ClearStackNetworks clears the value of the "stack_networks" field.
+func (m *ChallengeInstanceMutation) ClearStackNetworks() {
+	m.stack_networks = nil
+	m.clearedFields[challengeinstance.FieldStackNetworks] = struct{}{}
+}
+
+// StackNetworksCleared returns if the "stack_networks" field was cleared in this mutation.
+func (m *ChallengeInstanceMutation) StackNetworksCleared() bool {
+	_, ok := m.clearedFields[challengeinstance.FieldStackNetworks]
+	return ok
+}
+
+// ResetStackNetworks resets all changes to the "stack_networks" field.
+func (m *ChallengeInstanceMutation) ResetStackNetworks() {
+	m.stack_networks = nil
+	delete(m.clearedFields, challengeinstance.FieldStackNetworks)
 }
 
 // SetStatus sets the "status" field.
@@ -10249,7 +10399,7 @@ func (m *ChallengeInstanceMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *ChallengeInstanceMutation) Fields() []string {
-	fields := make([]string, 0, 16)
+	fields := make([]string, 0, 19)
 	if m.challenge != nil {
 		fields = append(fields, challengeinstance.FieldChallengeID)
 	}
@@ -10261,6 +10411,15 @@ func (m *ChallengeInstanceMutation) Fields() []string {
 	}
 	if m.container_id != nil {
 		fields = append(fields, challengeinstance.FieldContainerID)
+	}
+	if m.stack_id != nil {
+		fields = append(fields, challengeinstance.FieldStackID)
+	}
+	if m.stack_containers != nil {
+		fields = append(fields, challengeinstance.FieldStackContainers)
+	}
+	if m.stack_networks != nil {
+		fields = append(fields, challengeinstance.FieldStackNetworks)
 	}
 	if m.status != nil {
 		fields = append(fields, challengeinstance.FieldStatus)
@@ -10314,6 +10473,12 @@ func (m *ChallengeInstanceMutation) Field(name string) (ent.Value, bool) {
 		return m.TeamID()
 	case challengeinstance.FieldContainerID:
 		return m.ContainerID()
+	case challengeinstance.FieldStackID:
+		return m.StackID()
+	case challengeinstance.FieldStackContainers:
+		return m.StackContainers()
+	case challengeinstance.FieldStackNetworks:
+		return m.StackNetworks()
 	case challengeinstance.FieldStatus:
 		return m.Status()
 	case challengeinstance.FieldAccessURL:
@@ -10355,6 +10520,12 @@ func (m *ChallengeInstanceMutation) OldField(ctx context.Context, name string) (
 		return m.OldTeamID(ctx)
 	case challengeinstance.FieldContainerID:
 		return m.OldContainerID(ctx)
+	case challengeinstance.FieldStackID:
+		return m.OldStackID(ctx)
+	case challengeinstance.FieldStackContainers:
+		return m.OldStackContainers(ctx)
+	case challengeinstance.FieldStackNetworks:
+		return m.OldStackNetworks(ctx)
 	case challengeinstance.FieldStatus:
 		return m.OldStatus(ctx)
 	case challengeinstance.FieldAccessURL:
@@ -10415,6 +10586,27 @@ func (m *ChallengeInstanceMutation) SetField(name string, value ent.Value) error
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetContainerID(v)
+		return nil
+	case challengeinstance.FieldStackID:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetStackID(v)
+		return nil
+	case challengeinstance.FieldStackContainers:
+		v, ok := value.(map[string]string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetStackContainers(v)
+		return nil
+	case challengeinstance.FieldStackNetworks:
+		v, ok := value.(map[string]string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetStackNetworks(v)
 		return nil
 	case challengeinstance.FieldStatus:
 		v, ok := value.(challengeinstance.Status)
@@ -10536,6 +10728,15 @@ func (m *ChallengeInstanceMutation) ClearedFields() []string {
 	if m.FieldCleared(challengeinstance.FieldContainerID) {
 		fields = append(fields, challengeinstance.FieldContainerID)
 	}
+	if m.FieldCleared(challengeinstance.FieldStackID) {
+		fields = append(fields, challengeinstance.FieldStackID)
+	}
+	if m.FieldCleared(challengeinstance.FieldStackContainers) {
+		fields = append(fields, challengeinstance.FieldStackContainers)
+	}
+	if m.FieldCleared(challengeinstance.FieldStackNetworks) {
+		fields = append(fields, challengeinstance.FieldStackNetworks)
+	}
 	if m.FieldCleared(challengeinstance.FieldAccessURL) {
 		fields = append(fields, challengeinstance.FieldAccessURL)
 	}
@@ -10579,6 +10780,15 @@ func (m *ChallengeInstanceMutation) ClearField(name string) error {
 	switch name {
 	case challengeinstance.FieldContainerID:
 		m.ClearContainerID()
+		return nil
+	case challengeinstance.FieldStackID:
+		m.ClearStackID()
+		return nil
+	case challengeinstance.FieldStackContainers:
+		m.ClearStackContainers()
+		return nil
+	case challengeinstance.FieldStackNetworks:
+		m.ClearStackNetworks()
 		return nil
 	case challengeinstance.FieldAccessURL:
 		m.ClearAccessURL()
@@ -10626,6 +10836,15 @@ func (m *ChallengeInstanceMutation) ResetField(name string) error {
 		return nil
 	case challengeinstance.FieldContainerID:
 		m.ResetContainerID()
+		return nil
+	case challengeinstance.FieldStackID:
+		m.ResetStackID()
+		return nil
+	case challengeinstance.FieldStackContainers:
+		m.ResetStackContainers()
+		return nil
+	case challengeinstance.FieldStackNetworks:
+		m.ResetStackNetworks()
 		return nil
 	case challengeinstance.FieldStatus:
 		m.ResetStatus()

@@ -23,6 +23,12 @@ const (
 	FieldTeamID = "team_id"
 	// FieldContainerID holds the string denoting the container_id field in the database.
 	FieldContainerID = "container_id"
+	// FieldStackID holds the string denoting the stack_id field in the database.
+	FieldStackID = "stack_id"
+	// FieldStackContainers holds the string denoting the stack_containers field in the database.
+	FieldStackContainers = "stack_containers"
+	// FieldStackNetworks holds the string denoting the stack_networks field in the database.
+	FieldStackNetworks = "stack_networks"
 	// FieldStatus holds the string denoting the status field in the database.
 	FieldStatus = "status"
 	// FieldAccessURL holds the string denoting the access_url field in the database.
@@ -85,6 +91,9 @@ var Columns = []string{
 	FieldCompetitionID,
 	FieldTeamID,
 	FieldContainerID,
+	FieldStackID,
+	FieldStackContainers,
+	FieldStackNetworks,
 	FieldStatus,
 	FieldAccessURL,
 	FieldPorts,
@@ -112,6 +121,8 @@ func ValidColumn(column string) bool {
 var (
 	// DefaultContainerID holds the default value on creation for the "container_id" field.
 	DefaultContainerID string
+	// DefaultStackID holds the default value on creation for the "stack_id" field.
+	DefaultStackID string
 	// DefaultAccessURL holds the default value on creation for the "access_url" field.
 	DefaultAccessURL string
 	// DefaultNetworkID holds the default value on creation for the "network_id" field.
@@ -184,6 +195,11 @@ func ByTeamID(opts ...sql.OrderTermOption) OrderOption {
 // ByContainerID orders the results by the container_id field.
 func ByContainerID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldContainerID, opts...).ToFunc()
+}
+
+// ByStackID orders the results by the stack_id field.
+func ByStackID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldStackID, opts...).ToFunc()
 }
 
 // ByStatus orders the results by the status field.

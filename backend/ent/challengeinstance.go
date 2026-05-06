@@ -29,6 +29,12 @@ type ChallengeInstance struct {
 	TeamID int `json:"team_id,omitempty"`
 	// ContainerID holds the value of the "container_id" field.
 	ContainerID string `json:"container_id,omitempty"`
+	// StackID holds the value of the "stack_id" field.
+	StackID string `json:"stack_id,omitempty"`
+	// StackContainers holds the value of the "stack_containers" field.
+	StackContainers map[string]string `json:"stack_containers,omitempty"`
+	// StackNetworks holds the value of the "stack_networks" field.
+	StackNetworks map[string]string `json:"stack_networks,omitempty"`
 	// Status holds the value of the "status" field.
 	Status challengeinstance.Status `json:"status,omitempty"`
 	// AccessURL holds the value of the "access_url" field.
@@ -110,11 +116,11 @@ func (*ChallengeInstance) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case challengeinstance.FieldPorts:
+		case challengeinstance.FieldStackContainers, challengeinstance.FieldStackNetworks, challengeinstance.FieldPorts:
 			values[i] = new([]byte)
 		case challengeinstance.FieldID, challengeinstance.FieldChallengeID, challengeinstance.FieldCompetitionID, challengeinstance.FieldTeamID:
 			values[i] = new(sql.NullInt64)
-		case challengeinstance.FieldContainerID, challengeinstance.FieldStatus, challengeinstance.FieldAccessURL, challengeinstance.FieldNetworkID, challengeinstance.FieldFlag, challengeinstance.FieldSSHUser, challengeinstance.FieldSSHPassword, challengeinstance.FieldSSHAddress:
+		case challengeinstance.FieldContainerID, challengeinstance.FieldStackID, challengeinstance.FieldStatus, challengeinstance.FieldAccessURL, challengeinstance.FieldNetworkID, challengeinstance.FieldFlag, challengeinstance.FieldSSHUser, challengeinstance.FieldSSHPassword, challengeinstance.FieldSSHAddress:
 			values[i] = new(sql.NullString)
 		case challengeinstance.FieldExpiresAt, challengeinstance.FieldStartedAt, challengeinstance.FieldStoppedAt, challengeinstance.FieldCreatedAt:
 			values[i] = new(sql.NullTime)
@@ -162,6 +168,28 @@ func (_m *ChallengeInstance) assignValues(columns []string, values []any) error 
 				return fmt.Errorf("unexpected type %T for field container_id", values[i])
 			} else if value.Valid {
 				_m.ContainerID = value.String
+			}
+		case challengeinstance.FieldStackID:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field stack_id", values[i])
+			} else if value.Valid {
+				_m.StackID = value.String
+			}
+		case challengeinstance.FieldStackContainers:
+			if value, ok := values[i].(*[]byte); !ok {
+				return fmt.Errorf("unexpected type %T for field stack_containers", values[i])
+			} else if value != nil && len(*value) > 0 {
+				if err := json.Unmarshal(*value, &_m.StackContainers); err != nil {
+					return fmt.Errorf("unmarshal field stack_containers: %w", err)
+				}
+			}
+		case challengeinstance.FieldStackNetworks:
+			if value, ok := values[i].(*[]byte); !ok {
+				return fmt.Errorf("unexpected type %T for field stack_networks", values[i])
+			} else if value != nil && len(*value) > 0 {
+				if err := json.Unmarshal(*value, &_m.StackNetworks); err != nil {
+					return fmt.Errorf("unmarshal field stack_networks: %w", err)
+				}
 			}
 		case challengeinstance.FieldStatus:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -301,6 +329,15 @@ func (_m *ChallengeInstance) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("container_id=")
 	builder.WriteString(_m.ContainerID)
+	builder.WriteString(", ")
+	builder.WriteString("stack_id=")
+	builder.WriteString(_m.StackID)
+	builder.WriteString(", ")
+	builder.WriteString("stack_containers=")
+	builder.WriteString(fmt.Sprintf("%v", _m.StackContainers))
+	builder.WriteString(", ")
+	builder.WriteString("stack_networks=")
+	builder.WriteString(fmt.Sprintf("%v", _m.StackNetworks))
 	builder.WriteString(", ")
 	builder.WriteString("status=")
 	builder.WriteString(fmt.Sprintf("%v", _m.Status))

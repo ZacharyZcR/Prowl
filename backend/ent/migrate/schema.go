@@ -277,6 +277,9 @@ var (
 	ChallengeInstancesColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
 		{Name: "container_id", Type: field.TypeString, Nullable: true, Default: ""},
+		{Name: "stack_id", Type: field.TypeString, Nullable: true, Default: ""},
+		{Name: "stack_containers", Type: field.TypeJSON, Nullable: true},
+		{Name: "stack_networks", Type: field.TypeJSON, Nullable: true},
 		{Name: "status", Type: field.TypeEnum, Enums: []string{"pending", "starting", "running", "stopping", "stopped", "error"}, Default: "pending"},
 		{Name: "access_url", Type: field.TypeString, Nullable: true, Default: ""},
 		{Name: "ports", Type: field.TypeJSON, Nullable: true},
@@ -301,19 +304,19 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "challenge_instances_challenges_challenge_instances",
-				Columns:    []*schema.Column{ChallengeInstancesColumns[14]},
+				Columns:    []*schema.Column{ChallengeInstancesColumns[17]},
 				RefColumns: []*schema.Column{ChallengesColumns[0]},
 				OnDelete:   schema.Cascade,
 			},
 			{
 				Symbol:     "challenge_instances_competitions_challenge_instances",
-				Columns:    []*schema.Column{ChallengeInstancesColumns[15]},
+				Columns:    []*schema.Column{ChallengeInstancesColumns[18]},
 				RefColumns: []*schema.Column{CompetitionsColumns[0]},
 				OnDelete:   schema.Cascade,
 			},
 			{
 				Symbol:     "challenge_instances_teams_challenge_instances",
-				Columns:    []*schema.Column{ChallengeInstancesColumns[16]},
+				Columns:    []*schema.Column{ChallengeInstancesColumns[19]},
 				RefColumns: []*schema.Column{TeamsColumns[0]},
 				OnDelete:   schema.Cascade,
 			},
@@ -322,7 +325,7 @@ var (
 			{
 				Name:    "challengeinstance_challenge_id_competition_id_team_id",
 				Unique:  true,
-				Columns: []*schema.Column{ChallengeInstancesColumns[14], ChallengeInstancesColumns[15], ChallengeInstancesColumns[16]},
+				Columns: []*schema.Column{ChallengeInstancesColumns[17], ChallengeInstancesColumns[18], ChallengeInstancesColumns[19]},
 			},
 			{
 				Name:    "challengeinstance_container_id",
@@ -332,12 +335,12 @@ var (
 			{
 				Name:    "challengeinstance_status",
 				Unique:  false,
-				Columns: []*schema.Column{ChallengeInstancesColumns[2]},
+				Columns: []*schema.Column{ChallengeInstancesColumns[5]},
 			},
 			{
 				Name:    "challengeinstance_expires_at",
 				Unique:  false,
-				Columns: []*schema.Column{ChallengeInstancesColumns[10]},
+				Columns: []*schema.Column{ChallengeInstancesColumns[13]},
 			},
 		},
 	}

@@ -8,6 +8,9 @@ type InstanceResponse struct {
 	TeamID        int               `json:"team_id"`
 	TeamName      string            `json:"team_name"`
 	ContainerID   string            `json:"container_id"`
+	StackID       string            `json:"stack_id,omitempty"`
+	Containers    map[string]string `json:"containers,omitempty"`
+	Networks      map[string]string `json:"networks,omitempty"`
 	Status        string            `json:"status"`
 	AccessURL     string            `json:"access_url"`
 	Ports         map[string]string `json:"ports"`

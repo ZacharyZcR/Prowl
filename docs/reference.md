@@ -248,7 +248,7 @@ Indexes: (conversation_id, created_at)
 id, provider (default "openai"), api_key (sensitive), api_base, model (default "gpt-4o"), max_tokens (4096), temperature (0.7), system_prompt, updated_at
 
 ### Challenge Network Topology
-`Challenge.network_topology` 保存多层网络题的拓扑草案。结构包含 `services`、`networks`、`entry_service`。当前阶段只做存储与校验，运行时仍走单容器实例逻辑。
+`Challenge.network_topology` 保存多层网络题拓扑。结构包含 `services`、`networks`、`entry_service`。动态题启动实例时会创建独立 stack，记录 `stack_id`、`stack_containers`、`stack_networks`，并只暴露入口服务端口。
 
 ## 前端架构
 

@@ -55,6 +55,32 @@ func (_c *ChallengeInstanceCreate) SetNillableContainerID(v *string) *ChallengeI
 	return _c
 }
 
+// SetStackID sets the "stack_id" field.
+func (_c *ChallengeInstanceCreate) SetStackID(v string) *ChallengeInstanceCreate {
+	_c.mutation.SetStackID(v)
+	return _c
+}
+
+// SetNillableStackID sets the "stack_id" field if the given value is not nil.
+func (_c *ChallengeInstanceCreate) SetNillableStackID(v *string) *ChallengeInstanceCreate {
+	if v != nil {
+		_c.SetStackID(*v)
+	}
+	return _c
+}
+
+// SetStackContainers sets the "stack_containers" field.
+func (_c *ChallengeInstanceCreate) SetStackContainers(v map[string]string) *ChallengeInstanceCreate {
+	_c.mutation.SetStackContainers(v)
+	return _c
+}
+
+// SetStackNetworks sets the "stack_networks" field.
+func (_c *ChallengeInstanceCreate) SetStackNetworks(v map[string]string) *ChallengeInstanceCreate {
+	_c.mutation.SetStackNetworks(v)
+	return _c
+}
+
 // SetStatus sets the "status" field.
 func (_c *ChallengeInstanceCreate) SetStatus(v challengeinstance.Status) *ChallengeInstanceCreate {
 	_c.mutation.SetStatus(v)
@@ -261,6 +287,10 @@ func (_c *ChallengeInstanceCreate) defaults() {
 		v := challengeinstance.DefaultContainerID
 		_c.mutation.SetContainerID(v)
 	}
+	if _, ok := _c.mutation.StackID(); !ok {
+		v := challengeinstance.DefaultStackID
+		_c.mutation.SetStackID(v)
+	}
 	if _, ok := _c.mutation.Status(); !ok {
 		v := challengeinstance.DefaultStatus
 		_c.mutation.SetStatus(v)
@@ -358,6 +388,18 @@ func (_c *ChallengeInstanceCreate) createSpec() (*ChallengeInstance, *sqlgraph.C
 	if value, ok := _c.mutation.ContainerID(); ok {
 		_spec.SetField(challengeinstance.FieldContainerID, field.TypeString, value)
 		_node.ContainerID = value
+	}
+	if value, ok := _c.mutation.StackID(); ok {
+		_spec.SetField(challengeinstance.FieldStackID, field.TypeString, value)
+		_node.StackID = value
+	}
+	if value, ok := _c.mutation.StackContainers(); ok {
+		_spec.SetField(challengeinstance.FieldStackContainers, field.TypeJSON, value)
+		_node.StackContainers = value
+	}
+	if value, ok := _c.mutation.StackNetworks(); ok {
+		_spec.SetField(challengeinstance.FieldStackNetworks, field.TypeJSON, value)
+		_node.StackNetworks = value
 	}
 	if value, ok := _c.mutation.Status(); ok {
 		_spec.SetField(challengeinstance.FieldStatus, field.TypeEnum, value)

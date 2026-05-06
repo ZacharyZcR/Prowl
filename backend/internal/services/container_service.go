@@ -16,15 +16,27 @@ import (
 )
 
 type ContainerConfig struct {
-	Image          string
-	Env            map[string]string
-	ExposedPorts   []string
-	CPULimit       int64
-	MemoryLimit    int64
-	PidsLimit      int64
-	NetworkName    string
-	ContainerName  string
-	Labels         map[string]string
+	Image         string
+	Env           map[string]string
+	ExposedPorts  []string
+	CPULimit      int64
+	MemoryLimit   int64
+	PidsLimit     int64
+	NetworkName   string
+	Networks      []NetworkAttachment
+	ContainerName string
+	Labels        map[string]string
+}
+
+type NetworkAttachment struct {
+	Name    string
+	Aliases []string
+}
+
+type NetworkOptions struct {
+	Internal bool
+	Subnet   string
+	Labels   map[string]string
 }
 
 type ContainerInfo struct {
@@ -34,10 +46,10 @@ type ContainerInfo struct {
 }
 
 type ContainerService struct {
-	cli        *client.Client
-	baseURL    string
-	netPrefix  string
-	logger     *zap.Logger
+	cli       *client.Client
+	baseURL   string
+	netPrefix string
+	logger    *zap.Logger
 }
 
 func NewContainerService(dockerHost, baseURL, netPrefix string, logger *zap.Logger) (*ContainerService, error) {
@@ -74,6 +86,10 @@ func (s *ContainerService) EnsureImage(ctx context.Context, imageName string) er
 }
 
 func (s *ContainerService) EnsureNetwork(ctx context.Context, networkName string) (string, error) {
+	return s.EnsureNetworkWithOptions(ctx, networkName, NetworkOptions{})
+}
+
+func (s *ContainerService) EnsureNetworkWithOptions(ctx context.Context, networkName string, opts NetworkOptions) (string, error) {
 	networks, err := s.cli.NetworkList(ctx, network.ListOptions{})
 	if err != nil {
 		return "", fmt.Errorf("failed to list networks: %w", err)
@@ -85,12 +101,23 @@ func (s *ContainerService) EnsureNetwork(ctx context.Context, networkName string
 		}
 	}
 
-	resp, err := s.cli.NetworkCreate(ctx, networkName, network.CreateOptions{
+	labels := map[string]string{"managed-by": "security-range"}
+	for k, v := range opts.Labels {
+		labels[k] = v
+	}
+	createOptions := network.CreateOptions{
 		Driver:     "bridge",
-		Internal:   false,
+		Internal:   opts.Internal,
 		Attachable: true,
-		Labels:     map[string]string{"managed-by": "security-range"},
-	})
+		Labels:     labels,
+	}
+	if opts.Subnet != "" {
+		createOptions.IPAM = &network.IPAM{
+			Config: []network.IPAMConfig{{Subnet: opts.Subnet}},
+		}
+	}
+
+	resp, err := s.cli.NetworkCreate(ctx, networkName, createOptions)
 	if err != nil {
 		return "", fmt.Errorf("failed to create network %s: %w", networkName, err)
 	}
@@ -102,9 +129,21 @@ func (s *ContainerService) CreateAndStart(ctx context.Context, cfg *ContainerCon
 		return nil, err
 	}
 
-	networkID, err := s.EnsureNetwork(ctx, cfg.NetworkName)
-	if err != nil {
-		return nil, err
+	attachments := cfg.Networks
+	if len(attachments) == 0 && cfg.NetworkName != "" {
+		attachments = []NetworkAttachment{{Name: cfg.NetworkName}}
+	}
+	if len(attachments) == 0 {
+		return nil, fmt.Errorf("at least one network is required")
+	}
+
+	networkIDs := make(map[string]string, len(attachments))
+	for _, attachment := range attachments {
+		networkID, err := s.EnsureNetwork(ctx, attachment.Name)
+		if err != nil {
+			return nil, err
+		}
+		networkIDs[attachment.Name] = networkID
 	}
 
 	envList := make([]string, 0, len(cfg.Env))
@@ -139,9 +178,12 @@ func (s *ContainerService) CreateAndStart(ctx context.Context, cfg *ContainerCon
 	}
 
 	networkingConfig := &network.NetworkingConfig{
-		EndpointsConfig: map[string]*network.EndpointSettings{
-			cfg.NetworkName: {},
-		},
+		EndpointsConfig: make(map[string]*network.EndpointSettings, len(attachments)),
+	}
+	for _, attachment := range attachments {
+		networkingConfig.EndpointsConfig[attachment.Name] = &network.EndpointSettings{
+			Aliases: attachment.Aliases,
+		}
 	}
 
 	resp, err := s.cli.ContainerCreate(ctx,
@@ -177,10 +219,11 @@ func (s *ContainerService) CreateAndStart(ctx context.Context, cfg *ContainerCon
 		}
 	}
 
+	primaryNetwork := attachments[0].Name
 	return &ContainerInfo{
 		ContainerID: resp.ID,
 		Ports:       ports,
-		NetworkID:   networkID,
+		NetworkID:   networkIDs[primaryNetwork],
 	}, nil
 }
 

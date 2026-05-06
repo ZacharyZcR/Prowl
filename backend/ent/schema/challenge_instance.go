@@ -21,6 +21,13 @@ func (ChallengeInstance) Fields() []ent.Field {
 		field.String("container_id").
 			Optional().
 			Default(""),
+		field.String("stack_id").
+			Optional().
+			Default(""),
+		field.JSON("stack_containers", map[string]string{}).
+			Optional(),
+		field.JSON("stack_networks", map[string]string{}).
+			Optional(),
 		field.Enum("status").
 			Values("pending", "starting", "running", "stopping", "stopped", "error").
 			Default("pending"),

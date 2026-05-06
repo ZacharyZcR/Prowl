@@ -16,9 +16,10 @@ import (
 )
 
 type InstanceService struct {
-	client    *ent.Client
-	container *ContainerService
-	secretKey string
+	client     *ent.Client
+	container  *ContainerService
+	stack      *StackService
+	secretKey  string
 	maxPerTeam int
 	maxTotal   int
 	logger     *zap.Logger
@@ -26,9 +27,10 @@ type InstanceService struct {
 
 func NewInstanceService(client *ent.Client, container *ContainerService, secretKey string, maxPerTeam, maxTotal int, logger *zap.Logger) *InstanceService {
 	return &InstanceService{
-		client:    client,
-		container: container,
-		secretKey: secretKey,
+		client:     client,
+		container:  container,
+		stack:      NewStackService(container, logger),
+		secretKey:  secretKey,
 		maxPerTeam: maxPerTeam,
 		maxTotal:   maxTotal,
 		logger:     logger,
@@ -98,6 +100,11 @@ func (s *InstanceService) StartInstance(ctx context.Context, challengeID, compet
 		Save(ctx)
 	if err != nil {
 		return nil, apperr.ErrInternal.WithMessage("failed to create instance record: " + err.Error())
+	}
+
+	topology := networkTopologyFromMap(chal.NetworkTopology)
+	if topology != nil && !topology.IsEmpty() {
+		return s.startStackInstance(ctx, inst, chal, topology, flag)
 	}
 
 	env := map[string]string{"FLAG": flag}
@@ -180,9 +187,7 @@ func (s *InstanceService) StopInstance(ctx context.Context, challengeID, competi
 		return apperr.ErrInternal.WithMessage("failed to query instance: " + err.Error())
 	}
 
-	if inst.ContainerID != "" {
-		_ = s.container.StopAndRemove(ctx, inst.ContainerID)
-	}
+	_ = s.cleanupInstanceResources(ctx, inst)
 
 	now := time.Now()
 	_, err = s.client.ChallengeInstance.UpdateOneID(inst.ID).
@@ -218,9 +223,7 @@ func (s *InstanceService) ForceRemove(ctx context.Context, instanceID int) error
 	if err != nil {
 		return apperr.ErrNotFound.WithMessage("instance not found")
 	}
-	if inst.ContainerID != "" {
-		_ = s.container.StopAndRemove(ctx, inst.ContainerID)
-	}
+	_ = s.cleanupInstanceResources(ctx, inst)
 	now := time.Now()
 	_, err = s.client.ChallengeInstance.UpdateOneID(inst.ID).
 		SetStatus(challengeinstance.StatusStopped).
@@ -338,9 +341,7 @@ func (s *InstanceService) CleanupExpired(ctx context.Context) (int, error) {
 
 	cleaned := 0
 	for _, inst := range instances {
-		if inst.ContainerID != "" {
-			_ = s.container.StopAndRemove(ctx, inst.ContainerID)
-		}
+		_ = s.cleanupInstanceResources(ctx, inst)
 		stoppedAt := time.Now()
 		_, err := s.client.ChallengeInstance.UpdateOneID(inst.ID).
 			SetStatus(challengeinstance.StatusStopped).
@@ -364,6 +365,9 @@ func (s *InstanceService) buildResponse(inst *ent.ChallengeInstance) *models.Ins
 		CompetitionID: inst.CompetitionID,
 		TeamID:        inst.TeamID,
 		ContainerID:   inst.ContainerID,
+		StackID:       inst.StackID,
+		Containers:    inst.StackContainers,
+		Networks:      inst.StackNetworks,
 		Status:        string(inst.Status),
 		AccessURL:     inst.AccessURL,
 		Ports:         inst.Ports,
@@ -377,4 +381,70 @@ func (s *InstanceService) buildResponse(inst *ent.ChallengeInstance) *models.Ins
 		resp.StoppedAt = inst.StoppedAt.Format("2006-01-02T15:04:05Z")
 	}
 	return resp
+}
+
+func (s *InstanceService) startStackInstance(ctx context.Context, inst *ent.ChallengeInstance, chal *ent.Challenge, topology *models.NetworkTopology, flag string) (*models.InstanceResponse, error) {
+	var cpuLimit, memLimit, pidsLimit int64
+	if chal.ResourceLimits != nil {
+		cpuLimit, memLimit, pidsLimit = s.container.ParseResourceLimits(chal.ResourceLimits)
+	}
+	if memLimit == 0 {
+		memLimit = 256 * 1024 * 1024
+	}
+	if pidsLimit == 0 {
+		pidsLimit = 100
+	}
+
+	info, err := s.stack.Start(ctx, StackConfig{
+		ChallengeID:   inst.ChallengeID,
+		CompetitionID: inst.CompetitionID,
+		TeamID:        inst.TeamID,
+		Flag:          flag,
+		Topology:      topology,
+		CPULimit:      cpuLimit,
+		MemoryLimit:   memLimit,
+		PidsLimit:     pidsLimit,
+		Labels: map[string]string{
+			"managed-by":     "security-range",
+			"challenge-id":   fmt.Sprintf("%d", inst.ChallengeID),
+			"competition-id": fmt.Sprintf("%d", inst.CompetitionID),
+			"team-id":        fmt.Sprintf("%d", inst.TeamID),
+		},
+	})
+	if err != nil {
+		s.logger.Error("failed to start stack", zap.Error(err))
+		_, _ = s.client.ChallengeInstance.UpdateOneID(inst.ID).
+			SetStatus(challengeinstance.StatusError).
+			Save(ctx)
+		return nil, apperr.ErrInternal.WithMessage("failed to start stack: " + err.Error())
+	}
+
+	now := time.Now()
+	accessURL := s.container.BuildAccessURL(info.Ports)
+	updated, err := s.client.ChallengeInstance.UpdateOneID(inst.ID).
+		SetContainerID(info.ContainerID).
+		SetStackID(info.StackID).
+		SetStackContainers(info.Containers).
+		SetStackNetworks(info.Networks).
+		SetStatus(challengeinstance.StatusRunning).
+		SetAccessURL(accessURL).
+		SetPorts(info.Ports).
+		SetStartedAt(now).
+		Save(ctx)
+	if err != nil {
+		_ = s.stack.Stop(ctx, info.Containers, info.Networks)
+		return nil, apperr.ErrInternal.WithMessage("failed to update instance record: " + err.Error())
+	}
+
+	return s.buildResponse(updated), nil
+}
+
+func (s *InstanceService) cleanupInstanceResources(ctx context.Context, inst *ent.ChallengeInstance) error {
+	if len(inst.StackContainers) > 0 || len(inst.StackNetworks) > 0 {
+		return s.stack.Stop(ctx, inst.StackContainers, inst.StackNetworks)
+	}
+	if inst.ContainerID != "" {
+		return s.container.StopAndRemove(ctx, inst.ContainerID)
+	}
+	return nil
 }

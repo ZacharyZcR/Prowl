@@ -124,7 +124,7 @@ curl -X PUT http://localhost:38080/api/v1/users/me/password \
 
 ## 题目网络拓扑
 
-`POST /challenges` 和 `PUT /challenges/:id` 支持 `network_topology`。第一阶段仅负责保存和校验拓扑，不会按该字段启动多容器环境。
+`POST /challenges` 和 `PUT /challenges/:id` 支持 `network_topology`。动态题启动实例时，如果该字段存在，会按拓扑创建多容器 stack；没有该字段时仍走单容器路径。
 
 ```json
 {
@@ -158,7 +158,7 @@ curl -X PUT http://localhost:38080/api/v1/users/me/password \
 }
 ```
 
-校验规则: service/network 名称必须唯一；service 必须引用已声明网络；`entry_service` 必须引用已声明 service。
+校验规则: service/network 名称必须唯一；service 必须引用已声明网络；`entry_service` 必须引用已声明 service。运行时只映射 `entry_service` 的端口到宿主机；其他服务只在声明的 Docker 网络内互通。
 
 ### GET /users
 

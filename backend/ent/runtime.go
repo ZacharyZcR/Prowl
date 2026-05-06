@@ -378,32 +378,36 @@ func init() {
 	challengeinstanceDescContainerID := challengeinstanceFields[3].Descriptor()
 	// challengeinstance.DefaultContainerID holds the default value on creation for the container_id field.
 	challengeinstance.DefaultContainerID = challengeinstanceDescContainerID.Default.(string)
+	// challengeinstanceDescStackID is the schema descriptor for stack_id field.
+	challengeinstanceDescStackID := challengeinstanceFields[4].Descriptor()
+	// challengeinstance.DefaultStackID holds the default value on creation for the stack_id field.
+	challengeinstance.DefaultStackID = challengeinstanceDescStackID.Default.(string)
 	// challengeinstanceDescAccessURL is the schema descriptor for access_url field.
-	challengeinstanceDescAccessURL := challengeinstanceFields[5].Descriptor()
+	challengeinstanceDescAccessURL := challengeinstanceFields[8].Descriptor()
 	// challengeinstance.DefaultAccessURL holds the default value on creation for the access_url field.
 	challengeinstance.DefaultAccessURL = challengeinstanceDescAccessURL.Default.(string)
 	// challengeinstanceDescNetworkID is the schema descriptor for network_id field.
-	challengeinstanceDescNetworkID := challengeinstanceFields[7].Descriptor()
+	challengeinstanceDescNetworkID := challengeinstanceFields[10].Descriptor()
 	// challengeinstance.DefaultNetworkID holds the default value on creation for the network_id field.
 	challengeinstance.DefaultNetworkID = challengeinstanceDescNetworkID.Default.(string)
 	// challengeinstanceDescFlag is the schema descriptor for flag field.
-	challengeinstanceDescFlag := challengeinstanceFields[8].Descriptor()
+	challengeinstanceDescFlag := challengeinstanceFields[11].Descriptor()
 	// challengeinstance.DefaultFlag holds the default value on creation for the flag field.
 	challengeinstance.DefaultFlag = challengeinstanceDescFlag.Default.(string)
 	// challengeinstanceDescSSHUser is the schema descriptor for ssh_user field.
-	challengeinstanceDescSSHUser := challengeinstanceFields[9].Descriptor()
+	challengeinstanceDescSSHUser := challengeinstanceFields[12].Descriptor()
 	// challengeinstance.DefaultSSHUser holds the default value on creation for the ssh_user field.
 	challengeinstance.DefaultSSHUser = challengeinstanceDescSSHUser.Default.(string)
 	// challengeinstanceDescSSHPassword is the schema descriptor for ssh_password field.
-	challengeinstanceDescSSHPassword := challengeinstanceFields[10].Descriptor()
+	challengeinstanceDescSSHPassword := challengeinstanceFields[13].Descriptor()
 	// challengeinstance.DefaultSSHPassword holds the default value on creation for the ssh_password field.
 	challengeinstance.DefaultSSHPassword = challengeinstanceDescSSHPassword.Default.(string)
 	// challengeinstanceDescSSHAddress is the schema descriptor for ssh_address field.
-	challengeinstanceDescSSHAddress := challengeinstanceFields[11].Descriptor()
+	challengeinstanceDescSSHAddress := challengeinstanceFields[14].Descriptor()
 	// challengeinstance.DefaultSSHAddress holds the default value on creation for the ssh_address field.
 	challengeinstance.DefaultSSHAddress = challengeinstanceDescSSHAddress.Default.(string)
 	// challengeinstanceDescCreatedAt is the schema descriptor for created_at field.
-	challengeinstanceDescCreatedAt := challengeinstanceFields[15].Descriptor()
+	challengeinstanceDescCreatedAt := challengeinstanceFields[18].Descriptor()
 	// challengeinstance.DefaultCreatedAt holds the default value on creation for the created_at field.
 	challengeinstance.DefaultCreatedAt = challengeinstanceDescCreatedAt.Default.(func() time.Time)
 	challengetagFields := schema.ChallengeTag{}.Fields()
