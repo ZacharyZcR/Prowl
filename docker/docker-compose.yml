@@ -1,14 +1,16 @@
+name: prowl
+
 services:
   postgres:
     image: postgres:16-alpine
     ports: ["35432:5432"]
     environment:
-      POSTGRES_USER: stc
-      POSTGRES_PASSWORD: stc_secret
-      POSTGRES_DB: stc
-    volumes: [stc_postgres_data:/var/lib/postgresql/data]
+      POSTGRES_USER: prowl
+      POSTGRES_PASSWORD: prowl_secret
+      POSTGRES_DB: prowl
+    volumes: [prowl_postgres_data:/var/lib/postgresql/data]
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U stc"]
+      test: ["CMD-SHELL", "pg_isready -U prowl"]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -16,15 +18,15 @@ services:
   redis:
     image: redis:7-alpine
     ports: ["36379:6379"]
-    volumes: [stc_redis_data:/data]
+    volumes: [prowl_redis_data:/data]
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 5s
 
 volumes:
-  stc_postgres_data:
-  stc_redis_data:
+  prowl_postgres_data:
+  prowl_redis_data:
 
 networks:
   default:
-    name: stc-network
+    name: prowl-network

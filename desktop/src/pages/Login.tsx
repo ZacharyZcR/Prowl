@@ -117,7 +117,7 @@ export default function Login() {
           <form className="stc-login__form" onSubmit={handleSubmit}>
             <Input
               label="Server URL"
-              placeholder="http://localhost:8080"
+              placeholder="http://localhost:38080"
               value={serverUrl}
               onChange={(e) => setServerUrl(e.target.value)}
             />

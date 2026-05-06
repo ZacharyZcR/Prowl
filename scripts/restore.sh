@@ -10,6 +10,6 @@ fi
 COMPOSE="docker compose -f docker/docker-compose.yml"
 
 echo "Restoring PostgreSQL from $1..."
-cat "$1" | $COMPOSE exec -T postgres psql -U stc -d stc
+cat "$1" | $COMPOSE exec -T postgres psql -U prowl -d prowl
 
 echo "Restore complete."

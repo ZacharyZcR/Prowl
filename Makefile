@@ -111,7 +111,7 @@ docker-ps: ## List running containers
 # Database
 # ──────────────────────────────────────────────
 db-shell: ## Open PostgreSQL shell
-	$(COMPOSE_DEV) exec postgres psql -U stc -d stc
+	$(COMPOSE_DEV) exec postgres psql -U prowl -d prowl
 
 redis-shell: ## Open Redis CLI
 	$(COMPOSE_DEV) exec redis redis-cli

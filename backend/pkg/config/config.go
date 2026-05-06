@@ -11,7 +11,7 @@ import (
 )
 
 type Config struct {
-	DatabaseURL         string `env:"DATABASE_URL" envDefault:"postgres://postgres:postgres@localhost:5432/stc?sslmode=disable"`
+	DatabaseURL         string `env:"DATABASE_URL" envDefault:"postgres://postgres:postgres@localhost:5432/prowl?sslmode=disable"`
 	RedisURL            string `env:"REDIS_URL" envDefault:"localhost:6379"`
 	RedisPassword       string `env:"REDIS_PASSWORD" envDefault:""`
 	ListenAddr          string `env:"LISTEN_ADDR" envDefault:":38080"`

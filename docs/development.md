@@ -13,8 +13,8 @@
 
 ```bash
 # 1. 克隆仓库
-git clone https://github.com/anthropic/stc.git
-cd stc
+git clone https://github.com/ZacharyZcR/Prowl.git
+cd Prowl
 
 # 2. 安装前端依赖
 pnpm install
@@ -28,14 +28,14 @@ make dev
 
 # 5. 启动后端 (编译 + 运行)
 cd backend && make run
-# 后端启动在 :8080, 自动建表 + seed 数据
+# 后端启动在 :38080, 自动建表 + seed 数据
 
 # 6. 启动前端 (另一个终端)
 pnpm --filter frontend dev
-# 前端启动在 :5173
+# 前端启动在 :5174
 
 # 7. 访问
-# 前端: http://localhost:35173
+# 前端: http://localhost:5174
 # 后端 API: http://localhost:38080/api/v1
 # 登录: admin / admin123
 ```
@@ -75,7 +75,7 @@ pnpm --filter frontend dev
 
 | 命令 | 说明 |
 |------|------|
-| `pnpm --filter frontend dev` | 开发服务器 :5173 |
+| `pnpm --filter frontend dev` | 开发服务器 :5174 |
 | `pnpm --filter frontend build` | 生产构建 |
 | `pnpm --filter frontend test` | 运行测试 |
 | `pnpm --filter frontend lint` | ESLint |
@@ -115,7 +115,7 @@ cd backend && dlv debug ./cmd/server
 pnpm --filter frontend dev
 
 # 指定后端地址
-VITE_API_URL=http://other-host:8080 pnpm --filter frontend dev
+VITE_API_URL=http://other-host:38080 pnpm --filter frontend dev
 ```
 
 ### 数据库调试
@@ -123,7 +123,7 @@ VITE_API_URL=http://other-host:8080 pnpm --filter frontend dev
 ```bash
 # 进入 psql
 make db-shell
-# 等价于: docker compose exec postgres psql -U stc -d stc
+# 等价于: docker compose exec postgres psql -U prowl -d prowl
 
 # 查看表
 \dt

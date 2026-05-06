@@ -23,7 +23,7 @@
   },
   "login": {
     "title": "Sign in to Prowl Range",
-    "subtitle": "Standard Template Construct Console",
+    "subtitle": "Prowl Range Console",
     "username": "Username",
     "password": "Password",
     "submit": "Sign In",

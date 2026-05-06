@@ -77,7 +77,7 @@ pub async fn open_settings_window(app: tauri::AppHandle) -> Result<(), String> {
     }
 
     tauri::WebviewWindowBuilder::new(&app, "settings", tauri::WebviewUrl::App("/settings".into()))
-        .title("Settings - STC Desktop")
+        .title("Settings - Prowl Range Desktop")
         .inner_size(600.0, 500.0)
         .resizable(true)
         .center()
@@ -95,5 +95,5 @@ pub fn set_server_url(_app: tauri::AppHandle, url: String) -> Result<String, Str
 
 #[tauri::command]
 pub fn get_server_url() -> String {
-    "http://localhost:8080".to_string()
+    "http://localhost:38080".to_string()
 }

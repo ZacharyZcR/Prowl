@@ -187,7 +187,7 @@ backend  ──→ Redis
 
 - PostgreSQL: Ent ORM auto-migration (启动时自动建表)
 - Redis: go-redis v9，用于缓存/会话
-- Docker network: `stc-network`，服务间通过容器名连接
+- Docker network: `prowl-network`，服务间通过容器名连接
 
 ## 安全模型
 

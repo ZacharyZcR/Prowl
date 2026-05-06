@@ -11,7 +11,7 @@ COMPOSE="docker compose -f docker/docker-compose.yml"
 mkdir -p "$BACKUP_DIR"
 
 echo "Backing up PostgreSQL..."
-$COMPOSE exec -T postgres pg_dump -U stc -d stc > "$BACKUP_DIR/stc_${TIMESTAMP}.sql"
+$COMPOSE exec -T postgres pg_dump -U prowl -d prowl > "$BACKUP_DIR/prowl_${TIMESTAMP}.sql"
 
 echo "Backing up Redis..."
 $COMPOSE exec -T redis redis-cli BGSAVE

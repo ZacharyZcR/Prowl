@@ -6,7 +6,7 @@ services:
     ports: ["38080:38080"]
     restart: unless-stopped
     environment:
-      DATABASE_URL: postgres://stc:${DB_PASSWORD:-stc_secret}@postgres:5432/stc?sslmode=disable
+      DATABASE_URL: postgres://prowl:${DB_PASSWORD:-prowl_secret}@postgres:5432/prowl?sslmode=disable
       REDIS_URL: redis:6379
       LISTEN_ADDR: ":38080"
       JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required}

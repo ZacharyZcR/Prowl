@@ -1,9 +1,9 @@
 {
-  "name": "stc",
+  "name": "prowl-range",
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "Standard Template Construct - Monorepo Project Template",
+  "description": "Prowl Range - CTF, AWD, and red-blue exercise platform",
   "scripts": {
     "prepare": "husky",
     "dev": "make dev",

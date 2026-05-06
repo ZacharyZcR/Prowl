@@ -4,10 +4,10 @@ LDFLAGS := -ldflags "-X main.version=$(VERSION)"
 .PHONY: build clean install
 
 build:
-	go build $(LDFLAGS) -o bin/stc ./cmd/stc
+	go build $(LDFLAGS) -o bin/prowl ./cmd/prowl
 
 clean:
 	rm -rf bin/
 
 install:
-	go install $(LDFLAGS) ./cmd/stc
+	go install $(LDFLAGS) ./cmd/prowl

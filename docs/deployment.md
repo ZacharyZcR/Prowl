@@ -42,7 +42,7 @@ docker compose -f docker/docker-compose.yml -f docker/docker-compose.prod.yml lo
 
 | 变量 | 默认值 | 说明 |
 |------|--------|------|
-| `DATABASE_URL` | `postgres://postgres:postgres@localhost:5432/stc?sslmode=disable` | PostgreSQL 连接串 |
+| `DATABASE_URL` | `postgres://postgres:postgres@localhost:5432/prowl?sslmode=disable` | PostgreSQL 连接串 |
 | `REDIS_URL` | `localhost:6379` | Redis 地址 |
 | `REDIS_PASSWORD` | (空) | Redis 密码 |
 | `LISTEN_ADDR` | `:38080` | HTTP 监听地址 |
@@ -63,9 +63,9 @@ services:
     environment:
       DB_HOST: postgres
       DB_PORT: "5432"
-      DB_USER: stc
-      DB_PASSWORD: stc_secret    # 生产必改
-      DB_NAME: stc
+      DB_USER: prowl
+      DB_PASSWORD: prowl_secret    # 生产必改
+      DB_NAME: prowl
       REDIS_URL: redis:6379
       GIN_MODE: release
       JWT_SECRET: your-secure-secret  # 生产必改
@@ -84,9 +84,9 @@ services:
 
 | 变量 | 默认值 |
 |------|--------|
-| `POSTGRES_USER` | `stc` |
-| `POSTGRES_PASSWORD` | `stc_secret` |
-| `POSTGRES_DB` | `stc` |
+| `POSTGRES_USER` | `prowl` |
+| `POSTGRES_PASSWORD` | `prowl_secret` |
+| `POSTGRES_DB` | `prowl` |
 
 ### Grafana
 
@@ -116,10 +116,10 @@ Prometheus 配置: `docker/prometheus.yml`
 ```bash
 # 通过 Docker
 make db-shell
-# 等价于: docker compose exec postgres psql -U stc -d stc
+# 等价于: docker compose exec postgres psql -U prowl -d prowl
 
 # 直接连接
-psql postgres://stc:stc_secret@localhost:5432/stc
+psql postgres://prowl:prowl_secret@localhost:5432/prowl
 ```
 
 ### 备份
@@ -127,11 +127,11 @@ psql postgres://stc:stc_secret@localhost:5432/stc
 ```bash
 # 导出
 docker compose -f docker/docker-compose.yml exec postgres \
-  pg_dump -U stc -d stc > backup_$(date +%Y%m%d_%H%M%S).sql
+  pg_dump -U prowl -d prowl > backup_$(date +%Y%m%d_%H%M%S).sql
 
 # 导入
 docker compose -f docker/docker-compose.yml exec -T postgres \
-  psql -U stc -d stc < backup.sql
+  psql -U prowl -d prowl < backup.sql
 ```
 
 ### Redis

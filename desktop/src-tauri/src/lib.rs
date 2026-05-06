@@ -35,7 +35,7 @@ pub fn run() {
 
                 let _tray = TrayIconBuilder::new()
                     .menu(&menu)
-                    .tooltip("STC Desktop")
+                    .tooltip("Prowl Range Desktop")
                     .on_menu_event(move |app, event| match event.id().as_ref() {
                         "show" => {
                             if let Some(window) = app.get_webview_window("main") {

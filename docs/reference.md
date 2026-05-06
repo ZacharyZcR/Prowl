@@ -312,32 +312,32 @@ user:read/create/update/delete, role:read/create/update/delete, project:read/cre
 
 | 变量 | 默认值 | 说明 |
 |------|--------|------|
-| `DATABASE_URL` | `postgres://postgres:postgres@localhost:5432/stc?sslmode=disable` | PostgreSQL 连接串 |
+| `DATABASE_URL` | `postgres://postgres:postgres@localhost:5432/prowl?sslmode=disable` | PostgreSQL 连接串 |
 | `REDIS_URL` | `localhost:6379` | Redis 地址 |
 | `REDIS_PASSWORD` | (空) | Redis 密码 |
 | `LISTEN_ADDR` | `:38080` | 后端监听地址 |
-| `JWT_SECRET` | `stc-dev-secret-change-me` | JWT 签名密钥 |
+| `JWT_SECRET` | (必填) | JWT 签名密钥 |
 | `GIN_MODE` | `debug` | Gin 模式 |
 | `UPLOAD_DIR` | `./uploads` | 文件上传目录 |
 | `VITE_API_URL` | `http://localhost:38080` | 前端 API 地址 |
 
 ## CLI 命令完整列表
 
-二进制: `cli/bin/stc`
+二进制: `cli/bin/prowl`
 
 | 命令 | 说明 |
 |------|------|
-| `stc version` | 显示版本 |
-| `stc health` | 健康检查 |
-| `stc login` | 登录获取 token |
-| `stc config` | 配置管理 |
-| `stc user` | 用户管理 (list/get/create/update/delete) |
-| `stc role` | 角色管理 |
-| `stc project` | 项目管理 |
-| `stc activity` | 操作日志查询 |
-| `stc error-log` | 错误日志管理 |
-| `stc server` | 服务器管理 |
-| `stc completion` | Shell 自动补全 |
+| `prowl version` | 显示版本 |
+| `prowl health` | 健康检查 |
+| `prowl login` | 登录获取 token |
+| `prowl config` | 配置管理 |
+| `prowl user` | 用户管理 (list/get/create/update/delete) |
+| `prowl role` | 角色管理 |
+| `prowl project` | 项目管理 |
+| `prowl activity` | 操作日志查询 |
+| `prowl error-log` | 错误日志管理 |
+| `prowl server` | 服务器管理 |
+| `prowl completion` | Shell 自动补全 |
 
 全局 flag: `-o, --output <json|table>`
 

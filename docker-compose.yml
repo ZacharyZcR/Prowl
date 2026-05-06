@@ -1,3 +1,5 @@
+name: prowl
+
 services:
   postgres:
     image: postgres:16-alpine
@@ -34,7 +36,7 @@ services:
       DATABASE_URL: postgres://prowl:${DB_PASSWORD:-prowl_secret}@postgres:5432/prowl?sslmode=disable
       REDIS_URL: redis:6379
       LISTEN_ADDR: ":38080"
-      JWT_SECRET: ${JWT_SECRET:-change-me-in-production}
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required}
       GIN_MODE: ${GIN_MODE:-release}
       DB_MIGRATION_MODE: ${DB_MIGRATION_MODE:-auto}
       UPLOAD_DIR: /data/uploads
