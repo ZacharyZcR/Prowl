@@ -414,6 +414,7 @@ func registerAdminInstanceRoutes(authed *gin.RouterGroup, instanceHandler *Insta
 	adminInstances := authed.Group("/admin/instances")
 	adminInstances.GET("", middleware.RequirePermission("container:read"), instanceHandler.List)
 	adminInstances.GET("/stats", middleware.RequirePermission("container:read"), instanceHandler.Stats)
+	adminInstances.GET("/:id", middleware.RequirePermission("container:read"), instanceHandler.Detail)
 	adminInstances.DELETE("/:id", middleware.RequirePermission("container:delete"), instanceHandler.ForceRemove)
 }
 

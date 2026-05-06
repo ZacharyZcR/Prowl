@@ -15,6 +15,7 @@ interface InstanceStats {
   pending_instances: number;
   stopped_instances: number;
   error_instances: number;
+  stack_instances: number;
 }
 
 interface Instance {
@@ -25,6 +26,9 @@ interface Instance {
   team_id: number;
   team_name: string;
   container_id: string;
+  stack_id?: string;
+  containers?: Record<string, string>;
+  networks?: Record<string, string>;
   status: string;
   access_url: string;
   expires_at: string;
@@ -92,9 +96,24 @@ interface InstanceRow extends Record<string, ReactNode> {
   challenge: ReactNode;
   team: ReactNode;
   status: ReactNode;
+  runtime: ReactNode;
   access: ReactNode;
   expires: ReactNode;
   actions: ReactNode;
+}
+
+function instanceRuntime(inst: Instance) {
+  if (!inst.stack_id) {
+    return <Tag tone="neutral">single</Tag>;
+  }
+  return (
+    <div style={{ display: "grid", gap: "0.25rem" }}>
+      <Tag tone="info">stack</Tag>
+      <span style={{ fontSize: "0.75rem", color: "#6b7280" }}>
+        {Object.keys(inst.containers ?? {}).length} 服务 / {Object.keys(inst.networks ?? {}).length} 网络
+      </span>
+    </div>
+  );
 }
 
 export default function ContainerMonitor() {
@@ -126,18 +145,20 @@ export default function ContainerMonitor() {
   usePageBounds(table.page, totalPages, table.setPage);
 
   const columns = [
-    { key: "challenge" as const, header: "题目", width: "20%" },
+    { key: "challenge" as const, header: "题目", width: "18%" },
     { key: "team" as const, header: "战队", width: "15%" },
     { key: "status" as const, header: "状态", width: "10%" },
-    { key: "access" as const, header: "访问地址", width: "20%" },
+    { key: "runtime" as const, header: "运行形态", width: "12%" },
+    { key: "access" as const, header: "访问地址", width: "18%" },
     { key: "expires" as const, header: "过期时间", width: "15%" },
-    { key: "actions" as const, header: t("common.actions"), width: "20%", align: "right" as const },
+    { key: "actions" as const, header: t("common.actions"), width: "12%", align: "right" as const },
   ];
 
   const rows: InstanceRow[] = (data?.items ?? []).map((inst) => ({
     challenge: inst.challenge_name || `#${inst.challenge_id}`,
     team: inst.team_name || `#${inst.team_id}`,
     status: <Tag tone={STATUS_TONE[inst.status] ?? "neutral"}>{inst.status}</Tag>,
+    runtime: instanceRuntime(inst),
     access: inst.access_url ? (
       <a href={inst.access_url} target="_blank" rel="noopener noreferrer" style={{ fontSize: "0.8rem", color: "#3b82f6", wordBreak: "break-all" }}>
         {inst.access_url}
@@ -172,6 +193,7 @@ export default function ContainerMonitor() {
             { label: "排队中", value: stats.pending_instances, tone: "info" as TagTone },
             { label: "已停止", value: stats.stopped_instances, tone: "neutral" as TagTone },
             { label: "异常", value: stats.error_instances, tone: "danger" as TagTone },
+            { label: "Stack", value: stats.stack_instances, tone: "info" as TagTone },
           ].map((s) => (
             <div key={s.label} style={{ padding: "0.75rem 1.25rem", border: "1px solid #e5e7eb", borderRadius: "0.5rem", textAlign: "center", minWidth: 100 }}>
               <div style={{ fontSize: "1.5rem", fontWeight: 700 }}>{s.value}</div>

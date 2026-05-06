@@ -29,6 +29,7 @@ type InstanceStatsResponse struct {
 	PendingInstances int `json:"pending_instances"`
 	StoppedInstances int `json:"stopped_instances"`
 	ErrorInstances   int `json:"error_instances"`
+	StackInstances   int `json:"stack_instances"`
 }
 
 type InstanceListQuery struct {

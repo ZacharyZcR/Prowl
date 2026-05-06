@@ -3,6 +3,8 @@ package main
 import (
 	"fmt"
 	"os"
+	"sort"
+	"strings"
 
 	"github.com/ZacharyZcR/STC/cli/internal/output"
 	"github.com/spf13/cobra"
@@ -11,6 +13,24 @@ import (
 var instanceCmd = &cobra.Command{
 	Use:   "instance",
 	Short: "Manage challenge instances (admin)",
+}
+
+type instanceItem struct {
+	ID            int               `json:"id"`
+	ChallengeName string            `json:"challenge_name"`
+	ChallengeID   int               `json:"challenge_id"`
+	TeamName      string            `json:"team_name"`
+	TeamID        int               `json:"team_id"`
+	ContainerID   string            `json:"container_id"`
+	StackID       string            `json:"stack_id"`
+	Containers    map[string]string `json:"containers"`
+	Networks      map[string]string `json:"networks"`
+	Status        string            `json:"status"`
+	AccessURL     string            `json:"access_url"`
+	Ports         map[string]string `json:"ports"`
+	ExpiresAt     string            `json:"expires_at"`
+	StartedAt     string            `json:"started_at"`
+	CreatedAt     string            `json:"created_at"`
 }
 
 var instanceListCmd = &cobra.Command{
@@ -41,17 +61,9 @@ var instanceListCmd = &cobra.Command{
 		}
 
 		var data struct {
-			Items []struct {
-				ID            int    `json:"id"`
-				ChallengeName string `json:"challenge_name"`
-				TeamName      string `json:"team_name"`
-				ContainerID   string `json:"container_id"`
-				Status        string `json:"status"`
-				AccessURL     string `json:"access_url"`
-				ExpiresAt     string `json:"expires_at"`
-			} `json:"items"`
-			Total int `json:"total"`
-			Page  int `json:"page"`
+			Items []instanceItem `json:"items"`
+			Total int            `json:"total"`
+			Page  int            `json:"page"`
 		}
 		parseData(resp.Data, &data)
 
@@ -60,7 +72,7 @@ var instanceListCmd = &cobra.Command{
 			return
 		}
 
-		headers := []string{"ID", "Challenge", "Team", "Container", "Status", "URL", "Expires"}
+		headers := []string{"ID", "Challenge", "Team", "Runtime", "Entry", "Status", "URL", "Expires"}
 		var rows [][]string
 		for _, i := range data.Items {
 			cid := i.ContainerID
@@ -69,7 +81,7 @@ var instanceListCmd = &cobra.Command{
 			}
 			rows = append(rows, []string{
 				fmt.Sprintf("%d", i.ID), i.ChallengeName, i.TeamName,
-				cid, i.Status, i.AccessURL, i.ExpiresAt,
+				instanceRuntime(i), cid, i.Status, i.AccessURL, i.ExpiresAt,
 			})
 		}
 		output.PrintTable(headers, rows)
@@ -89,11 +101,12 @@ var instanceStatsCmd = &cobra.Command{
 		}
 
 		var data struct {
-			Total    int `json:"total_instances"`
-			Running  int `json:"running_instances"`
-			Pending  int `json:"pending_instances"`
-			Stopped  int `json:"stopped_instances"`
-			Error    int `json:"error_instances"`
+			Total   int `json:"total_instances"`
+			Running int `json:"running_instances"`
+			Pending int `json:"pending_instances"`
+			Stopped int `json:"stopped_instances"`
+			Error   int `json:"error_instances"`
+			Stack   int `json:"stack_instances"`
 		}
 		parseData(resp.Data, &data)
 
@@ -108,6 +121,45 @@ var instanceStatsCmd = &cobra.Command{
 		fmt.Printf("  Pending: %d\n", data.Pending)
 		fmt.Printf("  Stopped: %d\n", data.Stopped)
 		fmt.Printf("  Error:   %s%d%s\n", output.ColorRed, data.Error, output.ColorReset)
+		fmt.Printf("  Stacks:  %d\n", data.Stack)
+	},
+}
+
+var instanceInspectCmd = &cobra.Command{
+	Use:   "inspect <id>",
+	Short: "Inspect an instance",
+	Args:  cobra.ExactArgs(1),
+	Run: func(cmd *cobra.Command, args []string) {
+		c := newClient()
+		resp, err := c.GetAPI("/api/v1/admin/instances/" + args[0])
+		if err != nil {
+			output.Error(fmt.Sprintf("failed to inspect instance: %v", err))
+			os.Exit(1)
+		}
+
+		var inst instanceItem
+		parseData(resp.Data, &inst)
+
+		if getOutputFormat() == "json" {
+			output.PrintJSON(inst)
+			return
+		}
+
+		fmt.Printf("%sInstance #%d%s\n\n", output.ColorBold, inst.ID, output.ColorReset)
+		fmt.Printf("  Challenge: %s\n", displayName(inst.ChallengeName, inst.ChallengeID))
+		fmt.Printf("  Team:      %s\n", displayName(inst.TeamName, inst.TeamID))
+		fmt.Printf("  Status:    %s\n", inst.Status)
+		fmt.Printf("  Runtime:   %s\n", instanceRuntime(inst))
+		fmt.Printf("  Entry:     %s\n", inst.ContainerID)
+		fmt.Printf("  URL:       %s\n", emptyDash(inst.AccessURL))
+		fmt.Printf("  Expires:   %s\n", inst.ExpiresAt)
+		fmt.Printf("  Started:   %s\n", emptyDash(inst.StartedAt))
+		if inst.StackID != "" {
+			fmt.Printf("  Stack:     %s\n", inst.StackID)
+			printStringMap("  Services", inst.Containers)
+			printStringMap("  Networks", inst.Networks)
+		}
+		printStringMap("  Ports", inst.Ports)
 	},
 }
 
@@ -132,6 +184,44 @@ func init() {
 	instanceListCmd.Flags().Int("competition-id", 0, "Filter by competition")
 	instanceListCmd.Flags().Int("team-id", 0, "Filter by team")
 
-	instanceCmd.AddCommand(instanceListCmd, instanceStatsCmd, instanceRemoveCmd)
+	instanceCmd.AddCommand(instanceListCmd, instanceStatsCmd, instanceInspectCmd, instanceRemoveCmd)
 }
 
+func instanceRuntime(inst instanceItem) string {
+	if inst.StackID == "" {
+		return "single"
+	}
+	return fmt.Sprintf("stack(%d/%d)", len(inst.Containers), len(inst.Networks))
+}
+
+func displayName(name string, id int) string {
+	if name != "" {
+		return name
+	}
+	if id > 0 {
+		return fmt.Sprintf("#%d", id)
+	}
+	return "-"
+}
+
+func emptyDash(value string) string {
+	if strings.TrimSpace(value) == "" {
+		return "-"
+	}
+	return value
+}
+
+func printStringMap(title string, values map[string]string) {
+	if len(values) == 0 {
+		return
+	}
+	fmt.Printf("\n%s:\n", title)
+	keys := make([]string, 0, len(values))
+	for key := range values {
+		keys = append(keys, key)
+	}
+	sort.Strings(keys)
+	for _, key := range keys {
+		fmt.Printf("    %s: %s\n", key, values[key])
+	}
+}

@@ -43,6 +43,20 @@ func (h *InstanceHandler) Stats(c *gin.Context) {
 	response.Success(c, stats)
 }
 
+func (h *InstanceHandler) Detail(c *gin.Context) {
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		response.AppError(c, apperr.ErrBadRequest.WithMessage("invalid instance id"))
+		return
+	}
+	resp, appErr := h.instanceService.GetInstance(c.Request.Context(), id)
+	if appErr != nil {
+		response.AppError(c, appErr.(*apperr.AppError))
+		return
+	}
+	response.Success(c, resp)
+}
+
 func (h *InstanceHandler) ForceRemove(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {

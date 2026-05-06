@@ -218,6 +218,29 @@ func (s *InstanceService) GetInstanceStatus(ctx context.Context, challengeID, co
 	return s.buildResponse(inst), nil
 }
 
+func (s *InstanceService) GetInstance(ctx context.Context, instanceID int) (*models.InstanceResponse, error) {
+	inst, err := s.client.ChallengeInstance.Query().
+		Where(challengeinstance.ID(instanceID)).
+		WithChallenge().
+		WithTeam().
+		Only(ctx)
+	if err != nil {
+		if ent.IsNotFound(err) {
+			return nil, apperr.ErrNotFound.WithMessage("instance not found")
+		}
+		return nil, apperr.ErrInternal.WithMessage("failed to query instance: " + err.Error())
+	}
+
+	resp := s.buildResponse(inst)
+	if inst.Edges.Challenge != nil {
+		resp.ChallengeName = inst.Edges.Challenge.Title
+	}
+	if inst.Edges.Team != nil {
+		resp.TeamName = inst.Edges.Team.Name
+	}
+	return resp, nil
+}
+
 func (s *InstanceService) ForceRemove(ctx context.Context, instanceID int) error {
 	inst, err := s.client.ChallengeInstance.Get(ctx, instanceID)
 	if err != nil {
@@ -318,6 +341,7 @@ func (s *InstanceService) GetStats(ctx context.Context) (*models.InstanceStatsRe
 	pending, _ := s.client.ChallengeInstance.Query().Where(challengeinstance.StatusEQ(challengeinstance.StatusPending)).Count(ctx)
 	stopped, _ := s.client.ChallengeInstance.Query().Where(challengeinstance.StatusEQ(challengeinstance.StatusStopped)).Count(ctx)
 	errored, _ := s.client.ChallengeInstance.Query().Where(challengeinstance.StatusEQ(challengeinstance.StatusError)).Count(ctx)
+	stacked, _ := s.client.ChallengeInstance.Query().Where(challengeinstance.StackIDNEQ("")).Count(ctx)
 
 	return &models.InstanceStatsResponse{
 		TotalInstances:   total,
@@ -325,6 +349,7 @@ func (s *InstanceService) GetStats(ctx context.Context) (*models.InstanceStatsRe
 		PendingInstances: pending,
 		StoppedInstances: stopped,
 		ErrorInstances:   errored,
+		StackInstances:   stacked,
 	}, nil
 }
 

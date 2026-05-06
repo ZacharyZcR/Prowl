@@ -250,6 +250,8 @@ id, provider (default "openai"), api_key (sensitive), api_base, model (default "
 ### Challenge Network Topology
 `Challenge.network_topology` 保存多层网络题拓扑。结构包含 `services`、`networks`、`entry_service`。动态题启动实例时会创建独立 stack，记录 `stack_id`、`stack_containers`、`stack_networks`，并只暴露入口服务端口。入口服务必须设置 `expose_to_player: true` 且连接 `exposed` 网络；`internal` 网络不能同时标记为 `exposed`。
 
+`GET /admin/instances/:id`、`prowl instance inspect <id>` 和容器监控页会展示 stack 资源映射；实例统计额外返回 `stack_instances`。
+
 ## 前端架构
 
 ### 路由表
