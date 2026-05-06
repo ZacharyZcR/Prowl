@@ -52,6 +52,7 @@ func (s *StackService) Start(ctx context.Context, cfg StackConfig) (*StackInfo, 
 	}
 
 	stackID := StackID(cfg.ChallengeID, cfg.CompetitionID, cfg.TeamID)
+	entryServiceName := strings.TrimSpace(cfg.Topology.EntryService)
 	networkNames := make(map[string]string, len(cfg.Topology.Networks))
 	networkIDs := make(map[string]string, len(cfg.Topology.Networks))
 	containers := make(map[string]string, len(cfg.Topology.Services))
@@ -61,37 +62,39 @@ func (s *StackService) Start(ctx context.Context, cfg StackConfig) (*StackInfo, 
 	}
 
 	for _, net := range cfg.Topology.Networks {
-		actualName := stackResourceName(stackID, "net", net.Name)
+		networkName := strings.TrimSpace(net.Name)
+		net.Name = networkName
+		actualName := stackResourceName(stackID, "net", networkName)
 		networkID, err := s.container.EnsureNetworkWithOptions(ctx, actualName, NetworkOptions{
 			Internal: net.Internal,
 			Subnet:   net.Subnet,
-			Labels:   stackLabels(cfg.Labels, stackID, "network", net.Name),
+			Labels:   stackNetworkLabels(cfg.Labels, stackID, net),
 		})
 		if err != nil {
 			cleanup()
 			return nil, err
 		}
-		networkNames[net.Name] = actualName
-		networkIDs[net.Name] = networkID
+		networkNames[networkName] = actualName
+		networkIDs[networkName] = networkID
 	}
 
 	var entryContainerID string
 	var entryPorts map[string]string
 	for _, service := range cfg.Topology.Services {
+		serviceName := strings.TrimSpace(service.Name)
+		service.Name = serviceName
 		attachments := make([]NetworkAttachment, 0, len(service.Networks))
 		for _, logicalNetwork := range service.Networks {
+			logicalNetwork = strings.TrimSpace(logicalNetwork)
 			attachments = append(attachments, NetworkAttachment{
 				Name:    networkNames[logicalNetwork],
-				Aliases: []string{service.Name},
+				Aliases: []string{serviceName},
 			})
 		}
 
 		exposedPorts := []string(nil)
-		if service.Name == cfg.Topology.EntryService {
-			exposedPorts = service.Ports
-			if len(exposedPorts) == 0 {
-				exposedPorts = []string{"80"}
-			}
+		if serviceName == entryServiceName && service.ExposeToPlayer {
+			exposedPorts = exposedPortsForService(service)
 		}
 
 		info, err := s.container.CreateAndStart(ctx, &ContainerConfig{
@@ -102,16 +105,16 @@ func (s *StackService) Start(ctx context.Context, cfg StackConfig) (*StackInfo, 
 			MemoryLimit:   cfg.MemoryLimit,
 			PidsLimit:     cfg.PidsLimit,
 			Networks:      attachments,
-			ContainerName: stackResourceName(stackID, "svc", service.Name),
-			Labels:        stackLabels(cfg.Labels, stackID, "service", service.Name),
+			ContainerName: stackResourceName(stackID, "svc", serviceName),
+			Labels:        stackLabels(cfg.Labels, stackID, "service", serviceName),
 		})
 		if err != nil {
 			cleanup()
-			return nil, fmt.Errorf("failed to start service %s: %w", service.Name, err)
+			return nil, fmt.Errorf("failed to start service %s: %w", serviceName, err)
 		}
 
-		containers[service.Name] = info.ContainerID
-		if service.Name == cfg.Topology.EntryService {
+		containers[serviceName] = info.ContainerID
+		if serviceName == entryServiceName {
 			entryContainerID = info.ContainerID
 			entryPorts = info.Ports
 		}
@@ -119,7 +122,7 @@ func (s *StackService) Start(ctx context.Context, cfg StackConfig) (*StackInfo, 
 
 	return &StackInfo{
 		StackID:      stackID,
-		EntryService: cfg.Topology.EntryService,
+		EntryService: entryServiceName,
 		ContainerID:  entryContainerID,
 		Containers:   containers,
 		Networks:     networkNames,
@@ -159,6 +162,24 @@ func stackLabels(base map[string]string, stackID, resourceType, resourceName str
 	labels["stack-resource-type"] = resourceType
 	labels["stack-resource-name"] = resourceName
 	return labels
+}
+
+func stackNetworkLabels(base map[string]string, stackID string, net models.TopologyNetwork) map[string]string {
+	labels := stackLabels(base, stackID, "network", net.Name)
+	labels["topology-network-exposed"] = fmt.Sprintf("%t", net.Exposed)
+	labels["topology-network-internal"] = fmt.Sprintf("%t", net.Internal)
+	return labels
+}
+
+func exposedPortsForService(service models.TopologyService) []string {
+	if len(service.Ports) == 0 {
+		return []string{"80"}
+	}
+	ports := make([]string, 0, len(service.Ports))
+	for _, port := range service.Ports {
+		ports = append(ports, strings.TrimSpace(port))
+	}
+	return ports
 }
 
 func stackEnv(flag string, serviceEnv map[string]string) map[string]string {

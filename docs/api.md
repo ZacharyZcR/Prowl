@@ -158,7 +158,7 @@ curl -X PUT http://localhost:38080/api/v1/users/me/password \
 }
 ```
 
-校验规则: service/network 名称必须唯一；service 必须引用已声明网络；`entry_service` 必须引用已声明 service。运行时只映射 `entry_service` 的端口到宿主机；其他服务只在声明的 Docker 网络内互通。
+校验规则: service/network 名称必须唯一；service 必须引用已声明网络；`internal` 和 `exposed` 不能同时设置；`entry_service` 必须引用已声明 service，必须设置 `expose_to_player: true`，并且至少连接一个 `exposed` 网络。只有 `entry_service` 允许 `expose_to_player`，运行时也只映射入口服务端口到宿主机；其他服务只在声明的 Docker 网络内互通。
 
 ### GET /users
 

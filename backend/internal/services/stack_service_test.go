@@ -1,6 +1,10 @@
 package services
 
-import "testing"
+import (
+	"testing"
+
+	"github.com/ZacharyZcR/STC/backend/internal/models"
+)
 
 func TestStackID(t *testing.T) {
 	got := StackID(12, 34, 56)
@@ -24,5 +28,37 @@ func TestStackEnvExpandsFlag(t *testing.T) {
 	}
 	if env["B"] != "prefix-flag{demo}" {
 		t.Fatalf("expected shell-style expansion, got %q", env["B"])
+	}
+}
+
+func TestStackNetworkLabelsIncludesAccessPolicy(t *testing.T) {
+	labels := stackNetworkLabels(map[string]string{"base": "1"}, "stack-1", models.TopologyNetwork{
+		Name:    "dmz",
+		Exposed: true,
+	})
+
+	if labels["base"] != "1" {
+		t.Fatalf("expected base label to be preserved")
+	}
+	if labels["stack-resource-type"] != "network" || labels["stack-resource-name"] != "dmz" {
+		t.Fatalf("expected stack network labels, got %#v", labels)
+	}
+	if labels["topology-network-exposed"] != "true" {
+		t.Fatalf("expected exposed policy label, got %#v", labels)
+	}
+	if labels["topology-network-internal"] != "false" {
+		t.Fatalf("expected internal policy label, got %#v", labels)
+	}
+}
+
+func TestExposedPortsForServiceDefaultsToHTTP(t *testing.T) {
+	got := exposedPortsForService(models.TopologyService{Name: "web"})
+	if len(got) != 1 || got[0] != "80" {
+		t.Fatalf("expected default HTTP port, got %#v", got)
+	}
+
+	got = exposedPortsForService(models.TopologyService{Name: "web", Ports: []string{"8080", "9000"}})
+	if len(got) != 2 || got[0] != "8080" || got[1] != "9000" {
+		t.Fatalf("expected configured ports, got %#v", got)
 	}
 }
