@@ -24,49 +24,48 @@ func NewSummaryService(client *ent.Client) *SummaryService {
 }
 
 type CompetitionSummary struct {
-	CompetitionID   int                  `json:"competition_id"`
-	Title           string               `json:"title"`
-	Mode            string               `json:"mode"`
-	Status          string               `json:"status"`
-	StartTime       string               `json:"start_time"`
-	EndTime         string               `json:"end_time"`
-	Duration        string               `json:"duration"`
-	TeamCount       int                  `json:"team_count"`
-	ChallengeCount  int                  `json:"challenge_count"`
-	TotalSubmissions int                 `json:"total_submissions"`
-	CorrectSubmissions int              `json:"correct_submissions"`
-	Rankings        []RankEntry          `json:"rankings"`
-	ChallengeStats  []ChallengeStat      `json:"challenge_stats"`
-	Timeline        []TimelinePoint      `json:"timeline"`
-	FirstBloods     []FirstBloodEntry    `json:"first_bloods"`
-	GeneratedAt     string               `json:"generated_at"`
+	CompetitionID      int               `json:"competition_id"`
+	Title              string            `json:"title"`
+	Mode               string            `json:"mode"`
+	Status             string            `json:"status"`
+	StartTime          string            `json:"start_time"`
+	EndTime            string            `json:"end_time"`
+	Duration           string            `json:"duration"`
+	TeamCount          int               `json:"team_count"`
+	ChallengeCount     int               `json:"challenge_count"`
+	TotalSubmissions   int               `json:"total_submissions"`
+	CorrectSubmissions int               `json:"correct_submissions"`
+	Rankings           []RankEntry       `json:"rankings"`
+	ChallengeStats     []ChallengeStat   `json:"challenge_stats"`
+	Timeline           []TimelinePoint   `json:"timeline"`
+	FirstBloods        []FirstBloodEntry `json:"first_bloods"`
+	GeneratedAt        string            `json:"generated_at"`
 }
 
 type RankEntry struct {
-	Rank       int    `json:"rank"`
-	TeamID     int    `json:"team_id"`
-	TeamName   string `json:"team_name"`
-	TotalScore int    `json:"total_score"`
-	SolveCount int    `json:"solve_count"`
-	AttackScore  int  `json:"attack_score,omitempty"`
-	DefenseScore int  `json:"defense_score,omitempty"`
+	Rank         int    `json:"rank"`
+	TeamID       int    `json:"team_id"`
+	TeamName     string `json:"team_name"`
+	TotalScore   int    `json:"total_score"`
+	SolveCount   int    `json:"solve_count"`
+	AttackScore  int    `json:"attack_score,omitempty"`
+	DefenseScore int    `json:"defense_score,omitempty"`
 }
 
 type ChallengeStat struct {
-	ChallengeID   int    `json:"challenge_id"`
-	Title         string `json:"title"`
-	Category      string `json:"category"`
-	SolveCount    int    `json:"solve_count"`
-	AttemptCount  int    `json:"attempt_count"`
+	ChallengeID    int    `json:"challenge_id"`
+	Title          string `json:"title"`
+	Category       string `json:"category"`
+	SolveCount     int    `json:"solve_count"`
+	AttemptCount   int    `json:"attempt_count"`
 	FirstBloodTeam string `json:"first_blood_team"`
-	FirstBloodAt  string `json:"first_blood_at"`
+	FirstBloodAt   string `json:"first_blood_at"`
 }
 
 type TimelinePoint struct {
 	Time   string         `json:"time"`
 	Scores map[string]int `json:"scores"`
 }
-
 
 func (s *SummaryService) Generate(ctx context.Context, competitionID int) (*CompetitionSummary, error) {
 	comp, err := s.client.Competition.Get(ctx, competitionID)
@@ -79,9 +78,11 @@ func (s *SummaryService) Generate(ctx context.Context, competitionID int) (*Comp
 		WithTeam().All(ctx)
 
 	teamNames := make(map[int]string)
+	approvedTeamIDs := make(map[int]struct{})
 	for _, r := range regs {
 		if r.Edges.Team != nil {
 			teamNames[r.TeamID] = r.Edges.Team.Name
+			approvedTeamIDs[r.TeamID] = struct{}{}
 		}
 	}
 
@@ -89,14 +90,27 @@ func (s *SummaryService) Generate(ctx context.Context, competitionID int) (*Comp
 		Where(competitionchallenge.CompetitionID(competitionID)).
 		WithChallenge().All(ctx)
 
-	subs, _ := s.client.FlagSubmission.Query().
+	allSubs, _ := s.client.FlagSubmission.Query().
 		Where(flagsubmission.CompetitionID(competitionID)).
 		Order(ent.Asc(flagsubmission.FieldSubmittedAt)).
 		All(ctx)
 
-	scores, _ := s.client.ScoreRecord.Query().
+	allScores, _ := s.client.ScoreRecord.Query().
 		Where(scorerecord.CompetitionID(competitionID)).
 		All(ctx)
+
+	subs := make([]*ent.FlagSubmission, 0, len(allSubs))
+	for _, sub := range allSubs {
+		if _, ok := approvedTeamIDs[sub.TeamID]; ok {
+			subs = append(subs, sub)
+		}
+	}
+	scores := make([]*ent.ScoreRecord, 0, len(allScores))
+	for _, sr := range allScores {
+		if _, ok := approvedTeamIDs[sr.TeamID]; ok {
+			scores = append(scores, sr)
+		}
+	}
 
 	totalSubs := len(subs)
 	correctSubs := 0
@@ -155,11 +169,13 @@ func (s *SummaryService) Generate(ctx context.Context, competitionID int) (*Comp
 			ChallengeID: chal.ID,
 			Title:       chal.Title,
 			Category:    chal.Category,
-			SolveCount:  chal.SolveCount,
 		}
 		for _, sub := range subs {
 			if sub.ChallengeID == chal.ID {
 				stat.AttemptCount++
+				if sub.IsCorrect {
+					stat.SolveCount++
+				}
 				if sub.IsCorrect && sub.IsFirstBlood {
 					stat.FirstBloodTeam = teamNames[sub.TeamID]
 					stat.FirstBloodAt = sub.SubmittedAt.Format("2006-01-02T15:04:05Z")
