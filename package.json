@@ -16,7 +16,7 @@
     "desktop:build": "pnpm --filter desktop build"
   },
   "devDependencies": {
-    "@commitlint/cli": "^19.6.0",
+    "@commitlint/cli": "^20.5.3",
     "@commitlint/config-conventional": "^19.6.0",
     "husky": "^9.1.7"
   }
