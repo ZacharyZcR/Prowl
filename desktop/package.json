@@ -27,7 +27,7 @@
     "sonner": "^1.7.0",
     "date-fns": "^4.1.0",
     "i18next": "^24.2.1",
-    "lucide-react": "^1.0.1",
+    "lucide-react": "^1.14.0",
     "react-i18next": "^15.4.0"
   },
   "devDependencies": {
