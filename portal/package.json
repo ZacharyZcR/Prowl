@@ -13,7 +13,7 @@
     "@yza/tokens": "workspace:*",
     "@yza/ui": "workspace:*",
     "axios": "^1.7.9",
-    "i18next": "^24.2.3",
+    "i18next": "^26.0.9",
     "lucide-react": "^0.468.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",

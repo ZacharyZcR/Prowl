@@ -82,8 +82,8 @@ importers:
         specifier: ^4.1.0
         version: 4.1.0
       i18next:
-        specifier: ^24.2.1
-        version: 24.2.3(typescript@5.7.3)
+        specifier: ^26.0.9
+        version: 26.0.9(typescript@5.7.3)
       lucide-react:
         specifier: ^1.0.1
         version: 1.0.1(react@19.2.4)
@@ -95,7 +95,7 @@ importers:
         version: 19.2.4(react@19.2.4)
       react-i18next:
         specifier: ^15.4.0
-        version: 15.7.4(i18next@24.2.3(typescript@5.7.3))(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(typescript@5.7.3)
+        version: 15.7.4(i18next@26.0.9(typescript@5.7.3))(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(typescript@5.7.3)
       react-router-dom:
         specifier: ^7.0.0
         version: 7.13.1(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
@@ -147,7 +147,7 @@ importers:
         version: 3.2.2(react@19.2.4)
       '@hookform/resolvers':
         specifier: latest
-        version: 5.2.2(react-hook-form@7.72.1(react@19.2.4))
+        version: 5.2.2(react-hook-form@7.75.0(react@19.2.4))
       '@react-three/drei':
         specifier: ^10.7.7
         version: 10.7.7(@react-three/fiber@9.5.0(@types/react@19.2.14)(immer@11.1.4)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(three@0.183.2))(@types/react@19.2.14)(@types/three@0.183.1)(immer@11.1.4)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(three@0.183.2)
@@ -188,8 +188,8 @@ importers:
         specifier: ^4.1.0
         version: 4.1.0
       i18next:
-        specifier: ^24.2.1
-        version: 24.2.3(typescript@5.7.3)
+        specifier: ^26.0.9
+        version: 26.0.9(typescript@5.7.3)
       lucide-react:
         specifier: ^1.0.1
         version: 1.0.1(react@19.2.4)
@@ -204,10 +204,10 @@ importers:
         version: 6.1.1(react@19.2.4)
       react-hook-form:
         specifier: latest
-        version: 7.72.1(react@19.2.4)
+        version: 7.75.0(react@19.2.4)
       react-i18next:
         specifier: ^15.4.0
-        version: 15.7.4(i18next@24.2.3(typescript@5.7.3))(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(typescript@5.7.3)
+        version: 15.7.4(i18next@26.0.9(typescript@5.7.3))(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(typescript@5.7.3)
       react-router-dom:
         specifier: ^7.1.1
         version: 7.13.1(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
@@ -277,7 +277,7 @@ importers:
     dependencies:
       '@hookform/resolvers':
         specifier: latest
-        version: 5.2.2(react-hook-form@7.73.1(react@19.2.4))
+        version: 5.2.2(react-hook-form@7.75.0(react@19.2.4))
       '@tanstack/react-query':
         specifier: ^5.62.0
         version: 5.95.0(react@19.2.4)
@@ -300,8 +300,8 @@ importers:
         specifier: ^4.1.0
         version: 4.1.0
       i18next:
-        specifier: ^24.2.1
-        version: 24.2.3(typescript@5.7.3)
+        specifier: ^26.0.9
+        version: 26.0.9(typescript@5.7.3)
       lucide-react:
         specifier: ^1.0.1
         version: 1.0.1(react@19.2.4)
@@ -319,10 +319,10 @@ importers:
         version: 6.1.1(react@19.2.4)
       react-hook-form:
         specifier: latest
-        version: 7.73.1(react@19.2.4)
+        version: 7.75.0(react@19.2.4)
       react-i18next:
         specifier: ^15.4.0
-        version: 15.7.4(i18next@24.2.3(typescript@5.7.3))(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(typescript@5.7.3)
+        version: 15.7.4(i18next@26.0.9(typescript@5.7.3))(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(typescript@5.7.3)
       react-router-dom:
         specifier: ^7.1.1
         version: 7.13.1(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
@@ -397,8 +397,8 @@ importers:
         specifier: ^1.7.9
         version: 1.13.6
       i18next:
-        specifier: ^24.2.3
-        version: 24.2.3(typescript@5.7.3)
+        specifier: ^26.0.9
+        version: 26.0.9(typescript@5.7.3)
       lucide-react:
         specifier: ^0.468.0
         version: 0.468.0(react@19.2.4)
@@ -410,7 +410,7 @@ importers:
         version: 19.2.4(react@19.2.4)
       react-i18next:
         specifier: ^15.7.4
-        version: 15.7.4(i18next@24.2.3(typescript@5.7.3))(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(typescript@5.7.3)
+        version: 15.7.4(i18next@26.0.9(typescript@5.7.3))(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(typescript@5.7.3)
       react-router-dom:
         specifier: ^7.1.0
         version: 7.13.1(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
@@ -3300,10 +3300,10 @@ packages:
     resolution: {integrity: sha512-Y93lCzHYgGWdrJ66yIktxiaGULYc6oGiABxhcO5AufBeOyoIdZF7bIfLaOrbM0iGIOXQQgxxRrFEnb+Y6w1n4A==}
     engines: {node: '>=10.18'}
 
-  i18next@24.2.3:
-    resolution: {integrity: sha512-lfbf80OzkocvX7nmZtu7nSTNbrTYR52sLWxPtlXX1zAhVw8WEnFk4puUkCR4B1dNQwbSpEHHHemcZu//7EcB7A==}
+  i18next@26.0.9:
+    resolution: {integrity: sha512-htjWlK5lGpjIDJxUdDLD6dO2jPl/RZHBpeZC80T5yr6Lci/tN3Oq9Doh9110ihliAIb4xmb45ngM76WcbP6GjA==}
     peerDependencies:
-      typescript: ^5
+      typescript: ^5 || ^6
     peerDependenciesMeta:
       typescript:
         optional: true
@@ -3909,14 +3909,8 @@ packages:
     peerDependencies:
       react: ^18.0.0 || ^19.0.0
 
-  react-hook-form@7.72.1:
-    resolution: {integrity: sha512-RhwBoy2ygeVZje+C+bwJ8g0NjTdBmDlJvAUHTxRjTmSUKPYsKfMphkS2sgEMotsY03bP358yEYlnUeZy//D9Ig==}
-    engines: {node: '>=18.0.0'}
-    peerDependencies:
-      react: ^16.8.0 || ^17 || ^18 || ^19
-
-  react-hook-form@7.73.1:
-    resolution: {integrity: sha512-VAfVYOPcx3piiEVQy95vyFmBwbVUsP/AUIN+mpFG8h11yshDd444nn0VyfaGWSRnhOLVgiDu7HIuBtAIzxn9dA==}
+  react-hook-form@7.75.0:
+    resolution: {integrity: sha512-Ovv94H+0p3sJ7B9B5QxPuCP1u8V/cHuVGyH55cSwodYDtoJwK+fqk3vjfIgSX59I2U/bU4z0nRJ9HMLpNiWEmw==}
     engines: {node: '>=18.0.0'}
     peerDependencies:
       react: ^16.8.0 || ^17 || ^18 || ^19
@@ -4976,15 +4970,10 @@ snapshots:
 
   '@floating-ui/utils@0.2.11': {}
 
-  '@hookform/resolvers@5.2.2(react-hook-form@7.72.1(react@19.2.4))':
+  '@hookform/resolvers@5.2.2(react-hook-form@7.75.0(react@19.2.4))':
     dependencies:
       '@standard-schema/utils': 0.3.0
-      react-hook-form: 7.72.1(react@19.2.4)
-
-  '@hookform/resolvers@5.2.2(react-hook-form@7.73.1(react@19.2.4))':
-    dependencies:
-      '@standard-schema/utils': 0.3.0
-      react-hook-form: 7.73.1(react@19.2.4)
+      react-hook-form: 7.75.0(react@19.2.4)
 
   '@humanfs/core@0.19.1': {}
 
@@ -7511,9 +7500,7 @@ snapshots:
 
   hyperdyperid@1.2.0: {}
 
-  i18next@24.2.3(typescript@5.7.3):
-    dependencies:
-      '@babel/runtime': 7.29.2
+  i18next@26.0.9(typescript@5.7.3):
     optionalDependencies:
       typescript: 5.7.3
 
@@ -8112,19 +8099,15 @@ snapshots:
     dependencies:
       react: 19.2.4
 
-  react-hook-form@7.72.1(react@19.2.4):
+  react-hook-form@7.75.0(react@19.2.4):
     dependencies:
       react: 19.2.4
 
-  react-hook-form@7.73.1(react@19.2.4):
-    dependencies:
-      react: 19.2.4
-
-  react-i18next@15.7.4(i18next@24.2.3(typescript@5.7.3))(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(typescript@5.7.3):
+  react-i18next@15.7.4(i18next@26.0.9(typescript@5.7.3))(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(typescript@5.7.3):
     dependencies:
       '@babel/runtime': 7.29.2
       html-parse-stringify: 3.0.1
-      i18next: 24.2.3(typescript@5.7.3)
+      i18next: 26.0.9(typescript@5.7.3)
       react: 19.2.4
     optionalDependencies:
       react-dom: 19.2.4(react@19.2.4)
