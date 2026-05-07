@@ -43,6 +43,7 @@ const AWDChallenges = lazy(() => import("@/pages/AWDChallenges"));
 const AWDCompetitions = lazy(() => import("@/pages/AWDCompetitions"));
 const Scenarios = lazy(() => import("@/pages/Scenarios"));
 const RedBlueCompetitions = lazy(() => import("@/pages/RedBlueCompetitions"));
+const CompetitionDetail = lazy(() => import("@/pages/CompetitionDetail"));
 const CompetitionChallenges = lazy(() => import("@/pages/CompetitionChallenges"));
 const CompetitionAudit = lazy(() => import("@/pages/CompetitionAudit"));
 const AWDControl = lazy(() => import("@/pages/AWDControl"));
@@ -81,10 +82,10 @@ function SuspenseWrapper({ children, fallback }: { children: ReactNode; fallback
   );
 }
 
-function CompetitionRedirect({ section }: { section: "challenges" | "awd" | "redblue" }) {
+function CompetitionRedirect() {
   const { id } = useParams();
   if (!id) return <Navigate to="/dashboard" replace />;
-  return <Navigate to={`/competitions/${id}/${section}`} replace />;
+  return <Navigate to={`/competitions/${id}`} replace />;
 }
 
 export const router = createBrowserRouter([
@@ -185,7 +186,7 @@ export const router = createBrowserRouter([
       },
       {
         path: "ctf/:id",
-        element: <CompetitionRedirect section="challenges" />,
+        element: <CompetitionRedirect />,
       },
       {
         path: "awd/challenges",
@@ -199,7 +200,7 @@ export const router = createBrowserRouter([
       },
       {
         path: "awd/:id",
-        element: <CompetitionRedirect section="awd" />,
+        element: <CompetitionRedirect />,
       },
       {
         path: "awd",
@@ -207,6 +208,16 @@ export const router = createBrowserRouter([
           <SuspenseWrapper>
             <PermissionGuard permission="competition:read">
               <AWDCompetitions />
+            </PermissionGuard>
+          </SuspenseWrapper>
+        ),
+      },
+      {
+        path: "competitions/:id",
+        element: (
+          <SuspenseWrapper fallback={<DetailPageSkeleton />}>
+            <PermissionGuard permission="competition:read">
+              <CompetitionDetail />
             </PermissionGuard>
           </SuspenseWrapper>
         ),
@@ -273,7 +284,7 @@ export const router = createBrowserRouter([
       },
       {
         path: "redblue/:id",
-        element: <CompetitionRedirect section="redblue" />,
+        element: <CompetitionRedirect />,
       },
       {
         path: "teams",

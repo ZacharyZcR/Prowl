@@ -136,7 +136,7 @@ export default function CompetitionChallengesPage() {
       description="管理比赛关联的题目，控制可见性和释放顺序。"
       actions={
         <div className="yza-button-row">
-          <Button tone="outline" onClick={() => navigate(-1)}>返回</Button>
+          <Button tone="outline" onClick={() => navigate(`/competitions/${compId}`)}>返回</Button>
           <Button tone="outline" onClick={() => navigate(`/competitions/${compId}/audit`)}>审计</Button>
           <Button tone="outline" onClick={handleReleaseAll} disabled={release.isPending}>全部释放</Button>
           <Button tone="primary" onClick={() => { setSelected(new Set()); setAddOpen(true); }}>添加题目</Button>

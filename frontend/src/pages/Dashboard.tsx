@@ -169,9 +169,7 @@ function CompRow({ comp: c }: { comp: Competition }) {
 }
 
 function competitionDetailPath(comp: Competition) {
-  if (comp.mode === "awd") return `/competitions/${comp.id}/awd`;
-  if (comp.mode === "red_blue") return `/competitions/${comp.id}/redblue`;
-  return `/competitions/${comp.id}/challenges`;
+  return `/competitions/${comp.id}`;
 }
 
 function NotificationSection() {

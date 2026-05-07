@@ -161,7 +161,7 @@ export default function AWDControl() {
       description="管理 AWD 比赛的服务部署、轮次执行和 Checker 结果。"
       actions={
         <div className="yza-button-row">
-          <Button tone="outline" onClick={() => navigate(-1)}>返回</Button>
+          <Button tone="outline" onClick={() => navigate(`/competitions/${compId}`)}>返回</Button>
           <Button tone="primary" onClick={handleDeploy} disabled={deploy.isPending}>{deploy.isPending ? "部署中..." : "部署服务"}</Button>
           <Button tone="outline" onClick={handleExecuteRound} disabled={executeRound.isPending}>{executeRound.isPending ? "执行中..." : "执行轮次"}</Button>
           <Button tone="danger" onClick={handleTeardown} disabled={teardown.isPending}>拆除环境</Button>

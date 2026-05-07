@@ -181,6 +181,10 @@ export default function CompetitionPage({ mode }: CompetitionPageProps) {
   }
 
   function detailPath(competition: Competition) {
+    return `/competitions/${competition.id}`;
+  }
+
+  function controlPath(competition: Competition) {
     if (competition.mode === "awd") return `/competitions/${competition.id}/awd`;
     if (competition.mode === "red_blue") return `/competitions/${competition.id}/redblue`;
     return `/competitions/${competition.id}/challenges`;
@@ -231,6 +235,7 @@ export default function CompetitionPage({ mode }: CompetitionPageProps) {
     actions: (
       <div className="yza-button-row">
         <Button size="sm" tone="primary" onClick={() => navigate(detailPath(c))} aria-label={`${t("common.enter")} ${c.title}`}>{t("common.enter")}</Button>
+        <Button size="sm" tone="outline" onClick={() => navigate(controlPath(c))} aria-label={`管理 ${c.title}`}>管理</Button>
         <Button size="sm" tone="outline" onClick={() => navigate(`/competitions/${c.id}/audit`)} aria-label={`审计 ${c.title}`}>审计</Button>
         {canEdit && (
           <Button size="sm" tone="outline" onClick={() => openEdit(c)} aria-label={`${t("common.edit")} ${c.title}`}>{t("common.edit")}</Button>

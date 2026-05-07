@@ -73,7 +73,7 @@ export default function RedBlueControl() {
 
   return (
     <PageShell title="红蓝对抗控制" description="管理演习阶段，审核红蓝双方报告。"
-      actions={<div className="yza-button-row"><Button tone="outline" onClick={() => navigate(-1)}>返回</Button><Button tone="outline" onClick={() => setPhaseOpen(true)}>添加阶段</Button><Button tone="primary" onClick={() => advancePhase.mutate()} disabled={advancePhase.isPending}>推进阶段</Button></div>}
+      actions={<div className="yza-button-row"><Button tone="outline" onClick={() => navigate(`/competitions/${compId}`)}>返回</Button><Button tone="outline" onClick={() => setPhaseOpen(true)}>添加阶段</Button><Button tone="primary" onClick={() => advancePhase.mutate()} disabled={advancePhase.isPending}>推进阶段</Button></div>}
     >
       <h3 style={{ fontWeight: 600, marginBottom: "0.5rem" }}>演习阶段</h3>
       <div style={{ display: "flex", gap: "0.5rem", marginBottom: "1.5rem", flexWrap: "wrap" }}>
