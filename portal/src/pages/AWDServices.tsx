@@ -2,10 +2,11 @@ import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button, Tag, Alert } from "@yza/ui";
-import { ArrowLeft, RefreshCw, Swords, Shield, Zap } from "lucide-react";
+import { ArrowLeft, FileText, RefreshCw, Swords, Shield, Zap } from "lucide-react";
 import { api } from "@/lib/api";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
+import { useMyWriteups, useSubmitWriteup } from "@/hooks/usePortal";
 
 interface ServiceInstance {
   id: number;
@@ -33,6 +34,20 @@ const STATUS_TONE: Record<string, "success" | "warning" | "neutral" | "danger"> 
   error: "danger",
 };
 
+const WRITEUP_STATUS_TONE: Record<string, "success" | "warning" | "neutral" | "danger" | "info"> = {
+  submitted: "warning",
+  reviewed: "info",
+  approved: "success",
+  rejected: "danger",
+};
+
+const WRITEUP_STATUS_LABEL: Record<string, string> = {
+  submitted: "待审",
+  reviewed: "已审阅",
+  approved: "已通过",
+  rejected: "已驳回",
+};
+
 export default function AWDServices() {
   const { t } = useTranslation();
   const { id } = useParams<{ id: string }>();
@@ -40,6 +55,7 @@ export default function AWDServices() {
   const navigate = useNavigate();
   const qc = useQueryClient();
   const [flagInputs, setFlagInputs] = useState<Record<number, string>>({});
+  const [writeupInputs, setWriteupInputs] = useState<Record<number, string>>({});
 
   const { data: services, isLoading } = useQuery({
     queryKey: ["portal-awd-services", compId],
@@ -53,6 +69,9 @@ export default function AWDServices() {
     refetchInterval: 5_000,
     retry: false,
   });
+
+  const { data: writeupData } = useMyWriteups(compId);
+  const submitWriteup = useSubmitWriteup();
 
   const submitMutation = useMutation({
     mutationFn: ({ challengeId, flag }: { challengeId: number; flag: string }) =>
@@ -91,7 +110,23 @@ export default function AWDServices() {
     }
   }
 
+  async function handleWriteupSubmit(challengeId: number) {
+    const content = writeupInputs[challengeId]?.trim();
+    if (!content) {
+      toast.error("WriteUp 内容不能为空");
+      return;
+    }
+    try {
+      await submitWriteup.mutateAsync({ competitionId: compId, challenge_id: challengeId, content });
+      toast.success("WriteUp 已提交");
+      setWriteupInputs((p) => ({ ...p, [challengeId]: "" }));
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "WriteUp 提交失败");
+    }
+  }
+
   if (isLoading) return <div className="portal-empty">{t("common.loading")}</div>;
+  const writeupByChallenge = new Map((writeupData?.items ?? []).map((item) => [item.challenge_id, item]));
 
   return (
     <div>
@@ -205,6 +240,68 @@ export default function AWDServices() {
       <Alert tone="info" heading={t("awd.rules")}>
         攻入其他队伍的服务获取 Flag 提交得分。你的服务被攻击会扣等额分数（零和）。服务宕机每轮扣分，存活队伍按比例获得奖励。付费重启会扣分并分配给其他队伍。
       </Alert>
+
+      <section className="portal-section">
+        <div className="portal-section__title" style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <FileText size={18} /> WriteUp — 闭赛材料
+        </div>
+        {(!services || services.length === 0) ? (
+          <div className="portal-empty">服务部署后可提交 WriteUp</div>
+        ) : (
+          <div className="service-grid">
+            {services.map((svc) => {
+              const writeup = writeupByChallenge.get(svc.challenge_id);
+              return (
+                <div key={`writeup-${svc.challenge_id}`} className="yza-doc-card" style={{ padding: "var(--yza-space-5)" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", gap: 10, marginBottom: 8 }}>
+                    <strong>{svc.challenge_name || `Service #${svc.challenge_id}`}</strong>
+                    {writeup ? (
+                      <Tag tone={WRITEUP_STATUS_TONE[writeup.status] ?? "neutral"}>{WRITEUP_STATUS_LABEL[writeup.status] ?? writeup.status}</Tag>
+                    ) : (
+                      <Tag tone="neutral">未提交</Tag>
+                    )}
+                  </div>
+                  {writeup ? (
+                    <>
+                      <div style={{ fontSize: 13, color: "var(--yza-text-secondary)", whiteSpace: "pre-wrap", maxHeight: 120, overflow: "auto" }}>
+                        {writeup.content || "未填写正文。"}
+                      </div>
+                      {writeup.reviewer_comment && (
+                        <div style={{ fontSize: 12, color: "var(--yza-text-muted)", marginTop: 8 }}>
+                          裁判意见：{writeup.reviewer_comment}
+                        </div>
+                      )}
+                    </>
+                  ) : (
+                    <>
+                      <textarea
+                        value={writeupInputs[svc.challenge_id] ?? ""}
+                        onChange={(e) => setWriteupInputs((p) => ({ ...p, [svc.challenge_id]: e.target.value }))}
+                        placeholder="记录漏洞入口、利用方式、修复动作和关键证据..."
+                        rows={5}
+                        style={{
+                          width: "100%",
+                          resize: "vertical",
+                          padding: "8px 10px",
+                          border: "1px solid var(--yza-border-default)",
+                          borderRadius: "var(--yza-radius-md)",
+                          background: "var(--yza-surface-page)",
+                          color: "var(--yza-text-primary)",
+                          fontSize: 13,
+                          marginBottom: 8,
+                        }}
+                      />
+                      <Button size="sm" tone="primary" onClick={() => handleWriteupSubmit(svc.challenge_id)} disabled={submitWriteup.isPending}>
+                        提交 WriteUp
+                      </Button>
+                    </>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </section>
     </div>
   );
 }

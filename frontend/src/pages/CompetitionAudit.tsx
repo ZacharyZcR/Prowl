@@ -1,6 +1,6 @@
 import { type CSSProperties, type ReactNode } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { Activity, AlertTriangle, FileText, ShieldCheck, ShieldX } from "lucide-react";
+import { Activity, AlertTriangle, FileText, RefreshCw, ServerCrash, ShieldCheck, ShieldX, Swords } from "lucide-react";
 import { Alert, Button, KPIGroup, Skeleton, Tag } from "@yza/ui";
 import { toast } from "sonner";
 import { PageShell } from "@/components/PageShell";
@@ -14,6 +14,7 @@ import {
   useCompetitionSubmissions,
   useReviewRegistration,
   useReviewWriteup,
+  type AWDAuditReport,
   type TeamRegistration,
 } from "@/hooks/useCompetitions";
 
@@ -132,6 +133,8 @@ export default function CompetitionAuditPage() {
   const reviewRegistration = useReviewRegistration();
 
   const report = reportQuery.data;
+  const isAWD = (competitionQuery.data?.mode ?? report?.mode) === "awd";
+  const awdAudit = report?.awd_audit;
   const writeups = writeupsQuery.data?.items ?? [];
   const submissions = submissionsQuery.data?.items ?? [];
   const registrations = registrationsQuery.data ?? [];
@@ -188,10 +191,10 @@ export default function CompetitionAuditPage() {
       <KPIGroup
         items={[
           {
-            label: "跨队 Flag 告警",
-            value: isLoading ? "..." : String(report?.cross_flag_alerts?.length ?? 0),
+            label: isAWD ? "AWD 攻击记录" : "跨队 Flag 告警",
+            value: isLoading ? "..." : String(isAWD ? (awdAudit?.attack_edges?.length ?? 0) : (report?.cross_flag_alerts?.length ?? 0)),
             meta: report?.generated_at ? `生成于 ${formatDateTime(report.generated_at)}` : "反作弊扫描",
-            tone: (report?.cross_flag_alerts?.length ?? 0) > 0 ? "danger" : "success",
+            tone: isAWD ? ((awdAudit?.suspicious_submissions?.length ?? 0) > 0 ? "warning" : "info") : ((report?.cross_flag_alerts?.length ?? 0) > 0 ? "danger" : "success"),
           },
           {
             label: "待审 WriteUp",
@@ -228,6 +231,9 @@ export default function CompetitionAuditPage() {
         </section>
       ) : (
         <div className="yza-doc-stack">
+          {isAWD ? (
+            <AWDAuditBlock report={awdAudit} />
+          ) : (
           <AuditSection icon={<AlertTriangle size={18} />} title="反作弊告警" meta="跨队 Flag、IP 关联与快速解题关联">
             <div className="yza-doc-stack">
               {(report?.cross_flag_alerts?.length ?? 0) === 0 ? (
@@ -283,6 +289,7 @@ export default function CompetitionAuditPage() {
               </div>
             </div>
           </AuditSection>
+          )}
 
           <AuditSection icon={<FileText size={18} />} title="WriteUp 审核" meta="闭赛材料与题解证据">
             {writeups.length === 0 ? (
@@ -400,6 +407,125 @@ export default function CompetitionAuditPage() {
         </div>
       )}
     </PageShell>
+  );
+}
+
+function AWDAuditBlock({ report }: { report?: AWDAuditReport }) {
+  const attacks = report?.attack_edges ?? [];
+  const incidents = report?.service_incidents ?? [];
+  const restarts = report?.restart_events ?? [];
+  const stats = report?.team_attack_stats ?? [];
+  const suspicious = report?.suspicious_submissions ?? [];
+
+  return (
+    <>
+      <AuditSection icon={<Swords size={18} />} title="AWD 攻防审计" meta="攻击关系、被打统计与异常提交">
+        <div className="yza-doc-stack">
+          {stats.length === 0 ? (
+            <EmptyBlock text="暂无 AWD 攻防数据。" />
+          ) : (
+            <div style={{ overflowX: "auto" }}>
+              <table style={tableStyle}>
+                <thead>
+                  <tr>
+                    <th style={thStyle}>队伍</th>
+                    <th style={thStyle}>攻击成功</th>
+                    <th style={thStyle}>被攻破</th>
+                    <th style={thStyle}>宕机</th>
+                    <th style={thStyle}>重启</th>
+                    <th style={thStyle}>错误提交</th>
+                    <th style={thStyle}>攻防分</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {stats.map((item) => (
+                    <tr key={item.team_id}>
+                      <td style={tdStyle}>{item.team_name}</td>
+                      <td style={tdStyle}>{item.attacks}</td>
+                      <td style={tdStyle}>{item.compromised}</td>
+                      <td style={tdStyle}>{item.services_down}</td>
+                      <td style={tdStyle}>{item.restarts}</td>
+                      <td style={tdStyle}>{item.wrong_submits}</td>
+                      <td style={tdStyle}>
+                        <Tag tone="success">+{item.attack_points}</Tag>
+                        <Tag tone="danger">{item.defense_points}</Tag>
+                        <Tag tone="warning">{item.check_points + item.restart_penalty}</Tag>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+
+          <div style={cardGridStyle}>
+            <SignalCard
+              title="异常提交"
+              icon={<AlertTriangle size={18} />}
+              empty="暂无 AWD 异常提交模式。"
+              items={suspicious.map((item) => ({
+                key: `${item.team_id}-${item.signal}`,
+                title: item.team_name,
+                meta: `${item.detail}，首次出现 ${formatDateTime(item.observed_at)}`,
+              }))}
+            />
+            <SignalCard
+              title="服务宕机"
+              icon={<ServerCrash size={18} />}
+              empty="暂无 Checker 异常。"
+              items={incidents.slice(0, 8).map((item, index) => ({
+                key: `${item.round_number}-${item.team_id}-${item.challenge_id}-${index}`,
+                title: `${item.team_name} / ${item.challenge_name}`,
+                meta: `第 ${item.round_number || "-"} 轮，${item.status}，${item.detail || "无详情"}`,
+              }))}
+            />
+            <SignalCard
+              title="付费重启"
+              icon={<RefreshCw size={18} />}
+              empty="暂无付费重启记录。"
+              items={restarts.map((item, index) => ({
+                key: `${item.team_id}-${item.challenge_id}-${index}`,
+                title: `${item.team_name} / ${item.challenge_name}`,
+                meta: `第 ${item.round_number || "-"} 轮，${item.points} 分，${formatDateTime(item.created_at)}`,
+              }))}
+            />
+          </div>
+        </div>
+      </AuditSection>
+
+      <AuditSection icon={<Activity size={18} />} title="攻击流水" meta="AWD 正常攻击不等同于 CTF 跨队作弊">
+        {attacks.length === 0 ? (
+          <EmptyBlock text="暂无 AWD 攻击记录。" />
+        ) : (
+          <div style={{ overflowX: "auto" }}>
+            <table style={tableStyle}>
+              <thead>
+                <tr>
+                  <th style={thStyle}>轮次</th>
+                  <th style={thStyle}>攻击队伍</th>
+                  <th style={thStyle}>被攻击队伍</th>
+                  <th style={thStyle}>服务</th>
+                  <th style={thStyle}>得分</th>
+                  <th style={thStyle}>时间</th>
+                </tr>
+              </thead>
+              <tbody>
+                {attacks.map((item, index) => (
+                  <tr key={`${item.attacker_team_id}-${item.victim_team_id}-${item.challenge_id}-${index}`}>
+                    <td style={tdStyle}>第 {item.round_number || "-"} 轮</td>
+                    <td style={tdStyle}>{item.attacker_team_name}</td>
+                    <td style={tdStyle}>{item.victim_team_name}</td>
+                    <td style={tdStyle}>{item.challenge_name}</td>
+                    <td style={tdStyle}><Tag tone="success">+{item.points}</Tag></td>
+                    <td style={tdStyle}>{formatDateTime(item.created_at)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </AuditSection>
+    </>
   );
 }
 

@@ -2,12 +2,21 @@ package services
 
 import (
 	"context"
+	"fmt"
+	"regexp"
+	"sort"
 	"strings"
 	"time"
 
 	"github.com/ZacharyZcR/STC/backend/ent"
 	"github.com/ZacharyZcR/STC/backend/ent/challengeinstance"
+	"github.com/ZacharyZcR/STC/backend/ent/checkresult"
+	"github.com/ZacharyZcR/STC/backend/ent/competition"
+	"github.com/ZacharyZcR/STC/backend/ent/competitionchallenge"
 	"github.com/ZacharyZcR/STC/backend/ent/flagsubmission"
+	"github.com/ZacharyZcR/STC/backend/ent/scorerecord"
+	"github.com/ZacharyZcR/STC/backend/ent/scoringround"
+	"github.com/ZacharyZcR/STC/backend/ent/teamregistration"
 	apperr "github.com/ZacharyZcR/STC/backend/pkg/errors"
 )
 
@@ -20,12 +29,14 @@ func NewAntiCheatService(client *ent.Client) *AntiCheatService {
 }
 
 type AntiCheatReport struct {
-	CompetitionID      int                `json:"competition_id"`
-	GeneratedAt        string             `json:"generated_at"`
-	CrossFlagAlerts    []CrossFlagAlert   `json:"cross_flag_alerts"`
-	IPCorrelations     []IPCorrelation    `json:"ip_correlations"`
-	RapidSubmissions   []RapidSubmission  `json:"rapid_submissions"`
-	SubmissionStats    []TeamSubmitStats  `json:"submission_stats"`
+	CompetitionID    int               `json:"competition_id"`
+	Mode             string            `json:"mode"`
+	GeneratedAt      string            `json:"generated_at"`
+	CrossFlagAlerts  []CrossFlagAlert  `json:"cross_flag_alerts"`
+	IPCorrelations   []IPCorrelation   `json:"ip_correlations"`
+	RapidSubmissions []RapidSubmission `json:"rapid_submissions"`
+	SubmissionStats  []TeamSubmitStats `json:"submission_stats"`
+	AWDAudit         AWDAuditReport    `json:"awd_audit"`
 }
 
 type CrossFlagAlert struct {
@@ -59,17 +70,90 @@ type RapidSubmission struct {
 }
 
 type TeamSubmitStats struct {
-	TeamID        int    `json:"team_id"`
-	TeamName      string `json:"team_name"`
-	TotalSubmits  int    `json:"total_submits"`
-	CorrectCount  int    `json:"correct_count"`
-	WrongCount    int    `json:"wrong_count"`
-	SuccessRate   float64 `json:"success_rate"`
+	TeamID       int     `json:"team_id"`
+	TeamName     string  `json:"team_name"`
+	TotalSubmits int     `json:"total_submits"`
+	CorrectCount int     `json:"correct_count"`
+	WrongCount   int     `json:"wrong_count"`
+	SuccessRate  float64 `json:"success_rate"`
 }
 
+type AWDAuditReport struct {
+	AttackEdges           []AWDAttackEdge        `json:"attack_edges"`
+	ServiceIncidents      []AWDServiceIncident   `json:"service_incidents"`
+	RestartEvents         []AWDRestartEvent      `json:"restart_events"`
+	TeamAttackStats       []AWDTeamAttackStats   `json:"team_attack_stats"`
+	SuspiciousSubmissions []AWDSuspiciousPattern `json:"suspicious_submissions"`
+}
+
+type AWDAttackEdge struct {
+	RoundNumber      int    `json:"round_number"`
+	AttackerTeamID   int    `json:"attacker_team_id"`
+	AttackerTeamName string `json:"attacker_team_name"`
+	VictimTeamID     int    `json:"victim_team_id"`
+	VictimTeamName   string `json:"victim_team_name"`
+	ChallengeID      int    `json:"challenge_id"`
+	ChallengeName    string `json:"challenge_name"`
+	Points           int    `json:"points"`
+	CreatedAt        string `json:"created_at"`
+}
+
+type AWDServiceIncident struct {
+	RoundNumber   int    `json:"round_number"`
+	TeamID        int    `json:"team_id"`
+	TeamName      string `json:"team_name"`
+	ChallengeID   int    `json:"challenge_id"`
+	ChallengeName string `json:"challenge_name"`
+	Status        string `json:"status"`
+	Detail        string `json:"detail"`
+	CheckedAt     string `json:"checked_at"`
+}
+
+type AWDRestartEvent struct {
+	RoundNumber   int    `json:"round_number"`
+	TeamID        int    `json:"team_id"`
+	TeamName      string `json:"team_name"`
+	ChallengeID   int    `json:"challenge_id"`
+	ChallengeName string `json:"challenge_name"`
+	Points        int    `json:"points"`
+	Detail        string `json:"detail"`
+	CreatedAt     string `json:"created_at"`
+}
+
+type AWDTeamAttackStats struct {
+	TeamID         int    `json:"team_id"`
+	TeamName       string `json:"team_name"`
+	Attacks        int    `json:"attacks"`
+	Compromised    int    `json:"compromised"`
+	ServicesDown   int    `json:"services_down"`
+	Restarts       int    `json:"restarts"`
+	WrongSubmits   int    `json:"wrong_submits"`
+	AttackPoints   int    `json:"attack_points"`
+	DefensePoints  int    `json:"defense_points"`
+	CheckPoints    int    `json:"check_points"`
+	RestartPenalty int    `json:"restart_penalty"`
+}
+
+type AWDSuspiciousPattern struct {
+	TeamID     int    `json:"team_id"`
+	TeamName   string `json:"team_name"`
+	Signal     string `json:"signal"`
+	Count      int    `json:"count"`
+	Detail     string `json:"detail"`
+	ObservedAt string `json:"observed_at"`
+}
+
+var attackDetailRe = regexp.MustCompile(`attacked team (\d+) on challenge (\d+)`)
+
 func (s *AntiCheatService) GenerateReport(ctx context.Context, competitionID int) (*AntiCheatReport, error) {
+	comp, err := s.client.Competition.Get(ctx, competitionID)
+	if err != nil {
+		return nil, apperr.ErrNotFound.WithMessage("competition not found")
+	}
+
 	report := &AntiCheatReport{
 		CompetitionID: competitionID,
+		Mode:          string(comp.Mode),
 		GeneratedAt:   time.Now().Format("2006-01-02T15:04:05Z"),
 	}
 
@@ -93,7 +177,270 @@ func (s *AntiCheatService) GenerateReport(ctx context.Context, competitionID int
 		report.SubmissionStats = stats
 	}
 
+	if comp.Mode == competition.ModeAwd {
+		report.AWDAudit = s.detectAWDSignals(ctx, competitionID)
+	}
+
 	return report, nil
+}
+
+func (s *AntiCheatService) detectAWDSignals(ctx context.Context, competitionID int) AWDAuditReport {
+	report := AWDAuditReport{}
+	teamNames, challengeNames, roundNumbers := s.awdAuditNames(ctx, competitionID)
+
+	report.AttackEdges = s.awdAttackEdges(ctx, competitionID, teamNames, challengeNames, roundNumbers)
+	report.ServiceIncidents = s.awdServiceIncidents(ctx, competitionID, teamNames, challengeNames, roundNumbers)
+	report.RestartEvents = s.awdRestartEvents(ctx, competitionID, teamNames, challengeNames, roundNumbers)
+	report.TeamAttackStats = s.awdTeamStats(ctx, competitionID, teamNames, report.AttackEdges, report.ServiceIncidents, report.RestartEvents)
+	report.SuspiciousSubmissions = s.awdSuspiciousSubmissions(ctx, competitionID, teamNames)
+	return report
+}
+
+func (s *AntiCheatService) awdAuditNames(ctx context.Context, competitionID int) (map[int]string, map[int]string, map[int]int) {
+	teamNames := make(map[int]string)
+	challengeNames := make(map[int]string)
+	roundNumbers := make(map[int]int)
+
+	regs, _ := s.client.TeamRegistration.Query().
+		Where(teamregistration.CompetitionID(competitionID)).
+		WithTeam().
+		All(ctx)
+	for _, reg := range regs {
+		if reg.Edges.Team != nil {
+			teamNames[reg.TeamID] = reg.Edges.Team.Name
+		}
+	}
+
+	ccs, _ := s.client.CompetitionChallenge.Query().
+		Where(competitionchallenge.CompetitionID(competitionID)).
+		WithChallenge().
+		All(ctx)
+	for _, cc := range ccs {
+		if cc.Edges.Challenge != nil {
+			challengeNames[cc.ChallengeID] = cc.Edges.Challenge.Title
+		}
+	}
+
+	rounds, _ := s.client.ScoringRound.Query().
+		Where(scoringround.CompetitionID(competitionID)).
+		All(ctx)
+	for _, round := range rounds {
+		roundNumbers[round.ID] = round.RoundNumber
+	}
+
+	return teamNames, challengeNames, roundNumbers
+}
+
+func (s *AntiCheatService) awdAttackEdges(ctx context.Context, competitionID int, teamNames, challengeNames map[int]string, roundNumbers map[int]int) []AWDAttackEdge {
+	records, err := s.client.ScoreRecord.Query().
+		Where(
+			scorerecord.CompetitionID(competitionID),
+			scorerecord.ScoreTypeEQ(scorerecord.ScoreTypeAwdAttack),
+		).
+		Order(ent.Desc(scorerecord.FieldCreatedAt)).
+		All(ctx)
+	if err != nil {
+		return nil
+	}
+
+	edges := make([]AWDAttackEdge, 0, len(records))
+	for _, record := range records {
+		matches := attackDetailRe.FindStringSubmatch(record.Detail)
+		if len(matches) != 3 {
+			continue
+		}
+		victimID := atoiDefault(matches[1], 0)
+		challengeID := atoiDefault(matches[2], intValue(record.ChallengeID))
+		edges = append(edges, AWDAttackEdge{
+			RoundNumber:      roundNumbers[intValue(record.RoundID)],
+			AttackerTeamID:   record.TeamID,
+			AttackerTeamName: teamNames[record.TeamID],
+			VictimTeamID:     victimID,
+			VictimTeamName:   teamNames[victimID],
+			ChallengeID:      challengeID,
+			ChallengeName:    challengeNames[challengeID],
+			Points:           record.Points,
+			CreatedAt:        record.CreatedAt.Format("2006-01-02T15:04:05Z"),
+		})
+	}
+	return edges
+}
+
+func (s *AntiCheatService) awdServiceIncidents(ctx context.Context, competitionID int, teamNames, challengeNames map[int]string, roundNumbers map[int]int) []AWDServiceIncident {
+	rounds, err := s.client.ScoringRound.Query().
+		Where(scoringround.CompetitionID(competitionID)).
+		IDs(ctx)
+	if err != nil || len(rounds) == 0 {
+		return nil
+	}
+
+	results, err := s.client.CheckResult.Query().
+		Where(
+			checkresult.RoundIDIn(rounds...),
+			checkresult.StatusNEQ(checkresult.StatusUp),
+		).
+		Order(ent.Desc(checkresult.FieldCheckedAt)).
+		All(ctx)
+	if err != nil {
+		return nil
+	}
+
+	incidents := make([]AWDServiceIncident, 0, len(results))
+	for _, result := range results {
+		incidents = append(incidents, AWDServiceIncident{
+			RoundNumber:   roundNumbers[result.RoundID],
+			TeamID:        result.TeamID,
+			TeamName:      teamNames[result.TeamID],
+			ChallengeID:   result.ChallengeID,
+			ChallengeName: challengeNames[result.ChallengeID],
+			Status:        string(result.Status),
+			Detail:        result.Detail,
+			CheckedAt:     result.CheckedAt.Format("2006-01-02T15:04:05Z"),
+		})
+	}
+	return incidents
+}
+
+func (s *AntiCheatService) awdRestartEvents(ctx context.Context, competitionID int, teamNames, challengeNames map[int]string, roundNumbers map[int]int) []AWDRestartEvent {
+	records, err := s.client.ScoreRecord.Query().
+		Where(
+			scorerecord.CompetitionID(competitionID),
+			scorerecord.ScoreTypeEQ(scorerecord.ScoreTypePenalty),
+			scorerecord.DetailContains("paid restart"),
+		).
+		Order(ent.Desc(scorerecord.FieldCreatedAt)).
+		All(ctx)
+	if err != nil {
+		return nil
+	}
+
+	events := make([]AWDRestartEvent, 0, len(records))
+	for _, record := range records {
+		events = append(events, AWDRestartEvent{
+			RoundNumber:   roundNumbers[intValue(record.RoundID)],
+			TeamID:        record.TeamID,
+			TeamName:      teamNames[record.TeamID],
+			ChallengeID:   intValue(record.ChallengeID),
+			ChallengeName: challengeNames[intValue(record.ChallengeID)],
+			Points:        record.Points,
+			Detail:        record.Detail,
+			CreatedAt:     record.CreatedAt.Format("2006-01-02T15:04:05Z"),
+		})
+	}
+	return events
+}
+
+func (s *AntiCheatService) awdTeamStats(ctx context.Context, competitionID int, teamNames map[int]string, attacks []AWDAttackEdge, incidents []AWDServiceIncident, restarts []AWDRestartEvent) []AWDTeamAttackStats {
+	stats := make(map[int]*AWDTeamAttackStats)
+	for teamID, name := range teamNames {
+		stats[teamID] = &AWDTeamAttackStats{TeamID: teamID, TeamName: name}
+	}
+
+	for _, attack := range attacks {
+		attacker := ensureAWDStat(stats, attack.AttackerTeamID, attack.AttackerTeamName)
+		attacker.Attacks++
+		attacker.AttackPoints += attack.Points
+		ensureAWDStat(stats, attack.VictimTeamID, attack.VictimTeamName).Compromised++
+	}
+	for _, incident := range incidents {
+		ensureAWDStat(stats, incident.TeamID, incident.TeamName).ServicesDown++
+	}
+	for _, restart := range restarts {
+		stat := ensureAWDStat(stats, restart.TeamID, restart.TeamName)
+		stat.Restarts++
+		stat.RestartPenalty += restart.Points
+	}
+
+	records, _ := s.client.ScoreRecord.Query().
+		Where(scorerecord.CompetitionID(competitionID)).
+		All(ctx)
+	for _, record := range records {
+		stat := ensureAWDStat(stats, record.TeamID, teamNames[record.TeamID])
+		switch record.ScoreType {
+		case scorerecord.ScoreTypeAwdDefense:
+			stat.DefensePoints += record.Points
+		case scorerecord.ScoreTypeAwdCheck:
+			stat.CheckPoints += record.Points
+		}
+	}
+
+	subs, _ := s.client.FlagSubmission.Query().
+		Where(flagsubmission.CompetitionID(competitionID), flagsubmission.IsCorrect(false)).
+		All(ctx)
+	for _, sub := range subs {
+		ensureAWDStat(stats, sub.TeamID, teamNames[sub.TeamID]).WrongSubmits++
+	}
+
+	result := make([]AWDTeamAttackStats, 0, len(stats))
+	for _, stat := range stats {
+		result = append(result, *stat)
+	}
+	sort.Slice(result, func(i, j int) bool {
+		left := result[i].AttackPoints + result[i].DefensePoints + result[i].CheckPoints + result[i].RestartPenalty
+		right := result[j].AttackPoints + result[j].DefensePoints + result[j].CheckPoints + result[j].RestartPenalty
+		return left > right
+	})
+	return result
+}
+
+func (s *AntiCheatService) awdSuspiciousSubmissions(ctx context.Context, competitionID int, teamNames map[int]string) []AWDSuspiciousPattern {
+	subs, err := s.client.FlagSubmission.Query().
+		Where(flagsubmission.CompetitionID(competitionID)).
+		Order(ent.Asc(flagsubmission.FieldSubmittedAt)).
+		All(ctx)
+	if err != nil {
+		return nil
+	}
+
+	wrongByTeam := make(map[int]int)
+	firstSeen := make(map[int]time.Time)
+	for _, sub := range subs {
+		if sub.IsCorrect {
+			continue
+		}
+		wrongByTeam[sub.TeamID]++
+		if firstSeen[sub.TeamID].IsZero() {
+			firstSeen[sub.TeamID] = sub.SubmittedAt
+		}
+	}
+
+	patterns := make([]AWDSuspiciousPattern, 0)
+	for teamID, count := range wrongByTeam {
+		if count < 3 {
+			continue
+		}
+		patterns = append(patterns, AWDSuspiciousPattern{
+			TeamID:     teamID,
+			TeamName:   teamNames[teamID],
+			Signal:     "wrong_flag_burst",
+			Count:      count,
+			Detail:     fmt.Sprintf("短时间内出现 %d 次错误 AWD Flag 提交", count),
+			ObservedAt: firstSeen[teamID].Format("2006-01-02T15:04:05Z"),
+		})
+	}
+	return patterns
+}
+
+func ensureAWDStat(stats map[int]*AWDTeamAttackStats, teamID int, teamName string) *AWDTeamAttackStats {
+	if stats[teamID] == nil {
+		stats[teamID] = &AWDTeamAttackStats{TeamID: teamID, TeamName: teamName}
+	}
+	return stats[teamID]
+}
+
+func atoiDefault(raw string, fallback int) int {
+	var value int
+	if _, err := fmt.Sscanf(raw, "%d", &value); err != nil {
+		return fallback
+	}
+	return value
+}
+
+func intValue(value *int) int {
+	if value == nil {
+		return 0
+	}
+	return *value
 }
 
 func (s *AntiCheatService) detectCrossFlags(ctx context.Context, competitionID int) ([]CrossFlagAlert, error) {
@@ -116,7 +463,10 @@ func (s *AntiCheatService) detectCrossFlags(ctx context.Context, competitionID i
 		return nil, err
 	}
 
-	type flagOwner struct{ teamID int; teamName string }
+	type flagOwner struct {
+		teamID   int
+		teamName string
+	}
 	exactMap := make(map[string]flagOwner)
 	leetMap := make(map[string]flagOwner)
 	for _, inst := range instances {

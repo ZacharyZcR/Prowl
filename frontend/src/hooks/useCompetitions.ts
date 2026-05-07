@@ -109,13 +109,80 @@ export interface TeamSubmitStats {
   success_rate: number;
 }
 
+export interface AWDAttackEdge {
+  round_number: number;
+  attacker_team_id: number;
+  attacker_team_name: string;
+  victim_team_id: number;
+  victim_team_name: string;
+  challenge_id: number;
+  challenge_name: string;
+  points: number;
+  created_at: string;
+}
+
+export interface AWDServiceIncident {
+  round_number: number;
+  team_id: number;
+  team_name: string;
+  challenge_id: number;
+  challenge_name: string;
+  status: string;
+  detail: string;
+  checked_at: string;
+}
+
+export interface AWDRestartEvent {
+  round_number: number;
+  team_id: number;
+  team_name: string;
+  challenge_id: number;
+  challenge_name: string;
+  points: number;
+  detail: string;
+  created_at: string;
+}
+
+export interface AWDTeamAttackStats {
+  team_id: number;
+  team_name: string;
+  attacks: number;
+  compromised: number;
+  services_down: number;
+  restarts: number;
+  wrong_submits: number;
+  attack_points: number;
+  defense_points: number;
+  check_points: number;
+  restart_penalty: number;
+}
+
+export interface AWDSuspiciousPattern {
+  team_id: number;
+  team_name: string;
+  signal: string;
+  count: number;
+  detail: string;
+  observed_at: string;
+}
+
+export interface AWDAuditReport {
+  attack_edges: AWDAttackEdge[];
+  service_incidents: AWDServiceIncident[];
+  restart_events: AWDRestartEvent[];
+  team_attack_stats: AWDTeamAttackStats[];
+  suspicious_submissions: AWDSuspiciousPattern[];
+}
+
 export interface AntiCheatReport {
   competition_id: number;
+  mode: string;
   generated_at: string;
   cross_flag_alerts: CrossFlagAlert[];
   ip_correlations: IPCorrelation[];
   rapid_submissions: RapidSubmission[];
   submission_stats: TeamSubmitStats[];
+  awd_audit: AWDAuditReport;
 }
 
 interface CompetitionQuery {

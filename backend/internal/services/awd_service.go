@@ -211,6 +211,10 @@ func (s *AWDService) DeployServices(ctx context.Context, competitionID int) (*De
 }
 
 func (s *AWDService) GetTeamServices(ctx context.Context, competitionID, teamID int) ([]models.InstanceResponse, error) {
+	if !s.isApprovedTeam(ctx, competitionID, teamID) {
+		return nil, apperr.ErrForbidden.WithMessage("team not registered")
+	}
+
 	instances, err := s.client.ChallengeInstance.Query().
 		Where(
 			challengeinstance.CompetitionID(competitionID),
@@ -491,10 +495,24 @@ func (s *AWDService) currentAWDRound(ctx context.Context, competitionID int) *en
 	return currentRound
 }
 
+func (s *AWDService) isApprovedTeam(ctx context.Context, competitionID, teamID int) bool {
+	approved, _ := s.client.TeamRegistration.Query().
+		Where(
+			teamregistration.CompetitionID(competitionID),
+			teamregistration.TeamID(teamID),
+			teamregistration.StatusEQ(teamregistration.StatusApproved),
+		).
+		Exist(ctx)
+	return approved
+}
+
 func (s *AWDService) PaidRestart(ctx context.Context, competitionID, challengeID, teamID int) (*models.InstanceResponse, error) {
 	comp, err := s.client.Competition.Get(ctx, competitionID)
 	if err != nil || comp.Mode != competition.ModeAwd || comp.Status != competition.StatusRunning {
 		return nil, apperr.ErrBadRequest.WithMessage("invalid AWD competition")
+	}
+	if !s.isApprovedTeam(ctx, competitionID, teamID) {
+		return nil, apperr.ErrForbidden.WithMessage("team not registered")
 	}
 
 	restartCost := 50
