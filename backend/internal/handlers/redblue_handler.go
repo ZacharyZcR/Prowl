@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"strconv"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 
@@ -66,6 +67,9 @@ func (h *RedBlueHandler) SubmitDefenseReport(c *gin.Context) {
 
 func (h *RedBlueHandler) ListAttackReports(c *gin.Context) {
 	compID, _ := strconv.Atoi(c.Param("id"))
+	if !h.requirePortalJudge(c, compID) {
+		return
+	}
 	var q models.ReportListQuery
 	_ = c.ShouldBindQuery(&q)
 	result, appErr := h.service.ListAttackReports(c.Request.Context(), compID, &q)
@@ -78,6 +82,9 @@ func (h *RedBlueHandler) ListAttackReports(c *gin.Context) {
 
 func (h *RedBlueHandler) ListDefenseReports(c *gin.Context) {
 	compID, _ := strconv.Atoi(c.Param("id"))
+	if !h.requirePortalJudge(c, compID) {
+		return
+	}
 	var q models.ReportListQuery
 	_ = c.ShouldBindQuery(&q)
 	result, appErr := h.service.ListDefenseReports(c.Request.Context(), compID, &q)
@@ -89,6 +96,10 @@ func (h *RedBlueHandler) ListDefenseReports(c *gin.Context) {
 }
 
 func (h *RedBlueHandler) JudgeAttackReport(c *gin.Context) {
+	compID, _ := strconv.Atoi(c.Param("id"))
+	if !h.requirePortalJudge(c, compID) {
+		return
+	}
 	reportID, _ := strconv.Atoi(c.Param("rid"))
 	var req models.JudgeReportRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -105,6 +116,10 @@ func (h *RedBlueHandler) JudgeAttackReport(c *gin.Context) {
 }
 
 func (h *RedBlueHandler) JudgeDefenseReport(c *gin.Context) {
+	compID, _ := strconv.Atoi(c.Param("id"))
+	if !h.requirePortalJudge(c, compID) {
+		return
+	}
 	reportID, _ := strconv.Atoi(c.Param("rid"))
 	var req models.JudgeReportRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -132,6 +147,9 @@ func (h *RedBlueHandler) ListPhases(c *gin.Context) {
 
 func (h *RedBlueHandler) CreatePhase(c *gin.Context) {
 	compID, _ := strconv.Atoi(c.Param("id"))
+	if !h.requirePortalJudge(c, compID) {
+		return
+	}
 	var req models.CreatePhaseRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		response.AppError(c, apperr.ErrBadRequest.WithMessage("invalid request: "+err.Error()))
@@ -147,6 +165,9 @@ func (h *RedBlueHandler) CreatePhase(c *gin.Context) {
 
 func (h *RedBlueHandler) AdvancePhase(c *gin.Context) {
 	compID, _ := strconv.Atoi(c.Param("id"))
+	if !h.requirePortalJudge(c, compID) {
+		return
+	}
 	if appErr := h.service.AdvancePhase(c.Request.Context(), compID); appErr != nil {
 		response.AppError(c, appErr.(*apperr.AppError))
 		return
@@ -170,6 +191,24 @@ func (h *RedBlueHandler) MyAttackReports(c *gin.Context) {
 		return
 	}
 	response.Success(c, result)
+}
+
+func (h *RedBlueHandler) requirePortalJudge(c *gin.Context, compID int) bool {
+	if !strings.Contains(c.FullPath(), "/portal/") {
+		return true
+	}
+	userID, _ := c.Get("user_id")
+	uid, _ := userID.(int)
+	myTeam, appErr := h.teamService.GetByUserID(c.Request.Context(), uid)
+	if appErr != nil {
+		response.AppError(c, apperr.ErrForbidden.WithMessage("judge team required"))
+		return false
+	}
+	if appErr := h.service.EnsureJudgeRole(c.Request.Context(), compID, myTeam.ID); appErr != nil {
+		response.AppError(c, appErr.(*apperr.AppError))
+		return false
+	}
+	return true
 }
 
 func (h *RedBlueHandler) MyDefenseReports(c *gin.Context) {

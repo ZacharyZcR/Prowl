@@ -7,6 +7,7 @@ import (
 
 	"github.com/ZacharyZcR/STC/backend/ent"
 	"github.com/ZacharyZcR/STC/backend/ent/attackreport"
+	"github.com/ZacharyZcR/STC/backend/ent/competition"
 	"github.com/ZacharyZcR/STC/backend/ent/defensereport"
 	"github.com/ZacharyZcR/STC/backend/ent/exercisephase"
 	"github.com/ZacharyZcR/STC/backend/ent/scorerecord"
@@ -24,6 +25,12 @@ func NewRedBlueService(client *ent.Client) *RedBlueService {
 }
 
 func (s *RedBlueService) CreateAttackReport(ctx context.Context, compID, teamID, userID int, req *models.CreateAttackReportRequest) (*ent.AttackReport, error) {
+	if err := s.ensureReportRole(ctx, compID, teamID, teamregistration.TeamRoleRed, teamregistration.TeamRoleParticipant); err != nil {
+		return nil, err
+	}
+	if req.PhaseID == 0 {
+		req.PhaseID = s.activePhaseID(ctx, compID)
+	}
 	builder := s.client.AttackReport.Create().
 		SetCompetitionID(compID).SetTeamID(teamID).SetUserID(userID).
 		SetTitle(req.Title).SetContent(req.Content).
@@ -45,6 +52,12 @@ func (s *RedBlueService) CreateAttackReport(ctx context.Context, compID, teamID,
 }
 
 func (s *RedBlueService) CreateDefenseReport(ctx context.Context, compID, teamID, userID int, req *models.CreateDefenseReportRequest) (*ent.DefenseReport, error) {
+	if err := s.ensureReportRole(ctx, compID, teamID, teamregistration.TeamRoleBlue, teamregistration.TeamRoleParticipant); err != nil {
+		return nil, err
+	}
+	if req.PhaseID == 0 {
+		req.PhaseID = s.activePhaseID(ctx, compID)
+	}
 	builder := s.client.DefenseReport.Create().
 		SetCompetitionID(compID).SetTeamID(teamID).SetUserID(userID).
 		SetTitle(req.Title).SetContent(req.Content).
@@ -65,6 +78,61 @@ func (s *RedBlueService) CreateDefenseReport(ctx context.Context, compID, teamID
 	return r, nil
 }
 
+func (s *RedBlueService) EnsureJudgeRole(ctx context.Context, compID, teamID int) error {
+	return s.ensureApprovedRole(ctx, compID, teamID, false, teamregistration.TeamRoleJudge, teamregistration.TeamRoleWhite)
+}
+
+func (s *RedBlueService) ensureReportRole(ctx context.Context, compID, teamID int, roles ...teamregistration.TeamRole) error {
+	return s.ensureApprovedRole(ctx, compID, teamID, true, roles...)
+}
+
+func (s *RedBlueService) ensureApprovedRole(ctx context.Context, compID, teamID int, requireRunning bool, roles ...teamregistration.TeamRole) error {
+	comp, err := s.client.Competition.Query().Where(competition.ID(compID)).Only(ctx)
+	if err != nil {
+		if ent.IsNotFound(err) {
+			return apperr.ErrNotFound.WithMessage("competition not found")
+		}
+		return apperr.ErrInternal.WithMessage("failed to query competition: " + err.Error())
+	}
+	if comp.Mode != competition.ModeRedBlue {
+		return apperr.ErrBadRequest.WithMessage("competition is not red-blue mode")
+	}
+	if requireRunning && comp.Status != competition.StatusRunning {
+		return apperr.ErrForbidden.WithMessage("competition is not running")
+	}
+
+	reg, err := s.client.TeamRegistration.Query().
+		Where(
+			teamregistration.CompetitionID(compID),
+			teamregistration.TeamID(teamID),
+			teamregistration.StatusEQ(teamregistration.StatusApproved),
+		).
+		Only(ctx)
+	if err != nil {
+		if ent.IsNotFound(err) {
+			return apperr.ErrForbidden.WithMessage("team is not approved for this competition")
+		}
+		return apperr.ErrInternal.WithMessage("failed to query team registration: " + err.Error())
+	}
+	for _, role := range roles {
+		if reg.TeamRole == role {
+			return nil
+		}
+	}
+	return apperr.ErrForbidden.WithMessage("team role is not allowed for this operation")
+}
+
+func (s *RedBlueService) activePhaseID(ctx context.Context, compID int) int {
+	p, err := s.client.ExercisePhase.Query().
+		Where(exercisephase.CompetitionID(compID), exercisephase.StatusEQ(exercisephase.StatusActive)).
+		Order(ent.Asc(exercisephase.FieldOrderNum)).
+		First(ctx)
+	if err != nil {
+		return 0
+	}
+	return p.ID
+}
+
 func (s *RedBlueService) ListAttackReports(ctx context.Context, compID int, q *models.ReportListQuery) (*models.PaginatedResponse, error) {
 	query := s.client.AttackReport.Query().
 		Where(attackreport.CompetitionID(compID)).
@@ -75,11 +143,15 @@ func (s *RedBlueService) ListAttackReports(ctx context.Context, compID int, q *m
 	if q.TeamID > 0 {
 		query = query.Where(attackreport.TeamID(q.TeamID))
 	}
-	if q.Page < 1 { q.Page = 1 }
-	if q.PageSize < 1 || q.PageSize > 100 { q.PageSize = 20 }
+	if q.Page < 1 {
+		q.Page = 1
+	}
+	if q.PageSize < 1 || q.PageSize > 100 {
+		q.PageSize = 20
+	}
 
 	total, _ := query.Count(ctx)
-	reports, err := query.Limit(q.PageSize).Offset((q.Page-1)*q.PageSize).
+	reports, err := query.Limit(q.PageSize).Offset((q.Page - 1) * q.PageSize).
 		Order(ent.Desc(attackreport.FieldSubmittedAt)).All(ctx)
 	if err != nil {
 		return nil, apperr.ErrInternal.WithMessage("failed to list attack reports: " + err.Error())
@@ -105,11 +177,15 @@ func (s *RedBlueService) ListDefenseReports(ctx context.Context, compID int, q *
 	if q.TeamID > 0 {
 		query = query.Where(defensereport.TeamID(q.TeamID))
 	}
-	if q.Page < 1 { q.Page = 1 }
-	if q.PageSize < 1 || q.PageSize > 100 { q.PageSize = 20 }
+	if q.Page < 1 {
+		q.Page = 1
+	}
+	if q.PageSize < 1 || q.PageSize > 100 {
+		q.PageSize = 20
+	}
 
 	total, _ := query.Count(ctx)
-	reports, err := query.Limit(q.PageSize).Offset((q.Page-1)*q.PageSize).
+	reports, err := query.Limit(q.PageSize).Offset((q.Page - 1) * q.PageSize).
 		Order(ent.Desc(defensereport.FieldSubmittedAt)).All(ctx)
 	if err != nil {
 		return nil, apperr.ErrInternal.WithMessage("failed to list defense reports: " + err.Error())
@@ -175,8 +251,12 @@ func (s *RedBlueService) ListPhases(ctx context.Context, compID int) ([]models.E
 			Description: p.Description, OrderNum: p.OrderNum, Status: string(p.Status),
 			DurationMinutes: p.DurationMinutes, CreatedAt: p.CreatedAt.Format("2006-01-02T15:04:05Z"),
 		}
-		if p.StartedAt != nil { item.StartedAt = p.StartedAt.Format("2006-01-02T15:04:05Z") }
-		if p.EndedAt != nil { item.EndedAt = p.EndedAt.Format("2006-01-02T15:04:05Z") }
+		if p.StartedAt != nil {
+			item.StartedAt = p.StartedAt.Format("2006-01-02T15:04:05Z")
+		}
+		if p.EndedAt != nil {
+			item.EndedAt = p.EndedAt.Format("2006-01-02T15:04:05Z")
+		}
 		items = append(items, item)
 	}
 	return items, nil
@@ -227,9 +307,15 @@ func buildAttackReportResponse(r *ent.AttackReport) models.AttackReportResponse 
 		JudgeComment: r.JudgeComment, JudgedBy: r.JudgedBy,
 		SubmittedAt: r.SubmittedAt.Format("2006-01-02T15:04:05Z"),
 	}
-	if r.Edges.Team != nil { resp.TeamName = r.Edges.Team.Name }
-	if r.Edges.User != nil { resp.Username = r.Edges.User.Username }
-	if r.ReviewedAt != nil { resp.ReviewedAt = r.ReviewedAt.Format("2006-01-02T15:04:05Z") }
+	if r.Edges.Team != nil {
+		resp.TeamName = r.Edges.Team.Name
+	}
+	if r.Edges.User != nil {
+		resp.Username = r.Edges.User.Username
+	}
+	if r.ReviewedAt != nil {
+		resp.ReviewedAt = r.ReviewedAt.Format("2006-01-02T15:04:05Z")
+	}
 	return resp
 }
 
@@ -243,9 +329,15 @@ func buildDefenseReportResponse(r *ent.DefenseReport) models.DefenseReportRespon
 		JudgeComment: r.JudgeComment, JudgedBy: r.JudgedBy,
 		SubmittedAt: r.SubmittedAt.Format("2006-01-02T15:04:05Z"),
 	}
-	if r.Edges.Team != nil { resp.TeamName = r.Edges.Team.Name }
-	if r.Edges.User != nil { resp.Username = r.Edges.User.Username }
-	if r.ReviewedAt != nil { resp.ReviewedAt = r.ReviewedAt.Format("2006-01-02T15:04:05Z") }
+	if r.Edges.Team != nil {
+		resp.TeamName = r.Edges.Team.Name
+	}
+	if r.Edges.User != nil {
+		resp.Username = r.Edges.User.Username
+	}
+	if r.ReviewedAt != nil {
+		resp.ReviewedAt = r.ReviewedAt.Format("2006-01-02T15:04:05Z")
+	}
 	return resp
 }
 
@@ -268,19 +360,30 @@ func (s *RedBlueService) GenerateSummary(ctx context.Context, compID int) (*mode
 		case attackreport.StatusRejected:
 			rejected++
 		}
-		for _, t := range a.AttCkTechniques {
+		seen := make(map[string]bool)
+		for _, t := range append(a.AttCkTechniques, a.AttCkTechnique) {
+			if t == "" || seen[t] {
+				continue
+			}
+			seen[t] = true
 			techAttackCount[t]++
-		}
-		if a.AttCkTechnique != "" {
-			techAttackCount[a.AttCkTechnique]++
 		}
 	}
 
 	techDetectCount := make(map[string]int)
+	var acceptedDefenses int
 	var totalResponseMinutes float64
 	var responseCount int
 	for _, d := range defenses {
+		if d.Status == defensereport.StatusAccepted {
+			acceptedDefenses++
+		}
+		seen := make(map[string]bool)
 		for _, t := range d.DetectedTechniques {
+			if t == "" || seen[t] {
+				continue
+			}
+			seen[t] = true
 			techDetectCount[t]++
 		}
 		if d.RelatedAttackID > 0 && d.Status == defensereport.StatusAccepted {
@@ -352,19 +455,25 @@ func (s *RedBlueService) GenerateSummary(ctx context.Context, compID int) (*mode
 
 	phaseStats := make([]models.PhaseStatEntry, 0, len(phases))
 	for _, p := range phases {
-		var ac, dc int
+		var ac, dc, score int
 		for _, a := range attacks {
 			if a.PhaseID == p.ID {
 				ac++
+				if a.Status == attackreport.StatusAccepted {
+					score += a.Score
+				}
 			}
 		}
 		for _, d := range defenses {
 			if d.PhaseID == p.ID {
 				dc++
+				if d.Status == defensereport.StatusAccepted {
+					score += d.Score
+				}
 			}
 		}
 		phaseStats = append(phaseStats, models.PhaseStatEntry{
-			PhaseID: p.ID, PhaseName: p.Name, AttackCount: ac, DefenseCount: dc,
+			PhaseID: p.ID, PhaseName: p.Name, AttackCount: ac, DefenseCount: dc, TotalScore: score,
 		})
 	}
 
@@ -395,7 +504,7 @@ func (s *RedBlueService) GenerateSummary(ctx context.Context, compID int) (*mode
 		RejectedAttacks:     rejected,
 		AttackSuccessRate:   math.Round(successRate*1000) / 1000,
 		TotalDefenseReports: len(defenses),
-		AcceptedDefenses:    accepted,
+		AcceptedDefenses:    acceptedDefenses,
 		AvgResponseMinutes:  math.Round(avgResponse*10) / 10,
 		TeamScores:          teamScores,
 		PhaseStats:          phaseStats,
