@@ -279,8 +279,14 @@ func (s *ContainerService) IsRunning(ctx context.Context, containerID string) bo
 }
 
 func (s *ContainerService) BuildAccessURL(ports map[string]string) string {
-	for _, hostPort := range ports {
-		if hostPort != "" {
+	preferred := []string{"80/tcp", "8080/tcp", "8000/tcp", "3000/tcp", "5000/tcp"}
+	for _, port := range preferred {
+		if hostPort := ports[port]; hostPort != "" {
+			return fmt.Sprintf("%s:%s", s.baseURL, hostPort)
+		}
+	}
+	for containerPort, hostPort := range ports {
+		if containerPort != "22/tcp" && hostPort != "" {
 			return fmt.Sprintf("%s:%s", s.baseURL, hostPort)
 		}
 	}

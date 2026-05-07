@@ -5,6 +5,7 @@ import (
 	"crypto/rand"
 	"encoding/hex"
 	"fmt"
+	"sync"
 	"time"
 
 	"go.uber.org/zap"
@@ -383,23 +384,34 @@ func (s *AWDService) SubmitAWDFlag(ctx context.Context, competitionID, attackerT
 	}
 
 	if !alreadyAttacked {
-		_, _ = s.client.ScoreRecord.Create().
+		roundID := 0
+		if currentRound := s.currentAWDRound(ctx, competitionID); currentRound != nil {
+			roundID = currentRound.ID
+		}
+
+		attackRecord := s.client.ScoreRecord.Create().
 			SetCompetitionID(competitionID).
 			SetTeamID(attackerTeamID).
 			SetChallengeID(challengeID).
 			SetScoreType(scorerecord.ScoreTypeAwdAttack).
 			SetPoints(awdCfg.AttackScore).
-			SetDetail(fmt.Sprintf("attacked team %d on challenge %d", victimTeamID, challengeID)).
-			Save(ctx)
+			SetDetail(fmt.Sprintf("attacked team %d on challenge %d", victimTeamID, challengeID))
+		if roundID > 0 {
+			attackRecord = attackRecord.SetRoundID(roundID)
+		}
+		_, _ = attackRecord.Save(ctx)
 
-		_, _ = s.client.ScoreRecord.Create().
+		defenseRecord := s.client.ScoreRecord.Create().
 			SetCompetitionID(competitionID).
 			SetTeamID(victimTeamID).
 			SetChallengeID(challengeID).
 			SetScoreType(scorerecord.ScoreTypeAwdDefense).
-			SetPoints(-awdCfg.AttackScore).
-			SetDetail(fmt.Sprintf("pwned by team %d on challenge %d", attackerTeamID, challengeID)).
-			Save(ctx)
+			SetPoints(awdCfg.DefenseScore).
+			SetDetail(fmt.Sprintf("pwned by team %d on challenge %d", attackerTeamID, challengeID))
+		if roundID > 0 {
+			defenseRecord = defenseRecord.SetRoundID(roundID)
+		}
+		_, _ = defenseRecord.Save(ctx)
 
 		_, _ = s.client.FlagSubmission.UpdateOneID(sub.ID).
 			SetPointsAwarded(awdCfg.AttackScore).
@@ -415,33 +427,68 @@ func (s *AWDService) SubmitAWDFlag(ctx context.Context, competitionID, attackerT
 }
 
 func (s *AWDService) TeardownAWDEnvironment(ctx context.Context, competitionID int) error {
-	instances, _ := s.client.ChallengeInstance.Query().
+	opCtx, cancel := context.WithTimeout(context.Background(), 3*time.Minute)
+	defer cancel()
+
+	instances, err := s.client.ChallengeInstance.Query().
 		Where(
 			challengeinstance.CompetitionID(competitionID),
 			challengeinstance.StatusIn(challengeinstance.StatusRunning, challengeinstance.StatusStarting),
 		).All(ctx)
-
-	for _, inst := range instances {
-		if inst.ContainerID != "" {
-			_ = s.container.StopAndRemove(ctx, inst.ContainerID)
-		}
-		now := time.Now()
-		_, _ = s.client.ChallengeInstance.UpdateOneID(inst.ID).
-			SetStatus(challengeinstance.StatusStopped).
-			SetStoppedAt(now).
-			Save(ctx)
+	if err != nil {
+		return apperr.ErrInternal.WithMessage("failed to query AWD instances: " + err.Error())
 	}
 
-	_ = s.container.RemoveNetwork(ctx, s.AWDNetworkName(competitionID))
+	var wg sync.WaitGroup
+	for _, inst := range instances {
+		inst := inst
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			if inst.ContainerID != "" {
+				if err := s.container.StopAndRemove(opCtx, inst.ContainerID); err != nil {
+					s.logger.Warn("failed to remove AWD container",
+						zap.Int("instance_id", inst.ID),
+						zap.String("container_id", inst.ContainerID),
+						zap.Error(err),
+					)
+				}
+			}
+			now := time.Now()
+			if _, err := s.client.ChallengeInstance.UpdateOneID(inst.ID).
+				SetStatus(challengeinstance.StatusStopped).
+				SetStoppedAt(now).
+				Save(opCtx); err != nil {
+				s.logger.Warn("failed to mark AWD instance stopped",
+					zap.Int("instance_id", inst.ID),
+					zap.Error(err),
+				)
+			}
+		}()
+	}
+	wg.Wait()
+
+	_ = s.container.RemoveNetwork(opCtx, s.AWDNetworkName(competitionID))
 
 	ccs, _ := s.client.CompetitionChallenge.Query().
-		Where(competitionchallenge.CompetitionID(competitionID)).All(ctx)
+		Where(competitionchallenge.CompetitionID(competitionID)).All(opCtx)
 	for _, cc := range ccs {
-		_ = s.container.RemoveNetwork(ctx, s.AWDChallengeNetworkName(competitionID, cc.ChallengeID))
+		_ = s.container.RemoveNetwork(opCtx, s.AWDChallengeNetworkName(competitionID, cc.ChallengeID))
 	}
 
 	s.logger.Info("AWD environment torn down", zap.Int("competition_id", competitionID))
 	return nil
+}
+
+func (s *AWDService) currentAWDRound(ctx context.Context, competitionID int) *ent.ScoringRound {
+	currentRound, err := s.client.ScoringRound.Query().
+		Where(scoringround.CompetitionID(competitionID)).
+		Order(ent.Desc(scoringround.FieldRoundNumber)).
+		First(ctx)
+	if err != nil {
+		return nil
+	}
+	return currentRound
 }
 
 func (s *AWDService) PaidRestart(ctx context.Context, competitionID, challengeID, teamID int) (*models.InstanceResponse, error) {
@@ -475,14 +522,24 @@ func (s *AWDService) PaidRestart(ctx context.Context, competitionID, challengeID
 		_ = s.container.StopAndRemove(ctx, inst.ContainerID)
 	}
 
-	_, _ = s.client.ScoreRecord.Create().
+	roundID := 0
+	roundNum := 0
+	if currentRound := s.currentAWDRound(ctx, competitionID); currentRound != nil {
+		roundID = currentRound.ID
+		roundNum = currentRound.RoundNumber
+	}
+
+	penaltyRecord := s.client.ScoreRecord.Create().
 		SetCompetitionID(competitionID).
 		SetTeamID(teamID).
 		SetChallengeID(challengeID).
 		SetScoreType(scorerecord.ScoreTypePenalty).
 		SetPoints(-restartCost).
-		SetDetail(fmt.Sprintf("paid restart challenge %d (-%d pts)", challengeID, restartCost)).
-		Save(ctx)
+		SetDetail(fmt.Sprintf("paid restart challenge %d (-%d pts)", challengeID, restartCost))
+	if roundID > 0 {
+		penaltyRecord = penaltyRecord.SetRoundID(roundID)
+	}
+	_, _ = penaltyRecord.Save(ctx)
 
 	otherRegs, _ := s.client.TeamRegistration.Query().
 		Where(
@@ -494,26 +551,21 @@ func (s *AWDService) PaidRestart(ctx context.Context, competitionID, challengeID
 		bonus := restartCost / len(otherRegs)
 		if bonus > 0 {
 			for _, r := range otherRegs {
-				_, _ = s.client.ScoreRecord.Create().
+				bonusRecord := s.client.ScoreRecord.Create().
 					SetCompetitionID(competitionID).
 					SetTeamID(r.TeamID).
 					SetChallengeID(challengeID).
 					SetScoreType(scorerecord.ScoreTypeBonus).
 					SetPoints(bonus).
-					SetDetail(fmt.Sprintf("team %d paid restart bonus", teamID)).
-					Save(ctx)
+					SetDetail(fmt.Sprintf("team %d paid restart bonus", teamID))
+				if roundID > 0 {
+					bonusRecord = bonusRecord.SetRoundID(roundID)
+				}
+				_, _ = bonusRecord.Save(ctx)
 			}
 		}
 	}
 
-	currentRound, _ := s.client.ScoringRound.Query().
-		Where(scoringround.CompetitionID(competitionID)).
-		Order(ent.Desc(scoringround.FieldRoundNumber)).
-		First(ctx)
-	roundNum := 0
-	if currentRound != nil {
-		roundNum = currentRound.RoundNumber
-	}
 	newFlag := GenerateDynamicFlag(challengeID, teamID, competitionID, fmt.Sprintf("%s:%d", s.secretKey, roundNum))
 
 	chal, err := s.client.Challenge.Get(ctx, challengeID)
