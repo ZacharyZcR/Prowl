@@ -9,18 +9,18 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@tanstack/react-query": "^5.62.0",
+    "@tanstack/react-query": "^5.100.10",
     "@yza/tokens": "workspace:*",
     "@yza/ui": "workspace:*",
-    "axios": "^1.7.9",
+    "axios": "^1.16.1",
     "i18next": "^24.2.3",
     "lucide-react": "^0.468.0",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0",
+    "react": "^19.2.6",
+    "react-dom": "^19.2.6",
     "react-i18next": "^15.7.4",
-    "react-router-dom": "^7.1.0",
+    "react-router-dom": "^7.15.0",
     "sonner": "^1.7.2",
-    "zustand": "^5.0.0"
+    "zustand": "^5.0.13"
   },
   "devDependencies": {
     "@types/react": "^19.0.0",
