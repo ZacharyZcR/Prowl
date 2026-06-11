@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1.7
-FROM golang:1.25-alpine AS builder
+FROM golang:1.26-alpine AS builder
 
 WORKDIR /build
 
@@ -19,7 +19,7 @@ RUN --mount=type=cache,target=/go/pkg/mod \
     -o server ./cmd/server
 
 # Development stage: source is usually mounted by docker-compose.dev.yml.
-FROM golang:1.25-alpine AS dev
+FROM golang:1.26-alpine AS dev
 WORKDIR /app
 COPY go.mod go.sum ./
 COPY third_party ./third_party
