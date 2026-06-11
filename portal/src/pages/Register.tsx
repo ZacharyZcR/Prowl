@@ -16,9 +16,21 @@ export default function Register() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError("");
+    if (username.length < 3) {
+      setError(t("auth.usernameTooShort"));
+      return;
+    }
+    if (password.length < 6) {
+      setError(t("auth.passwordTooShort"));
+      return;
+    }
     setLoading(true);
     try {
-      await api.post("/api/v1/portal/auth/register", { username, password, email });
+      await api.post("/api/v1/portal/auth/register", {
+        username,
+        password,
+        ...(email ? { email } : {}),
+      });
       navigate("/login");
     } catch (err) {
       setError(err instanceof Error ? err.message : t("auth.registerFailed"));

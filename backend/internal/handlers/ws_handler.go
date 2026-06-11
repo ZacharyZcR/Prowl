@@ -24,6 +24,9 @@ func NewWSHandler(hub *server.Hub, authService *services.AuthService, allowedOri
 		authService: authService,
 		upgrader: websocket.Upgrader{
 			CheckOrigin: func(r *http.Request) bool {
+				if len(allowedOrigins) == 0 {
+					return true
+				}
 				origin := strings.TrimSpace(r.Header.Get("Origin"))
 				if origin == "" {
 					return true

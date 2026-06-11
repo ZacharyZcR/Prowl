@@ -42,6 +42,8 @@
     "registerSubtitle": "Create a new participant account",
     "loginFailed": "Login failed",
     "registerFailed": "Registration failed",
+    "usernameTooShort": "Username must be at least 3 characters",
+    "passwordTooShort": "Password must be at least 6 characters",
     "noAccount": "No account?",
     "hasAccount": "Already registered?",
     "goRegister": "Register",

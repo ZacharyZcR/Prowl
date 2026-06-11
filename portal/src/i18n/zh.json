@@ -42,6 +42,8 @@
     "registerSubtitle": "创建新的参赛账号",
     "loginFailed": "登录失败",
     "registerFailed": "注册失败",
+    "usernameTooShort": "用户名至少需要3个字符",
+    "passwordTooShort": "密码至少需要6个字符",
     "noAccount": "没有账号？",
     "hasAccount": "已有账号？",
     "goRegister": "去注册",
