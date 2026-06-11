@@ -127,7 +127,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: [cli-release, docker-backend, docker-frontend, docker-portal]
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           path: dist
           merge-multiple: true
