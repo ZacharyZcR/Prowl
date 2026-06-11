@@ -28,7 +28,7 @@ COPY . .
 EXPOSE 38080
 CMD ["go", "run", "./cmd/server"]
 
-FROM alpine:3.21
+FROM alpine:3.24
 
 RUN apk add --no-cache ca-certificates tzdata curl tini
 
