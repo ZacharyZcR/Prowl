@@ -117,7 +117,7 @@ jobs:
           GOARCH: ${{ matrix.goarch }}
           CGO_ENABLED: "0"
         run: go build -ldflags "-s -w -X main.version=${{ github.ref_name }}" -trimpath -o ../dist/prowl-${{ matrix.suffix }} ./cmd/prowl
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: prowl-${{ matrix.suffix }}
           path: dist/prowl-${{ matrix.suffix }}
