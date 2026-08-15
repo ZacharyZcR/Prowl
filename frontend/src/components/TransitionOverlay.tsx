@@ -32,7 +32,7 @@ export function TransitionOverlay() {
 
     tl.add(circlesRef.current!.querySelectorAll(".stc-transition__circle"), {
       scale: [0, 1],
-      delay: (_, i) => i * 100,
+      delay: (_, i) => (i ?? 0) * 100,
       duration: 800,
     }, 0);
 
