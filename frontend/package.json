@@ -37,7 +37,7 @@
     "react-dom": "^19.0.0",
     "react-error-boundary": "^6.1.1",
     "react-hook-form": "latest",
-    "react-i18next": "^15.4.0",
+    "react-i18next": "^17.0.11",
     "react-router-dom": "^7.1.1",
     "sonner": "^1.7.2",
     "tailwind-merge": "^3.5.0",
