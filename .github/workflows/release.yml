@@ -107,7 +107,7 @@ jobs:
             suffix: windows-amd64.exe
     steps:
       - uses: actions/checkout@v6
-      - uses: actions/setup-go@v5
+      - uses: actions/setup-go@v6
         with:
           go-version-file: cli/go.mod
       - name: Build
