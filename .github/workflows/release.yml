@@ -17,7 +17,7 @@ jobs:
     name: Verify Versions
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - name: Check version consistency
         run: ./scripts/verify-versions.sh "${{ github.ref_name }}"
 
@@ -26,7 +26,7 @@ jobs:
     needs: verify-versions
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: docker/login-action@v3
         with:
           registry: ghcr.io
@@ -48,7 +48,7 @@ jobs:
     needs: verify-versions
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: docker/login-action@v3
         with:
           registry: ghcr.io
@@ -68,7 +68,7 @@ jobs:
     needs: verify-versions
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: docker/login-action@v3
         with:
           registry: ghcr.io
@@ -106,7 +106,7 @@ jobs:
             goarch: amd64
             suffix: windows-amd64.exe
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: actions/setup-go@v6
         with:
           go-version-file: cli/go.mod
