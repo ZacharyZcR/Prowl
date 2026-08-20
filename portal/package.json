@@ -20,7 +20,7 @@
     "react-i18next": "^17.0.11",
     "react-router-dom": "^7.18.2",
     "sonner": "^1.7.2",
-    "zustand": "^5.0.14"
+    "zustand": "^5.0.15"
   },
   "devDependencies": {
     "@types/react": "^19.2.18",
